@@ -20,6 +20,7 @@ Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Pl
 - Raw es inmutable e idempotente por sha256. Los cálculos (variaciones, KPI) van en dbt, no en Python.
 - BigQuery sandbox hasta la fase 2: sin DML; modelos dbt como table/view; raw se recarga con load jobs WRITE_TRUNCATE.
 - User-Agent honesto con contacto y pausa entre solicitudes. No evadir bloqueos (WAF) de las fuentes.
+- Niveles de log: INFO hitos normales · WARNING inesperado pero la corrida siguió · ERROR la fuente falló y su dato no se guardó · CRITICAL la corrida no puede seguir (detalle en docs/plans/2026-10-30-0.7-logging.md).
 - Sin datos de empresas ni marca ASIVA en el repo (fixtures incluidos).
 
 ## Comandos
