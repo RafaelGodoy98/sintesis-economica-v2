@@ -1,0 +1,36 @@
+# Procedencia de cada fixture. test_fixtures.py verifica que los archivos coinciden con este manifiesto.
+# source_path: relativa a V1/input/ (V1 es el proyecto anterior; no está en este repo).
+# Todos se limpiaron con sanitize_xlsx.py: sin autor, "modificado por" ni ruta local. Las hojas no cambian.
+
+fixtures:
+  - file: ine_regional/energia_regional_2025-12.xlsx
+    source_id: energia_regional
+    data_period: 2025-12
+    source_path: INE_Regional/energia/2026-02/series-mensuales-energ%C3%ADa-2016-a-diciembre-2025.xlsx
+    sheets: [Generación, Distribución]
+    sha256_original: 851f54b4c49fe910f5ef4f30dc9c20715ff40ab49db190e5849df578cc6b5398
+    sha256: 262b7e67920646f0f6acffb3f9f67d4e2d11a863525797ee07e747f8365fb8e2
+
+  - file: ine_regional/exportaciones_regional_2025-11.xlsx
+    source_id: exportaciones_regional
+    data_period: 2025-11
+    source_path: INE_Regional/exportaciones/2026-01/series-mensuales-exportaciones-2016-a-noviembre-2025.xlsx
+    sheets: ["1", "2", "3", "4"]
+    sha256_original: d719ed97ae646c4cfe590e826bdf5d5f3083967d56eada4f7489b026d0fa3f4e
+    sha256: c63ef936c0f4db9716f2c7f8a45b45bfa438c4a105d9d0ddb8f97610dae1018a
+
+  - file: ine_regional/ipman_regional_2025-12.xlsx
+    source_id: ipman_regional
+    data_period: 2025-12
+    source_path: INE_Regional/manufacturera/2026-02/serie-indice-producci%C3%B3n-manufacturera-(ipman)-base-=-100-diciembre-2025.xlsx
+    sheets: [Indice General, División]
+    sha256_original: 79e3a12ad133575823c4ee9aa9067014dee51c0e4f212462462dea2e57ba0275
+    sha256: cda4fdb71da22fda9665209eab8c174d51b307f962ffd504dbe5069a84202bb4
+
+  - file: ine_regional/isup_regional_2025-12.xlsx
+    source_id: isup_regional
+    data_period: 2025-12
+    source_path: INE_Regional/supermercados/2026-01/series-mensuales-supermercado-2014-a-diciembre-2025.xlsx
+    sheets: ["1"]
+    sha256_original: 108dc63ddb956ee18c5ea82883e5e0d3f22316bf8b7e20f54b46cf10f14efe56
+    sha256: a6f2dabaf75121b7d88160c6a503bd3f350c3d6038b3b20fb708dfb846ee2931
