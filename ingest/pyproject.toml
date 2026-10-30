@@ -1,0 +1,10 @@
+[project]
+name = "sintesis-ingest"
+version = "0.1.0"
+description = "Ingesta de indicadores económicos hacia la capa raw (GCS) y BigQuery."
+requires-python = ">=3.13,<3.14"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

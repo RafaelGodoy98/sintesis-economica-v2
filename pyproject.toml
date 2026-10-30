@@ -1,0 +1,38 @@
+# Workspace raíz: herramientas de desarrollo compartidas. No es un paquete instalable.
+# dbt (transform/) queda fuera: tendrá su propio entorno en la fase 3.
+[project]
+name = "sintesis-economica-v2"
+version = "0.0.0"
+requires-python = ">=3.13,<3.14"
+dependencies = ["sintesis-ingest"]
+
+[dependency-groups]
+dev = [
+    "detect-secrets",
+    "pre-commit",
+    "pytest",
+    "ruff",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["ingest"]
+
+[tool.uv.sources]
+sintesis-ingest = { workspace = true }
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101"]
+
+[tool.pytest.ini_options]
+testpaths = ["ingest/tests"]
+addopts = "--import-mode=importlib"
