@@ -37,14 +37,16 @@ Cierra la tarea actual siguiendo estos pasos en orden. No te saltes ninguno; si 
 
 ## 7. Resumen para Rafael
 Termina con un mensaje breve que contenga:
-1. **Qué quedó** y el enlace al PR.
-2. **Para validar:** diff, cifras o resultados concretos, cada uno con su archivo.
-3. **Oportunidades de delegación:** qué hizo o pudo hacer un subagente o skill existente, y qué patrón se repitió (con su conteo en `docs/delegacion.md`).
-4. **Comandos para integrar**, descritos por lo que hace cada uno:
+1. **Qué se logró**, en 3–5 líneas de lenguaje simple y sin jerga: qué problema resuelve la tarea, qué se puede hacer
+   ahora que antes no, y para qué servirá más adelante en el proyecto. Rafael debe poder explicarlo con sus palabras.
+2. **Qué quedó** y el enlace al PR.
+3. **Para validar:** diff, cifras o resultados concretos, cada uno con su archivo.
+4. **Oportunidades de delegación:** qué hizo o pudo hacer un subagente o skill existente, y qué patrón se repitió (con su conteo en `docs/delegacion.md`).
+5. **Comandos para integrar**, descritos por lo que hace cada uno:
    ```bash
    git switch main
    git merge --ff-only <rama>        # main avanza a los commits de la tarea
    git push origin main              # GitHub cierra el PR
    git branch -d <rama> && git push origin --delete <rama>   # borra la rama integrada
    ```
-5. **Siguiente tarea** según el plan de fase.
+6. **Siguiente tarea** según el plan de fase.
