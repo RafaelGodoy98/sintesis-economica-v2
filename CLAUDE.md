@@ -9,6 +9,7 @@ Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Pl
 - Rafael valida y aprueba; no hacer merge, no correr `terraform apply`, no cambiar IAM sin que él lo pida.
 - Bindings IAM y la sección "Decisión" de los ADR los escribe Rafael. Claude puede revisarlos y explicarlos.
 - Al cerrar una tarea, listar explícitamente qué debe validar Rafael (diff, cifras, resultados).
+- Al cerrar una tarea, incluir "Oportunidades de delegación": qué pudo hacer un subagente/skill existente y qué patrón se repitió. Registrar en docs/delegacion.md; crear uno nuevo solo tras 2–3 repeticiones.
 - Explicar el porqué de cada decisión no obvia; Rafael está aprendiendo y debe poder defenderla.
 
 ## Reglas
