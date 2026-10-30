@@ -24,6 +24,7 @@ Cierra la tarea actual siguiendo estos pasos en orden. No te saltes ninguno; si 
 - `docs/delegacion.md`: suma repeticiones a los candidatos y agrega los patrones nuevos.
 - Si la tarea tocó una fuente: actualiza su ficha en `docs/fuentes.md`.
 - Si hubo un error que se repitió: propón una regla para `CLAUDE.md`, pero no la escribas sin la aprobación de Rafael.
+- Después de editar la documentación, corre `make lint` otra vez: los hooks de formato (fin de archivo, espacios) suelen corregir los `.md` recién editados y harían fallar el commit.
 
 ## 5. Commits
 - Separa código y documentación cuando ambos cambien: un commit `feat:`/`chore:`/`fix:` y otro `docs:`.
