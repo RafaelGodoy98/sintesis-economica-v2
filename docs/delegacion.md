@@ -15,3 +15,5 @@ Alimenta `docs/retrospectiva.md` al cierre del proyecto.
 | `agregar-serie` | skill | Sumar una serie a `dim_serie` + tests dbt | — | Fase 3 |
 | `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`). Usada en: skill; 0.7 (se agregó "Qué se logró") |
 | `v1-analista` sin recarga | aviso | Si la rama activa no tiene el archivo del agente, se descarga; vuelve con *Developer: Reload Window*. En 0.6 se usó Explore | 2026-10-30 · 0.6 | Observando |
+| Inspeccionar binarios con un script de librería estándar | patrón | Revisar metadatos y estructura de xlsx/whl sin abrir Excel ni instalar nada | 2026-10-30 · 0.6 (wheel); 0.8 (xlsx) | Observando (2 de 3): candidato a script en `ingest/tests/fixtures/` |
+| Falsos positivos de detect-secrets | aviso | Hashes sha256 en manifiestos; se registran en `.secrets.baseline` | 2026-10-30 · 0.8 | Observando |

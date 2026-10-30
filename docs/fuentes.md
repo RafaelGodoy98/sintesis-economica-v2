@@ -7,6 +7,7 @@ Recién con la ficha validada se planifica el conector de V2. Rutas citadas: rel
 | Fuente | `source_id` | Estado |
 |---|---|---|
 | Senado — proyectos de ley | `senado_proyectos_tramitacion`, `senado_leyes_publicadas` | Borrador, pendiente de validación |
+| INE regional | `empleo_regional`, `energia_regional`, `exportaciones_regional`, `ipman_regional`, `isup_regional` | Sin ficha; notas previas abajo (0.8) |
 
 ---
 
@@ -124,3 +125,18 @@ Campos que consume `sintesis/proyectos_ley/armar.py`. El armado del boletín que
 - `scripts/core/http.py:4-26` · `scripts/core/registro.py:209-218` · `scripts/main.py:10,19,26-43`
 - `scripts/core/almacenamiento.py:58,73-132` · `scripts/core/fuentes_urls.json:51-58` · `scripts/core/estado_descargas.json:54-59`
 - `sintesis/config.yaml:203-215` · `sintesis/proyectos_ley/armar.py:33,45-77,93-122` · `sintesis/correo/armar.py:148-174`
+
+---
+
+## INE regional — notas previas a la ficha (0.8)
+**Estado:** sin ficha. La ficha completa se hace en la fase 1, antes del conector.
+
+- **V1 nunca leyó estos xlsx con Python:** Power Query los consolidaba en `Tabulado_INE_Regional.xlsx` y Python leía
+  ese consolidado (`sintesis/lectores/base.py:139-210`). Las hojas y columnas del xlsx del INE no están documentadas en
+  V1: el parser de V2 se diseña mirando los fixtures (`ingest/tests/fixtures/ine_regional/`).
+- **La carpeta `AAAA-MM` de `V1/input/` es el mes de descarga, no el del dato** (inferido de los nombres): el dato va
+  1–2 meses atrás. El período se toma del nombre del archivo o de su contenido.
+- **Los PDF no se parseaban:** las cifras que solo salían del PDF llegaban a mano o vía GPT (`sintesis/config.yaml:15-17`).
+- **Pregunta abierta — empleo:** la noticia regional del INE trae casi solo el PDF; las cifras de empleo de V1 venían
+  de los cuadros estadísticos (`indicadores_principales_empleo.xlsx`, 2.ª iteración). Hay que decidir si
+  `empleo_regional` vía `ine_regional` se mantiene, cambia de conector o espera a la 2.ª iteración.
