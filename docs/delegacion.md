@@ -13,5 +13,5 @@ Alimenta `docs/retrospectiva.md` al cierre del proyecto.
 | `revisor-iam` | subagente | Revisar Terraform/IAM en solo lectura (mínimo privilegio) | — | Fase 2 |
 | `validador-cifras` | subagente | Comparar marts contra `contenido_AAAA-MM.yaml` de V1 | — | Fase 3 |
 | `agregar-serie` | skill | Sumar una serie a `dim_serie` + tests dbt | — | Fase 3 |
-| `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`) |
+| `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`). Usada en: skill; 0.7 (se agregó "Qué se logró") |
 | `v1-analista` sin recarga | aviso | Si la rama activa no tiene el archivo del agente, se descarga; vuelve con *Developer: Reload Window*. En 0.6 se usó Explore | 2026-10-30 · 0.6 | Observando |
