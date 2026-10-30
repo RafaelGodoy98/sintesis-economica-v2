@@ -26,5 +26,5 @@ Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Pl
 - make test · make lint · make run-local SOURCE=<id> · make dbt-build   (se completan a medida que existan)
 
 ## Convenciones
-- Código e identificadores en inglés; documentación de dominio en español (D5).
+- Código e identificadores en inglés; documentación de dominio en español (D5). Excepción: ids de fuentes y series (datos del dominio) en español, `snake_case` (p. ej. `empleo_regional`, `senado_leyes_publicadas`).
 - Commits pequeños, una rama y un PR por tarea.

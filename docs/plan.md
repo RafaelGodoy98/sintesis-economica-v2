@@ -386,7 +386,7 @@ Tomadas (30-10-2026):
 - **Orquestación:** Cloud Scheduler + Workflows. Sin Dagster.
 - **Forma de trabajo:** principios del traspaso de Claude Code adoptados con los ajustes de la sección 7.2.
 - **Prioridad:** este proyecto va primero. Del ETL personal solo se reutiliza el entorno WSL2 + Docker + uv (sección 9).
-- **D5 — Idioma del código:** código e identificadores en inglés; documentación de dominio (ADR, fichas de fuentes, plan) en español.
+- **D5 — Idioma del código:** código e identificadores en inglés; documentación de dominio (ADR, fichas de fuentes, plan) en español. Los ids de fuentes y series son datos del dominio y van en español (`snake_case`), igual que los verán GCS y BigQuery (ajuste del 30-10-2026, tarea 0.6).
 
 Abiertas:
 - **D1 — Repo público:** recomendado (es el portafolio). Implica sin datos de empresas, sin marca ASIVA, sin credenciales en el historial. Si alguna vez la clave de la API BDE estuvo en un repo, rotarla.

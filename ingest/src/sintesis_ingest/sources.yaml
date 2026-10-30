@@ -38,13 +38,13 @@ sources:
     keyword: supermercados
 
   # --- Senado: consulta avanzada, una fuente por estado del proyecto ---
-  - id: senado_bills_in_progress
+  - id: senado_proyectos_tramitacion
     name: Proyectos de ley en tramitación (Senado)
     connector: senado
     status: T
     date_field: ingreso
 
-  - id: senado_laws_published
+  - id: senado_leyes_publicadas
     name: Leyes publicadas (Senado)
     connector: senado
     status: L

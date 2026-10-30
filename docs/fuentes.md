@@ -6,11 +6,11 @@ Recién con la ficha validada se planifica el conector de V2. Rutas citadas: rel
 
 | Fuente | `source_id` | Estado |
 |---|---|---|
-| Senado — proyectos de ley | `senado_bills_in_progress`, `senado_laws_published` | Borrador, pendiente de validación |
+| Senado — proyectos de ley | `senado_proyectos_tramitacion`, `senado_leyes_publicadas` | Borrador, pendiente de validación |
 
 ---
 
-## Senado de Chile — proyectos de ley (`senado_bills_in_progress`, `senado_laws_published`)
+## Senado de Chile — proyectos de ley (`senado_proyectos_tramitacion`, `senado_leyes_publicadas`)
 
 En V2 son **dos fuentes** en `sources.yaml` (una por estado: `T` en tramitación, `L` publicada), cada una con su propio raw. En V1 el registro tenía un solo id (`senado`) que el conector no usaba.
 

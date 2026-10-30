@@ -27,7 +27,7 @@ def test_packaged_catalog_loads():
     catalog = load_sources()
     ids = [s.id for s in catalog.sources]
     assert "empleo_regional" in ids
-    assert "senado_bills_in_progress" in ids
+    assert "senado_proyectos_tramitacion" in ids
     assert len(ids) == len(set(ids))
 
 
