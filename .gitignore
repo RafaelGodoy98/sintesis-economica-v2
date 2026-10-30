@@ -55,3 +55,6 @@ desktop.ini
 
 # --- Claude Code (preferencias locales) ---
 .claude/settings.local.json
+
+# --- Editor (configuración personal) ---
+.vscode/
