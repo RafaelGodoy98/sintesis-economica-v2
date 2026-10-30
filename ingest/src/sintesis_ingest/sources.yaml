@@ -1,0 +1,51 @@
+# Catálogo de fuentes: QUÉ se descarga. Igual en todos los entornos.
+# Dónde se guarda y con qué credenciales va por variables de entorno (config.py, .env.example).
+# Cada `connector` acepta solo sus propios campos; uno mal escrito hace fallar la carga.
+# Fichas de cada fuente: docs/fuentes.md.
+
+sources:
+  # --- INE regional: boletín más reciente cuyo título contiene `keyword` (región 5 = Valparaíso) ---
+  - id: empleo_regional
+    name: Empleo Regional
+    connector: ine_regional
+    region: 5
+    keyword: empleo
+
+  - id: energia_regional
+    name: Energía Regional
+    connector: ine_regional
+    region: 5
+    keyword: energía eléctrica
+
+  - id: exportaciones_regional
+    name: Exportaciones Regional
+    connector: ine_regional
+    region: 5
+    keyword: exportaciones
+    file_names:
+      xlsx: exportaciones_series_mensuales.xlsx
+
+  - id: ipman_regional
+    name: Manufactura Regional (IPMAN)
+    connector: ine_regional
+    region: 5
+    keyword: manufacturera
+
+  - id: isup_regional
+    name: Supermercados Regional (ISUP)
+    connector: ine_regional
+    region: 5
+    keyword: supermercados
+
+  # --- Senado: consulta avanzada, una fuente por estado del proyecto ---
+  - id: senado_bills_in_progress
+    name: Proyectos de ley en tramitación (Senado)
+    connector: senado
+    status: T
+    date_field: ingreso
+
+  - id: senado_laws_published
+    name: Leyes publicadas (Senado)
+    connector: senado
+    status: L
+    date_field: publicacion

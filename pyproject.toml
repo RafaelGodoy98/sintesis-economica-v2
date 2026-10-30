@@ -26,6 +26,7 @@ sintesis-ingest = { workspace = true }
 [tool.ruff]
 line-length = 110
 target-version = "py313"
+src = ["ingest/src"]  # para que ruff reconozca sintesis_ingest como código propio al ordenar imports
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "S"]
