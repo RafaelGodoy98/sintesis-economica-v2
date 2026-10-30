@@ -1,0 +1,57 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# --- Secretos y credenciales (nunca al repo) ---
+.env
+.env.*
+!.env.example
+*credentials*.json
+*-key.json
+application_default_credentials.json
+*.pem
+
+# --- Datos locales (la fuente de verdad es GCS) ---
+data/
+
+# --- Terraform ---
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfplan
+
+# --- dbt ---
+transform/target/
+transform/dbt_packages/
+transform/logs/
+transform/.user.yml
+
+# --- Basura heredada de V1 / Office ---
+~$*
+*.bak
+*.tmp
+
+# --- Sistema operativo y editores ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*:Zone.Identifier
+.idea/
+
+# --- Claude Code (preferencias locales) ---
+.claude/settings.local.json
