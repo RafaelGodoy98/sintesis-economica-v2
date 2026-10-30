@@ -2,7 +2,16 @@
   "permissions": {
     "deny": [
       "Read(//**/.env.local)",
-      "Read(//**/.env)"
+      "Read(//**/.env)",
+      "Edit(//mnt/c/Users/rafae/Workspace Rafael/02_Trabajo/Codes/Sintesis Economica/V1/**)",
+      "Bash(terraform apply*)",
+      "Bash(terraform destroy*)",
+      "Bash(gcloud * add-iam-policy-binding*)",
+      "Bash(gcloud * set-iam-policy*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(gh pr merge*)"
     ]
   }
 }
