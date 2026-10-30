@@ -34,7 +34,7 @@ y que demuestre las competencias que piden roles de data engineer junior / desar
 
 - Ingesta containerizada (Docker) corriendo en **Cloud Run Jobs**, programada con **Cloud Scheduler**.
 - Data lake en **Cloud Storage** (capa raw inmutable) y warehouse en **BigQuery**.
-- Transformación y calidad de datos con **dbt** (tests, freshness, documentación).
+- Transformación y calidad de datos con **Dataform** (assertions, linaje, documentación; ADR-0001, que reemplazó a dbt).
 - Infraestructura como código con **Terraform**, incluido IAM con mínimo privilegio y **Secret Manager**.
 - CI/CD con **GitHub Actions** autenticado vía **Workload Identity Federation** (sin llaves JSON).
 - Observabilidad: logs estructurados, tabla de auditoría de ejecuciones, alertas.
@@ -44,12 +44,12 @@ y que demuestre las competencias que piden roles de data engineer junior / desar
 
 | Función de V1 | Decisión en V2 | Motivo |
 |---|---|---|
-| Power Query | **Se reemplaza** por parsers Python + dbt | Es el núcleo del ejercicio |
+| Power Query | **Se reemplaza** por parsers Python + Dataform | Es el núcleo del ejercicio |
 | Boletín PDF, correo Mailchimp, carrusel | Fuera del núcleo. Fase 6 opcional: un job que lee los marts y genera gráficos | La "última milla" editorial no es data engineering; V1 puede seguir usándose para publicar |
 | Textos GPT, cifras desde PDF | Fuera | Proceso manual/semimanual, no reproducible |
 | Venta de energía (Chilquinta/CGE) | Fuera (o datos sintéticos claramente rotulados) | Datos no públicos: no pueden ir en un repo público |
 | Nota de prensa IMACEC (PDF tras WAF) | Fuera. **IMACEC se obtiene de la API BDE** del Banco Central | No se evade un WAF; la API es la vía oficial |
-| Calendario de publicaciones en Excel | Seed CSV de dbt | Versionable y testeable |
+| Calendario de publicaciones en Excel | CSV versionado cargado a BigQuery (equivalente a un *seed*; se define en la fase 3) | Versionable y testeable |
 | `estado_descargas.json`, `_Histórico/`, `reporte.py` | Tabla de auditoría en BigQuery + versionado/ciclo de vida de GCS | Idempotencia por hash, no por nombre de archivo |
 | Aduana | Opcional (fase tardía) | Suma volumen, no competencias nuevas |
 
@@ -76,8 +76,8 @@ Cloud Workflows: pipeline_sintesis
         │       fuente → GCS raw (archivo original, inmutable)
         │       parser → BigQuery raw.observaciones (formato largo)
         │       registro → BigQuery ops.ejecuciones (auditoría)
-        ├─▶ Cloud Run Job  "dbt"      (SA: sa-dbt)
-        │       dbt source freshness → dbt build (modelos + tests)
+        ├─▶ Dataform (invocado por Workflows; SA: sa-dataform)
+        │       tablas stg/marts + assertions (ADR-0001)
         └─▶ en error: log estructurado → alerta (Cloud Monitoring → email)
 
 Consumo: Looker Studio sobre marts  |  (opcional) job "reportes" que genera gráficos desde marts
@@ -85,9 +85,9 @@ Consumo: Looker Studio sobre marts  |  (opcional) job "reportes" que genera grá
 
 **Por qué Cloud Workflows y no Composer/Dagster (decidido, ver ADR-0002):** Composer (Airflow gestionado) tiene costo
 fijo alto. Dagster habría que alojarlo (Dagster+ es pago; autoalojado requiere un servicio siempre encendido y una base
-de datos), y a esta escala (≈ 10 fuentes, corrida diaria o mensual, una dependencia lineal ingest → dbt) no aporta
+de datos), y a esta escala (≈ 10 fuentes, corrida diaria o mensual, una dependencia lineal ingest → Dataform) no aporta
 nada que Workflows no haga. Workflows es nativo, cae en el nivel gratuito y obliga a entender IAM entre servicios.
-dbt ya entrega el grafo de dependencias y el linaje de la parte de transformación.
+Dataform ya entrega el grafo de dependencias y el linaje de la parte de transformación.
 
 ### Capas de datos
 
@@ -95,8 +95,8 @@ dbt ya entrega el grafo de dependencias y el linaje de la parte de transformaci�
 |---|---|---|---|
 | Landing / raw files | `gs://<proyecto>-raw/source=<fuente>/dataset=<x>/ingest_date=AAAA-MM-DD/<sha256>_<nombre>` | Archivo tal como lo entrega la fuente | Inmutable. Mismo hash = no se vuelve a subir |
 | Raw tables | BigQuery `raw` | `observaciones`: `source_id, serie_id, periodo (DATE), valor (NUMERIC), unidad, archivo_uri, file_sha256, run_id, ingested_at` | Solo se agrega. Particionada por `ingested_at`, cluster por `serie_id` |
-| Staging | `stg` (dbt) | Tipos, nombres, deduplicación, **última vintage por (serie, periodo)** | Una vista por fuente |
-| Marts | `marts` (dbt) | `dim_serie`, `fct_observacion_mensual`, `mart_kpi_edicion`, `mart_comparacion_indicador`, `mart_proyectos_ley` | Lo que consume el reporte/dashboard |
+| Staging | `stg` (Dataform) | Tipos, nombres, deduplicación, **última vintage por (serie, periodo)** | Una vista por fuente |
+| Marts | `marts` (Dataform) | `dim_serie`, `fct_observacion_mensual`, `mart_kpi_edicion`, `mart_comparacion_indicador`, `mart_proyectos_ley` | Lo que consume el reporte/dashboard |
 | Ops | `ops` | `ejecuciones` (run_id, fuente, estado, archivos, filas, duración, error) | Reemplaza `reporte.py` y el JSON de estado |
 
 **Concepto clave a demostrar: vintages.** El INE y el Banco Central revisan cifras. Guardar cada carga con su
@@ -108,7 +108,7 @@ Es un tema que aparece en entrevistas y V1 no lo resuelve.
 | Service account | Permisos (a nivel de recurso, no de proyecto cuando sea posible) |
 |---|---|
 | `sa-ingest` | `storage.objectCreator` en bucket raw · `bigquery.dataEditor` en dataset `raw` y `ops` · `bigquery.jobUser` en proyecto · `secretmanager.secretAccessor` **solo** en el secreto de la API BDE |
-| `sa-dbt` | `bigquery.dataViewer` en `raw` · `bigquery.dataEditor` en `stg`, `marts` · `bigquery.jobUser` |
+| `sa-dataform` (a confirmar en la fase 2) | `bigquery.dataViewer` en `raw` · `bigquery.dataEditor` en `stg`, `marts` · `bigquery.jobUser` |
 | `sa-workflows` | `run.invoker` (o `run.developer` para ejecutar jobs) sobre los dos jobs · `logging.logWriter` |
 | `sa-scheduler` | `workflows.invoker` sobre el workflow |
 | `sa-ci` (GitHub Actions vía WIF) | `artifactregistry.writer` en el repo de imágenes · permisos de deploy acotados · lectura del bucket de estado de Terraform |
@@ -142,7 +142,7 @@ sintesis-economica-v2/
 │   │   ├── fixtures/         # HTML/JSON/xlsx reales guardados (de /V1/input)
 │   │   └── test_*.py
 │   └── Dockerfile
-├── transform/                # proyecto dbt
+├── transform/                # repositorio Dataform (ADR-0001)
 │   ├── models/{staging,marts}/
 │   ├── seeds/                # dim_serie.csv (desfase esperado, unidad, fuente), calendario.csv
 │   ├── tests/                # tests genéricos propios (p. ej. dato_al_dia)
@@ -150,13 +150,13 @@ sintesis-economica-v2/
 │   └── Dockerfile
 ├── infra/                    # Terraform
 │   ├── bootstrap/            # bucket de estado, APIs, WIF (se aplica una vez, a mano)
-│   ├── modules/{ingest_job,dbt_job,pipeline}/
+│   ├── modules/{ingest_job,dataform,pipeline}/
 │   └── envs/{dev,prod}/      # main.tf + terraform.tfvars
 ├── orchestration/workflow.yaml
 ├── k8s/                      # fase 7 opcional: cronjob.yaml
 ├── .github/workflows/        # ci.yml (PR), deploy.yml (main)
 ├── docker-compose.yml        # correr ingest localmente con almacenamiento local
-├── Makefile                  # make test | make run-local | make dbt-build | make plan
+├── Makefile                  # make test | make run-local | make transform | make plan
 └── .pre-commit-config.yaml   # ruff, ruff-format, sqlfluff, terraform fmt, detect-secrets
 ```
 
@@ -168,7 +168,7 @@ Cada fase termina en algo que funciona y se puede mostrar. No pasar a la siguien
 
 **Orden de ejecución (por la restricción de costo, sección 6):** 0 → 1 → 3 (sobre BigQuery sandbox, en local) →
 activar prueba gratuita → 2 → 4 → 5 → 6. La fase 3 sobre sandbox usa autenticación con tu usuario (`gcloud auth
-application-default login`); en la fase 4 pasa a la service account `sa-dbt`.
+application-default login`); en la fase 4 pasa a la service account `sa-dataform`.
 
 ### Fase 0 — Fundaciones (local, sin GCP) · ~1 semana
 **Aprendes:** estructura de proyecto Python profesional, git, tooling.
@@ -185,7 +185,7 @@ application-default login`); en la fase 4 pasa a la service account `sa-dbt`.
 - Interfaz común: `Connector.discover() -> list[RemoteFile]`, `fetch()`, y un `Parser.parse(bytes) -> Iterable[Observation]`.
 - Portar los 3 conectores del MVP desde V1 conservando la lógica de descubrimiento, sin la lógica de archivado en Drive.
 - `Storage` con dos implementaciones (local y GCS). Idempotencia por `sha256`: si el objeto existe, no se sube ni se recarga.
-- Parsers que reemplazan Power Query: cada xlsx → formato largo `(serie_id, periodo, valor)`. Solo limpieza estructural; **los cálculos (var. 12 meses, KPI) van a dbt**.
+- Parsers que reemplazan Power Query: cada xlsx → formato largo `(serie_id, periodo, valor)`. Solo limpieza estructural; **los cálculos (var. 12 meses, KPI) van a Dataform**.
 - Tests: cada parser contra su fixture, con asserts sobre cantidad de filas, rango de fechas y algunos valores conocidos (cotejados con el boletín).
 - `Dockerfile` multi-stage, imagen slim, usuario no root. `docker compose run ingest --source senado` funciona en local.
 - **Listo cuando:** en local, con Docker, una corrida baja las 3 fuentes, deja archivos en `./data/raw` y un parquet/CSV de observaciones, y una segunda corrida no duplica nada.
@@ -198,8 +198,13 @@ application-default login`); en la fase 4 pasa a la service account `sa-dbt`.
 - Escribir los bindings IAM a mano tú mismo, aunque Claude Code proponga el resto: es lo que se pregunta en entrevistas.
 - **Listo cuando:** `terraform destroy && terraform apply` reconstruye todo desde cero sin pasos de consola, salvo cargar el secreto.
 
-### Fase 3 — BigQuery + dbt · ~2 semanas
-**Aprendes:** modelado analítico, dbt, calidad de datos, costos de BigQuery.
+### Fase 3 — BigQuery + Dataform · ~2 semanas
+> **Nota (2026-10-30, ADR-0001):** la transformación pasó de dbt a Dataform. Los puntos de esta fase y de las fases 4–5
+> que nombran funciones de dbt (freshness, seeds, `dbt docs`, `dbt build --target ci`) se reescriben con sus
+> equivalentes en Dataform al planificar la fase 3, después de verificar que Dataform funciona con el sandbox.
+> Si no funciona, se vuelve a dbt con un ADR nuevo (plan B).
+
+**Aprendes:** modelado analítico, Dataform, calidad de datos, costos de BigQuery.
 - `warehouse.py`: carga con *load jobs* desde GCS (parquet), esquema explícito, tabla particionada y clusterizada.
 - dbt: `sources.yml` con **freshness** (reemplaza parte de `verificar.py`); staging por fuente; dedupe de vintages; marts.
 - Seeds: `dim_serie` (id, nombre, unidad, fuente, frecuencia, `desfase_meses` heredado de `config.yaml` de V1), calendario.
@@ -212,8 +217,8 @@ application-default login`); en la fase 4 pasa a la service account `sa-dbt`.
 
 ### Fase 4 — Despliegue y orquestación · ~1–2 semanas
 **Aprendes:** Cloud Run Jobs, Scheduler, Workflows, observabilidad.
-- Módulos Terraform `ingest_job`, `dbt_job` (Cloud Run Jobs, cada uno con su SA, timeout, reintentos, límites de CPU/memoria).
-- `workflow.yaml`: ingest → dbt freshness → dbt build; manejo de error con log `severity=ERROR`.
+- Módulos Terraform `ingest_job` (Cloud Run Job, cada uno con su SA, timeout, reintentos, límites de CPU/memoria).
+- `workflow.yaml`: ingest → invocación de Dataform; manejo de error con log `severity=ERROR`.
 - Cloud Scheduler con zona horaria `America/Santiago`.
 - Alerta en Cloud Monitoring: política basada en logs de error del workflow/jobs → email.
 - Riesgo a vigilar: algunos sitios del Estado bloquean IPs de nubes públicas. Si el INE bloquea Cloud Run, documentarlo en un ADR y evaluar alternativas legítimas (contactar a la fuente, frecuencia menor) antes que evasión.
@@ -248,14 +253,14 @@ application-default login`); en la fase 4 pasa a la service account `sa-dbt`.
 - **Prueba gratuita:** USD 300 por 90 días. Pide tarjeta, pero no cobra: si no se actualiza manualmente a cuenta
   pagada, al terminar se cierra y los recursos se detienen (30 días de gracia). El reloj de 90 días corre desde la activación.
 - Consecuencia en el diseño:
-  1. **Fases 0, 1 y 3 se hacen sin tarjeta**: local + Docker + dbt contra BigQuery sandbox.
+  1. **Fases 0, 1 y 3 se hacen sin tarjeta**: local + Docker + Dataform contra BigQuery sandbox (a verificar, ADR-0001).
   2. Se activa la prueba gratuita **recién al empezar la fase 2**, con las fases 2, 4 y 5 planificadas para caber en 90 días.
-  3. Por la falta de DML en sandbox: modelos dbt materializados como `table`/`view` (no `incremental` con `merge`),
+  3. Por la falta de DML en sandbox: tablas de Dataform materializadas como `table`/`view` (no `incremental` con `merge`),
      y la capa raw se recarga completa desde los archivos con *load jobs* (`WRITE_TRUNCATE`). Los archivos raw son la
      fuente de verdad; BigQuery se puede reconstruir en cualquier momento. Esto además es buena práctica.
   4. Por la expiración de 60 días: nada en BigQuery sandbox es permanente; `make rebuild` debe dejar todo como estaba.
   5. Incrementales con `merge` se introducen en la fase 3b, ya con facturación, como mejora documentada en un ADR.
-- Al cerrar la prueba: `terraform destroy` y el repo queda como evidencia (README, capturas, docs de dbt, historial de CI).
+- Al cerrar la prueba: `terraform destroy` y el repo queda como evidencia (README, capturas, linaje de Dataform, historial de CI).
 
 ### Uso del crédito
 
@@ -276,7 +281,7 @@ en un punto de validación explícito.
 
 1. **El contexto vive en el repo, no en los chats.** `CLAUDE.md`, `docs/plan.md` (este archivo, movido al repo), `docs/adr/`, `docs/fuentes.md`.
 2. **Una sesión por tarea, corta.** Sesión nueva cuando cambia la tarea o el contexto se llenó.
-3. **Plan primero.** Plan mode en toda tarea no trivial; obligatorio en Terraform, IAM y modelos dbt nuevos.
+3. **Plan primero.** Plan mode en toda tarea no trivial; obligatorio en Terraform, IAM y tablas nuevas de Dataform.
 4. **Delegación por riesgo:** lectura → verificación → construcción. Sin modo auto ni bypass de permisos durante el proyecto.
 5. **Lo que se pregunta en entrevistas lo hace Rafael:** bindings IAM, decisión de cada ADR, valores de referencia de los tests, validación cruzada con V1, merge a `main`.
 6. **Configurar por necesidad.** Skills, hooks y subagentes nuevos se crean tras repetir algo 2–3 veces.

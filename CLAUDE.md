@@ -1,6 +1,6 @@
 # Síntesis Económica V2
 
-Pipeline ELT de indicadores económicos de la Región de Valparaíso y Chile: descarga → GCS (raw) → BigQuery → dbt.
+Pipeline ELT de indicadores económicos de la Región de Valparaíso y Chile: descarga → GCS (raw) → BigQuery → Dataform (ADR-0001).
 Proyecto de portafolio: debe correr sin intervención de su autor y cada decisión debe poder defenderse.
 Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Planes por tarea: docs/plans/.
 
@@ -17,14 +17,14 @@ Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Pl
 - Nunca leer ni copiar V1/scripts/core/.env.local.
 - Sin rutas absolutas en el código. Toda configuración por variables de entorno (pydantic-settings) o sources.yaml.
 - Nunca credenciales en código, tfvars, fixtures ni logs. La API BDE pasa usuario/clave en la URL: no loguear URLs completas.
-- Raw es inmutable e idempotente por sha256. Los cálculos (variaciones, KPI) van en dbt, no en Python.
-- BigQuery sandbox hasta la fase 2: sin DML; modelos dbt como table/view; raw se recarga con load jobs WRITE_TRUNCATE.
+- Raw es inmutable e idempotente por sha256. Los cálculos (variaciones, KPI) van en Dataform (SQL), no en Python.
+- BigQuery sandbox hasta la fase 2: sin DML; tablas de Dataform como table/view; raw se recarga con load jobs WRITE_TRUNCATE.
 - User-Agent honesto con contacto y pausa entre solicitudes. No evadir bloqueos (WAF) de las fuentes.
 - Niveles de log: INFO hitos normales · WARNING inesperado pero la corrida siguió · ERROR la fuente falló y su dato no se guardó · CRITICAL la corrida no puede seguir (detalle en docs/plans/2026-10-30-0.7-logging.md).
 - Sin datos de empresas ni marca ASIVA en el repo (fixtures incluidos).
 
 ## Comandos
-- make test · make lint · make run-local SOURCE=<id> · make dbt-build   (se completan a medida que existan)
+- make test · make lint · make run-local SOURCE=<id> · make transform   (se completan a medida que existan)
 
 ## Convenciones
 - Código e identificadores en inglés; documentación de dominio en español (D5). Excepción: ids de fuentes y series (datos del dominio) en español, `snake_case` (p. ej. `empleo_regional`, `senado_leyes_publicadas`).
