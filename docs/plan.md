@@ -222,6 +222,7 @@ a la service account `sa-dataform`.
 ### Fase 3 — Fundación GCP con Terraform · ~1–2 semanas
 > **Al empezar esta fase se activa la prueba gratuita de 90 días** (sección 6): las fases 3, 4 y 5 deben caber en ese plazo.
 **Aprendes:** Terraform, IAM, Secret Manager, gestión de costos.
+- **Antes de autenticar `gcloud` en local: reevaluar el sandbox de Claude Code** (postergado en la tarea 1.1a). Las credenciales de GCP dan acceso a la cuenta de nube y valen mucho más que la clave BDE.
 - `infra/bootstrap`: bucket de estado remoto (con versionado), habilitación de APIs, presupuesto con alertas (budget de billing).
 - Recursos: buckets (raw con lifecycle hacia Nearline/Coldline), datasets BQ (`raw`, `stg`, `marts`, `ops`) con descripción y labels, Artifact Registry, Secret Manager (el **valor** del secreto se carga a mano con `gcloud`, nunca en Terraform/tfvars), service accounts y bindings de la tabla IAM.
 - Separación dev/prod (ver D3).
@@ -422,6 +423,9 @@ Tomadas (30-10-2026):
 Abiertas:
 - **D1 — Repo público:** recomendado (es el portafolio). Implica sin datos de empresas, sin marca ASIVA, sin credenciales en el historial. Si alguna vez la clave de la API BDE estuvo en un repo, rotarla.
 - **D3 — Entornos:** con la prueba gratuita, un solo proyecto GCP con datasets `dev_*`/`prod_*` y Terraform parametrizado por entorno (dos proyectos duplican recursos y consumen crédito sin enseñar mucho más). El README explica cómo sería con dos proyectos.
+- **Policy tags (sugerencia de un experto, 2026-11-03):** marcar las columnas sensibles con *policy tags* de BigQuery
+  (seguridad por columna: solo ciertos grupos las ven). Hoy las fuentes son estadísticas públicas sin datos personales,
+  así que su valor sería demostrar la técnica. Evaluar en la fase 3: si requiere facturación y qué columna lo justificaría.
 
 ## 9. Entorno de desarrollo (heredado del ETL personal)
 

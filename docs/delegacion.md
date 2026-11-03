@@ -13,8 +13,9 @@ Alimenta `docs/retrospectiva.md` al cierre del proyecto.
 | `revisor-iam` | subagente | Revisar Terraform/IAM en solo lectura (mínimo privilegio) | — | Fase 3 |
 | `validador-cifras` | subagente | Comparar marts contra `contenido_AAAA-MM.yaml` de V1 | — | Fase 2 |
 | `agregar-serie` | skill | Sumar una serie a `dim_serie` + assertions de Dataform | — | Fase 2 |
-| `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`). Usada en: skill; 0.7 (se agregó "Qué se logró"); 0.8; 0.9; replan; 1.0 |
+| `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`). Usada en: skill; 0.7 (se agregó "Qué se logró"); 0.8; 0.9; replan; 1.0; 1.1a |
 | `v1-analista` sin recarga | aviso | Si la rama activa no tiene el archivo del agente, se descarga; vuelve con *Developer: Reload Window*. En 0.6 se usó Explore | 2026-10-30 · 0.6 | Observando |
 | Inspeccionar binarios con un script de librería estándar | patrón | Revisar metadatos y estructura de xlsx/whl sin abrir Excel ni instalar nada | 2026-10-30 · 0.6 (wheel); 0.8 (xlsx) | Observando (2 de 3): candidato a script en `ingest/tests/fixtures/` |
 | Falsos positivos de detect-secrets | aviso | Hashes sha256 en manifiestos; se registran en `.secrets.baseline` | 2026-10-30 · 0.8 | Observando |
-| `web-fetch` para verificar documentación externa | subagente (incluido) | Comprobar capacidades de una herramienta antes de afirmarlas en un ADR | 2026-10-30 · 0.9 (dlt) | Usado; repetir antes de afirmar precios o límites (fase 3) |
+| `web-fetch` para verificar documentación externa | subagente (incluido) | Comprobar capacidades de una herramienta antes de afirmarlas en un ADR | 2026-10-30 · 0.9 (dlt); 2026-11-03 · 1.1a (sandbox) | Usado 2 veces; repetir antes de afirmar precios o límites (fase 3) |
+| `configurar-repo` | skill de usuario (`~/.claude/skills/`) | Preguntar preferencias una vez y armar un repo nuevo (uv, ruff, pytest, pre-commit, Makefile, README, .gitignore, .env y secretos, ¿sandbox?) | Fase 0 completa (0.2, 0.5, 0.6, 1.1a) | Pedido por Rafael el 2026-11-03; se arma al final de la sesión |

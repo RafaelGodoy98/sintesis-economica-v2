@@ -82,9 +82,11 @@ def test_non_snake_case_id_fails(tmp_path):
 
 
 @pytest.fixture
-def clean_env(monkeypatch):
+def clean_env(monkeypatch, tmp_path):
+    """Sin variables SINTESIS_* y en un directorio vacío: los tests nunca leen el .env real."""
     for name in ("ENV", "STORAGE_BACKEND", "LOCAL_DATA_DIR", "GCS_BUCKET", "CONTACT_EMAIL", "LOG_LEVEL"):
         monkeypatch.delenv(f"SINTESIS_{name}", raising=False)
+    monkeypatch.chdir(tmp_path)
     return monkeypatch
 
 
@@ -115,3 +117,22 @@ def test_settings_read_from_env(clean_env):
     clean_env.setenv("SINTESIS_ENV", "dev")
     settings = Settings()
     assert (settings.env, settings.gcs_bucket) == ("dev", "my-bucket")
+
+
+def test_settings_errors_do_not_show_values(clean_env, tmp_path):
+    fake = "SINTESIS_BDE_PASSWORD=s3cr3t-value\n"  # pragma: allowlist secret (valor falso de prueba)
+    (tmp_path / ".env").write_text(fake, encoding="utf-8")
+    with pytest.raises(ValidationError) as exc:
+        Settings()  # falta CONTACT_EMAIL
+    assert "contact_email" in str(exc.value)
+    assert "s3cr3t-value" not in str(exc.value)
+
+
+def test_settings_read_dotenv_and_env_wins(clean_env, tmp_path):
+    (tmp_path / ".env").write_text(
+        "SINTESIS_CONTACT_EMAIL=file@example.com\nSINTESIS_ENV=dev\n", encoding="utf-8"
+    )
+    clean_env.setenv("SINTESIS_ENV", "prod")
+    settings = Settings()
+    assert settings.contact_email == "file@example.com"  # viene del .env
+    assert settings.env == "prod"  # la variable de entorno le gana al archivo
