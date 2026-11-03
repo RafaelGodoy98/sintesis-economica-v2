@@ -45,11 +45,11 @@ y que demuestre las competencias que piden roles de data engineer junior / desar
 | Función de V1 | Decisión en V2 | Motivo |
 |---|---|---|
 | Power Query | **Se reemplaza** por parsers Python + Dataform | Es el núcleo del ejercicio |
-| Boletín PDF, correo Mailchimp, carrusel | Fuera del núcleo. Fase 6 opcional: un job que lee los marts y genera gráficos | La "última milla" editorial no es data engineering; V1 puede seguir usándose para publicar |
+| Boletín PDF, correo Mailchimp, carrusel | Fuera del núcleo. Fase 7 opcional: un job que lee los marts y genera gráficos | La "última milla" editorial no es data engineering; V1 puede seguir usándose para publicar |
 | Textos GPT, cifras desde PDF | Fuera | Proceso manual/semimanual, no reproducible |
 | Venta de energía (Chilquinta/CGE) | Fuera (o datos sintéticos claramente rotulados) | Datos no públicos: no pueden ir en un repo público |
 | Nota de prensa IMACEC (PDF tras WAF) | Fuera. **IMACEC se obtiene de la API BDE** del Banco Central | No se evade un WAF; la API es la vía oficial |
-| Calendario de publicaciones en Excel | CSV versionado cargado a BigQuery (equivalente a un *seed*; se define en la fase 3) | Versionable y testeable |
+| Calendario de publicaciones en Excel | CSV versionado cargado a BigQuery (equivalente a un *seed*; se define en la fase 2) | Versionable y testeable |
 | `estado_descargas.json`, `_Histórico/`, `reporte.py` | Tabla de auditoría en BigQuery + versionado/ciclo de vida de GCS | Idempotencia por hash, no por nombre de archivo |
 | Aduana | Opcional (fase tardía) | Suma volumen, no competencias nuevas |
 
@@ -108,7 +108,7 @@ Es un tema que aparece en entrevistas y V1 no lo resuelve.
 | Service account | Permisos (a nivel de recurso, no de proyecto cuando sea posible) |
 |---|---|
 | `sa-ingest` | `storage.objectCreator` en bucket raw · `bigquery.dataEditor` en dataset `raw` y `ops` · `bigquery.jobUser` en proyecto · `secretmanager.secretAccessor` **solo** en el secreto de la API BDE |
-| `sa-dataform` (a confirmar en la fase 2) | `bigquery.dataViewer` en `raw` · `bigquery.dataEditor` en `stg`, `marts` · `bigquery.jobUser` |
+| `sa-dataform` (a confirmar en la fase 3) | `bigquery.dataViewer` en `raw` · `bigquery.dataEditor` en `stg`, `marts` · `bigquery.jobUser` |
 | `sa-workflows` | `run.invoker` (o `run.developer` para ejecutar jobs) sobre los dos jobs · `logging.logWriter` |
 | `sa-scheduler` | `workflows.invoker` sobre el workflow |
 | `sa-ci` (GitHub Actions vía WIF) | `artifactregistry.writer` en el repo de imágenes · permisos de deploy acotados · lectura del bucket de estado de Terraform |
@@ -153,7 +153,7 @@ sintesis-economica-v2/
 │   ├── modules/{ingest_job,dataform,pipeline}/
 │   └── envs/{dev,prod}/      # main.tf + terraform.tfvars
 ├── orchestration/workflow.yaml
-├── k8s/                      # fase 7 opcional: cronjob.yaml
+├── k8s/                      # fase 8 opcional: cronjob.yaml
 ├── .github/workflows/        # ci.yml (PR), deploy.yml (main)
 ├── docker-compose.yml        # correr ingest localmente con almacenamiento local
 ├── Makefile                  # make test | make run-local | make transform | make plan
@@ -166,9 +166,18 @@ sintesis-economica-v2/
 
 Cada fase termina en algo que funciona y se puede mostrar. No pasar a la siguiente sin cumplir el "listo cuando".
 
-**Orden de ejecución (por la restricción de costo, sección 6):** 0 → 1 → 3 (sobre BigQuery sandbox, en local) →
-activar prueba gratuita → 2 → 4 → 5 → 6. La fase 3 sobre sandbox usa autenticación con tu usuario (`gcloud auth
-application-default login`); en la fase 4 pasa a la service account `sa-dataform`.
+**Estrategia: rebanada vertical (*walking skeleton*), decidida el 2026-11-02.** Primero una sola fuente, el Banco
+Central (UF/IMACEC), recorre todo el pipeline: ingesta → BigQuery → Dataform → Terraform → orquestación → CI/CD.
+Después se ensancha con las demás fuentes (fase 6). Motivos: los riesgos (Dataform con el sandbox) y las competencias
+menos conocidas están en las fases de nube; un pipeline completo con una fuente vale más que uno a medias con tres; y el
+contrato de conectores (ADR-0003) se valida con una fuente real antes de generalizarlo.
+
+**Orden = numeración (por el costo, sección 6):** 0 → 1 → 2 (sandbox, sin tarjeta) → activar prueba gratuita → 3 → 4 →
+5 → 6 → 7 → 8. La fase 2 usa autenticación con tu usuario (`gcloud auth application-default login`); en la fase 4 pasa
+a la service account `sa-dataform`.
+
+> **Renumeración (2026-11-02).** Antes → ahora: 1 → 1 (solo Banco Central) · 3 → 2 · 2 → 3 · 4 → 4 · 5 → 5 · (nueva) → 6
+> ensanche · 6 → 7 · 7 → 8. Los planes de tareas cerradas antes de esa fecha usan la numeración anterior.
 
 ### Fase 0 — Fundaciones (local, sin GCP) · ~1 semana
 **Aprendes:** estructura de proyecto Python profesional, git, tooling.
@@ -180,31 +189,26 @@ application-default login`); en la fase 4 pasa a la service account `sa-dataform
 - Copiar a `tests/fixtures/` una muestra de los xlsx/PDF de `/V1/input` y HTML guardados de cada fuente.
 - **Listo cuando:** `make test` pasa en una máquina limpia y `pre-commit run --all-files` no reclama.
 
-### Fase 1 — Ingesta refactorizada + Docker · ~2 semanas
-**Aprendes:** diseño de conectores, idempotencia, contenedores.
-- Interfaz común: `Connector.discover() -> list[RemoteFile]`, `fetch()`, y un `Parser.parse(bytes) -> Iterable[Observation]`.
-- Portar los 3 conectores del MVP desde V1 conservando la lógica de descubrimiento, sin la lógica de archivado en Drive.
-- `Storage` con dos implementaciones (local y GCS). Idempotencia por `sha256`: si el objeto existe, no se sube ni se recarga.
-- Parsers que reemplazan Power Query: cada xlsx → formato largo `(serie_id, periodo, valor)`. Solo limpieza estructural; **los cálculos (var. 12 meses, KPI) van a Dataform**.
-- Tests: cada parser contra su fixture, con asserts sobre cantidad de filas, rango de fechas y algunos valores conocidos (cotejados con el boletín).
-- `Dockerfile` multi-stage, imagen slim, usuario no root. `docker compose run ingest --source senado` funciona en local.
-- **Listo cuando:** en local, con Docker, una corrida baja las 3 fuentes, deja archivos en `./data/raw` y un parquet/CSV de observaciones, y una segunda corrida no duplica nada.
+### Fase 1 — Ingesta del Banco Central + Docker · ~1–2 semanas
+**Aprendes:** diseño de conectores, idempotencia, contenedores, manejo de secretos en local.
+- Ficha de la fuente (`v1-analista`) y códigos de serie de UF e IMACEC verificados con `SearchSeries`.
+- Contrato común (ADR-0003): el conector solo descarga; `Storage` local idempotente por `sha256` (si el objeto existe, no se sube ni se recarga); cliente HTTP común (User-Agent honesto, pausa, reintentos, redacción de credenciales).
+- Parser del JSON → formato largo `(serie_id, periodo, valor)`. Solo limpieza estructural; **los cálculos (var. 12 meses, KPI) van a Dataform**.
+- Tests contra un fixture JSON real, sin credenciales.
+- CLI `sintesis-ingest run --source <id>`, registro de ejecuciones y `make run-local`.
+- `Dockerfile` multi-stage, imagen slim, usuario no root; `docker compose run ingest`.
+- (Opcional) experimento `experiment/dlt-bde` (ADR-0003).
+- **Listo cuando:** con Docker, una corrida baja UF e IMACEC, deja el JSON en `./data/raw` y las observaciones en parquet/CSV, y una segunda corrida no duplica nada.
 
-### Fase 2 — Fundación GCP con Terraform · ~1–2 semanas
-**Aprendes:** Terraform, IAM, Secret Manager, gestión de costos.
-- `infra/bootstrap`: bucket de estado remoto (con versionado), habilitación de APIs, presupuesto con alertas (budget de billing).
-- Recursos: buckets (raw con lifecycle hacia Nearline/Coldline), datasets BQ (`raw`, `stg`, `marts`, `ops`) con descripción y labels, Artifact Registry, Secret Manager (el **valor** del secreto se carga a mano con `gcloud`, nunca en Terraform/tfvars), service accounts y bindings de la tabla IAM.
-- Separación dev/prod (ver D3).
-- Escribir los bindings IAM a mano tú mismo, aunque Claude Code proponga el resto: es lo que se pregunta en entrevistas.
-- **Listo cuando:** `terraform destroy && terraform apply` reconstruye todo desde cero sin pasos de consola, salvo cargar el secreto.
-
-### Fase 3 — BigQuery + Dataform · ~2 semanas
+### Fase 2 — BigQuery + Dataform (sandbox, sin tarjeta) · ~2 semanas
 > **Nota (2026-10-30, ADR-0001):** la transformación pasó de dbt a Dataform. Los puntos de esta fase y de las fases 4–5
 > que nombran funciones de dbt (freshness, seeds, `dbt docs`, `dbt build --target ci`) se reescriben con sus
-> equivalentes en Dataform al planificar la fase 3, después de verificar que Dataform funciona con el sandbox.
+> equivalentes en Dataform al planificar esta fase, después de verificar que Dataform funciona con el sandbox.
 > Si no funciona, se vuelve a dbt con un ADR nuevo (plan B).
 
 **Aprendes:** modelado analítico, Dataform, calidad de datos, costos de BigQuery.
+- **Primera tarea: go/no-go de Dataform con el sandbox.** Si no funciona, ADR nuevo y plan B (dbt).
+- Alcance de la rebanada: solo las series del Banco Central (UF, IMACEC). Las demás fuentes se modelan en la fase 6.
 - `warehouse.py`: carga con *load jobs* desde GCS (parquet), esquema explícito, tabla particionada y clusterizada.
 - dbt: `sources.yml` con **freshness** (reemplaza parte de `verificar.py`); staging por fuente; dedupe de vintages; marts.
 - Seeds: `dim_serie` (id, nombre, unidad, fuente, frecuencia, `desfase_meses` heredado de `config.yaml` de V1), calendario.
@@ -212,8 +216,17 @@ application-default login`); en la fase 4 pasa a la service account `sa-dataform
 - Lógica de `cifras.py` (KPI y comparaciones) traducida a SQL en marts.
 - `dbt docs generate` publicado (artefacto de CI o GitHub Pages).
 - **Validación cruzada:** las cifras de `mart_kpi_edicion` para una edición pasada deben coincidir con las publicadas por V1. Es la prueba de que la migración es correcta.
-- **Listo cuando:** `dbt build` en dev pasa y los KPI de 2026-09 coinciden con el `contenido_2026-09.yaml` de V1.
+- **Listo cuando:** la transformación corre en dev sin errores y los KPI de UF/IMACEC de 2026-09 coinciden con el `contenido_2026-09.yaml` de V1 (el resto de los KPI, en la fase 6).
 - **Pendiente (30-10-2026):** `contenido_2026-09.yaml` no está en la carpeta `/V1`; probablemente vive en Drive (`I:\Mi unidad\...`). Ubicarlo y copiarlo como fixture de referencia antes de la validación cruzada.
+
+### Fase 3 — Fundación GCP con Terraform · ~1–2 semanas
+> **Al empezar esta fase se activa la prueba gratuita de 90 días** (sección 6): las fases 3, 4 y 5 deben caber en ese plazo.
+**Aprendes:** Terraform, IAM, Secret Manager, gestión de costos.
+- `infra/bootstrap`: bucket de estado remoto (con versionado), habilitación de APIs, presupuesto con alertas (budget de billing).
+- Recursos: buckets (raw con lifecycle hacia Nearline/Coldline), datasets BQ (`raw`, `stg`, `marts`, `ops`) con descripción y labels, Artifact Registry, Secret Manager (el **valor** del secreto se carga a mano con `gcloud`, nunca en Terraform/tfvars), service accounts y bindings de la tabla IAM.
+- Separación dev/prod (ver D3).
+- Escribir los bindings IAM a mano tú mismo, aunque Claude Code proponga el resto: es lo que se pregunta en entrevistas.
+- **Listo cuando:** `terraform destroy && terraform apply` reconstruye todo desde cero sin pasos de consola, salvo cargar el secreto.
 
 ### Fase 4 — Despliegue y orquestación · ~1–2 semanas
 **Aprendes:** Cloud Run Jobs, Scheduler, Workflows, observabilidad.
@@ -232,11 +245,21 @@ application-default login`); en la fase 4 pasa a la service account `sa-dataform
 - Trabajar con ramas y PR aunque estés solo: el historial de PRs es parte del portafolio.
 - **Listo cuando:** un cambio de una línea en un modelo dbt llega a prod solo vía PR + aprobación.
 
-### Fase 6 — Consumo (opcional pero recomendable) · ~1 semana
+### Fase 6 — Ensanche: Senado e INE · ~2–3 semanas
+**Aprendes:** generalizar un contrato, scraping responsable, reemplazar una transformación manual (Power Query) con tests.
+- Senado (ficha lista en `docs/fuentes.md`): conector, fixture HTML real, parser.
+- INE regional: ficha, conector (API de noticias) y **un parser por archivo** (energía, exportaciones, IPMAN, ISUP), cada uno supervisado por Rafael (hojas, columnas, fechas, filas descartadas). Decidir cómo se obtiene empleo.
+- `Storage` en GCS ya existe (fase 3): las fuentes nuevas solo se agregan a `sources.yaml` y se despliegan.
+- Modelos de Dataform y KPI del resto de las fuentes; validación cruzada completa contra V1.
+- 2.ª iteración: INE nacional / cuadros estadísticos (POST + reparación de xlsx).
+- Puede ocurrir después de terminada la prueba gratuita: se desarrolla en local y sandbox.
+- **Listo cuando:** las 3 fuentes del MVP corren en el pipeline y los KPI de 2026-09 coinciden con V1.
+
+### Fase 7 — Consumo (opcional pero recomendable) · ~1 semana
 - Dashboard en Looker Studio sobre `marts` (enlace en el README). Gratis y funciona también contra el sandbox.
 - Boletín, correo y gráficos quedan fuera de V2 (decidido).
 
-### Fase 7 — Kubernetes (opcional, aprendizaje) · ~1 semana
+### Fase 8 — Kubernetes (opcional, aprendizaje) · ~1 semana
 - Primero en local con `kind`: el mismo contenedor de ingest como `CronJob`, `Secret`, `ConfigMap`, `ServiceAccount`.
 - Después GKE Autopilot con Workload Identity (la SA de Kubernetes impersona `sa-ingest`), corrida de prueba y **destruir el clúster**. Revisar precios vigentes antes: un clúster tiene costo mientras exista.
 - ADR explicando por qué en producción se queda en Cloud Run (es la decisión correcta a esta escala; saber justificarlo vale más que tener el clúster encendido).
@@ -253,18 +276,19 @@ application-default login`); en la fase 4 pasa a la service account `sa-dataform
 - **Prueba gratuita:** USD 300 por 90 días. Pide tarjeta, pero no cobra: si no se actualiza manualmente a cuenta
   pagada, al terminar se cierra y los recursos se detienen (30 días de gracia). El reloj de 90 días corre desde la activación.
 - Consecuencia en el diseño:
-  1. **Fases 0, 1 y 3 se hacen sin tarjeta**: local + Docker + Dataform contra BigQuery sandbox (a verificar, ADR-0001).
-  2. Se activa la prueba gratuita **recién al empezar la fase 2**, con las fases 2, 4 y 5 planificadas para caber en 90 días.
+  1. **Fases 0, 1 y 2 se hacen sin tarjeta**: local + Docker + Dataform contra BigQuery sandbox (a verificar, ADR-0001).
+  2. Se activa la prueba gratuita **recién al empezar la fase 3**, con las fases 3, 4 y 5 planificadas para caber en 90 días.
+     El ensanche (fase 6) puede ocurrir después de la prueba: se desarrolla en local y sandbox.
   3. Por la falta de DML en sandbox: tablas de Dataform materializadas como `table`/`view` (no `incremental` con `merge`),
      y la capa raw se recarga completa desde los archivos con *load jobs* (`WRITE_TRUNCATE`). Los archivos raw son la
      fuente de verdad; BigQuery se puede reconstruir en cualquier momento. Esto además es buena práctica.
   4. Por la expiración de 60 días: nada en BigQuery sandbox es permanente; `make rebuild` debe dejar todo como estaba.
-  5. Incrementales con `merge` se introducen en la fase 3b, ya con facturación, como mejora documentada en un ADR.
+  5. Incrementales con `merge` se introducen después de la fase 3, ya con facturación, como mejora documentada en un ADR.
 - Al cerrar la prueba: `terraform destroy` y el repo queda como evidencia (README, capturas, linaje de Dataform, historial de CI).
 
 ### Uso del crédito
 
-- Todo el núcleo (Cloud Run Jobs ocasionales, Scheduler con pocos jobs, Workflows con pocos pasos, BigQuery con MB de datos, GCS con cientos de MB) debería caer en o cerca del nivel gratuito. Verificar en las páginas de precios vigentes antes de la fase 2.
+- Todo el núcleo (Cloud Run Jobs ocasionales, Scheduler con pocos jobs, Workflows con pocos pasos, BigQuery con MB de datos, GCS con cientos de MB) debería caer en o cerca del nivel gratuito. Verificar en las páginas de precios vigentes antes de la fase 3.
 - Presupuesto con alertas al 50/90/100 % desde el primer `apply`.
 - Evitar: Composer, clústeres GKE encendidos, `SELECT *` sin filtro de partición, conectores de Looker Studio que consulten tablas sin particionar en cada carga.
 - Labels (`proyecto`, `entorno`, `componente`) en todos los recursos para ver el costo por componente.
@@ -300,7 +324,7 @@ El riesgo concreto es que la fase 0 se vuelva meta-trabajo y la ingesta no parta
 | Hook de lint en fase 0 | Pre-commit es la única fuente de verdad del lint (es lo que también corre en CI). Hook opcional que solo llama a `ruff` sobre el archivo editado | Evita dos configuraciones de lint que divergen |
 | Worktrees desde fase 1 | **Al final de fase 1**, después de haber hecho al menos 3 PR normales con ramas | Worktrees sobre un git que aún no dominas multiplican los errores de estado. Primero ramas y PR; después paralelismo |
 | Etapa C tras 2 parsers revisados | Se mantiene, con un criterio extra: poder explicar sin ayuda qué prueba cada test de esos dos parsers | El criterio es comprensión, no cantidad |
-| MCP para BigQuery en fase 3 | No. Claude usa `bq` CLI con tu usuario y tú ves los comandos | Un comando visible es más auditable y enseña la CLI que se usa en el trabajo |
+| MCP para BigQuery en fase 2 | No. Claude usa `bq` CLI con tu usuario y tú ves los comandos | Un comando visible es más auditable y enseña la CLI que se usa en el trabajo |
 | `test-runner` como subagente | Sí, desde fase 1 | Es el que más protege el contexto de la sesión principal (logs largos) |
 | `docs/plans/` | Sí, versionado en el repo público, máximo una página por plan | Muestra proceso; el tope evita ruido |
 | Cowork como espacio de planificación | Sí. Su resultado siempre termina como archivo en el repo (`docs/plan.md`, ADR) | Principio 1 |
@@ -321,10 +345,11 @@ El riesgo concreto es que la fase 0 se vuelva meta-trabajo y la ingesta no parta
 | Fase | Se agrega |
 |---|---|
 | 0 | `CLAUDE.md` raíz, `docs/{plans,adr}/`, `.claude/agents/v1-analista.md` (solo lectura sobre V1). Probar plan mode en una tarea chica |
-| 1 | `test-runner`; fichas de `v1-analista` por fuente del MVP; skill `agregar-fuente` después del 2.º conector; `revisor-convenciones` y worktrees al cierre de la fase |
-| 3 | `validador-cifras` (marts vs `contenido_AAAA-MM.yaml` de V1); skill `agregar-serie` |
-| 2 | `revisor-iam` (solo lectura). Terraform siempre en plan mode; tú escribes IAM y corres `apply` |
-| 4–5 | Revisor de PR antes de cada merge; skill `cerrar-tarea` si el cierre ya se repitió |
+| 1 | `test-runner`; ficha de `v1-analista` del Banco Central; `revisor-convenciones` y worktrees al cierre de la fase |
+| 2 | `validador-cifras` (marts vs `contenido_AAAA-MM.yaml` de V1); skill `agregar-serie` |
+| 3 | `revisor-iam` (solo lectura). Terraform siempre en plan mode; tú escribes IAM y corres `apply` |
+| 4–5 | Revisor de PR antes de cada merge (`cerrar-tarea` ya existe desde la fase 0) |
+| 6 | Fichas de `v1-analista` de Senado e INE; skill `agregar-fuente` después del 2.º conector nuevo |
 | Cierre | Retrospectiva en `docs/retrospectiva.md`: qué se delegó, qué no, qué reglas nacieron de errores. Material de entrevista |
 
 Las funciones de Claude Code cambian seguido: verificar cada una en https://code.claude.com/docs al configurarla.
@@ -391,6 +416,7 @@ Tomadas (30-10-2026):
 - **Orquestación:** Cloud Scheduler + Workflows. Sin Dagster.
 - **Forma de trabajo:** principios del traspaso de Claude Code adoptados con los ajustes de la sección 7.2.
 - **Prioridad:** este proyecto va primero. Del ETL personal solo se reutiliza el entorno WSL2 + Docker + uv (sección 9).
+- **Estrategia de fases (2026-11-02):** rebanada vertical con el Banco Central (UF/IMACEC) de punta a punta; ensanche con Senado e INE en la fase 6. Fases renumeradas para que el número coincida con el orden (sección 5).
 - **D5 — Idioma del código:** código e identificadores en inglés; documentación de dominio (ADR, fichas de fuentes, plan) en español. Los ids de fuentes y series son datos del dominio y van en español (`snake_case`), igual que los verán GCS y BigQuery (ajuste del 30-10-2026, tarea 0.6).
 
 Abiertas:

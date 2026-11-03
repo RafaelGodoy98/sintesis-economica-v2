@@ -2,6 +2,8 @@
 
 **Estado:** Aceptada · **Fecha:** 2026-10-30
 
+> Números de fase según la numeración vigente desde 2026-11-02 (`docs/plan.md` §5).
+
 ## Contexto
 El pipeline debe correr solo: una vez al mes (o al día), ejecutar la ingesta y, **solo si terminó bien**, ejecutar dbt.
 Si algo falla, debe quedar registrado y avisar. Hay que decidir qué lo dispara y qué encadena los pasos.
@@ -46,7 +48,7 @@ _Cloud Scheduler y Workflows es la alternativa seleccionada, dado que cumple con
 - **El flujo vive en `orchestration/workflow.yaml`:** ingest → (solo si terminó bien) transformación en Dataform (ADR-0001).
   Si falla, queda un log `ERROR`/`CRITICAL` (convención de la 0.7) y se dispara una alerta.
 - **IAM entre servicios:** Scheduler necesita permiso para invocar el workflow, y el workflow para ejecutar el job de
-  ingesta e invocar Dataform. Esos bindings los escribe Rafael en la fase 2.
+  ingesta e invocar Dataform. Esos bindings los escribe Rafael en la fase 3.
 - **Calendario:** cada fuente publica en fechas distintas. En la fase 4 se decide entre varios *schedules* (uno por
   fuente o grupo) y una corrida diaria que solo procesa lo nuevo (la idempotencia por sha256 lo permite).
 - **Se acepta:** YAML con sintaxis limitada, sin interfaz de DAG, y menos transferible que Airflow. El README explicará

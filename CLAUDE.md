@@ -18,7 +18,7 @@ Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Pl
 - Sin rutas absolutas en el código. Toda configuración por variables de entorno (pydantic-settings) o sources.yaml.
 - Nunca credenciales en código, tfvars, fixtures ni logs. La API BDE pasa usuario/clave en la URL: no loguear URLs completas.
 - Raw es inmutable e idempotente por sha256. Los cálculos (variaciones, KPI) van en Dataform (SQL), no en Python.
-- BigQuery sandbox hasta la fase 2: sin DML; tablas de Dataform como table/view; raw se recarga con load jobs WRITE_TRUNCATE.
+- BigQuery sandbox hasta la fase 3: sin DML; tablas de Dataform como table/view; raw se recarga con load jobs WRITE_TRUNCATE.
 - User-Agent honesto con contacto y pausa entre solicitudes. No evadir bloqueos (WAF) de las fuentes.
 - Niveles de log: INFO hitos normales · WARNING inesperado pero la corrida siguió · ERROR la fuente falló y su dato no se guardó · CRITICAL la corrida no puede seguir (detalle en docs/plans/2026-10-30-0.7-logging.md).
 - Sin datos de empresas ni marca ASIVA en el repo (fixtures incluidos).

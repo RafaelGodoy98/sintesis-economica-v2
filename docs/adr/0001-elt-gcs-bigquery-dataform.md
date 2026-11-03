@@ -2,6 +2,8 @@
 
 **Estado:** Aceptada · **Fecha:** 2026-10-30
 
+> Números de fase según la numeración vigente desde 2026-11-02 (`docs/plan.md` §5).
+
 ## Contexto
 V1 transformaba los datos en Power Query, dentro de un Excel de escritorio, y calculaba los KPI en Python. Nada de eso
 corre sin una persona ni se puede auditar. V2 necesita decidir **dónde se guardan los datos y dónde se transforman**.
@@ -9,7 +11,7 @@ corre sin una persona ni se puede auditar. V2 necesita decidir **dónde se guard
 Restricciones:
 - **Escala:** ≈ 10 fuentes, archivos de KB, una corrida mensual. El volumen no es el problema; la trazabilidad sí.
 - **Revisiones:** el INE y el Banco Central corrigen cifras; hay que poder reconstruir qué se publicó en cada edición (*vintages*).
-- **Costo:** sin gasto. BigQuery sandbox hasta la fase 2 (sin DML, tablas que expiran a los 60 días) y prueba gratuita de 90 días después.
+- **Costo:** sin gasto. BigQuery sandbox hasta la fase 3 (sin DML, tablas que expiran a los 60 días) y prueba gratuita de 90 días después.
 - **Portafolio:** las herramientas deben ser reconocibles en el mercado laboral de ingeniería de datos.
 - Regla de CLAUDE.md: raw inmutable por sha256; los cálculos van en SQL, no en Python.
 
@@ -24,7 +26,7 @@ Restricciones:
   da tests de datos, documentación y linaje; funciona en sandbox con modelos `table`/`view`; dbt + BigQuery es una
   combinación muy demandada.
 - En contra: dos herramientas más que aprender (dbt y BigQuery); el sandbox obliga a recargar raw completo
-  (`WRITE_TRUNCATE`) y a no usar incrementales hasta la fase 3b.
+  (`WRITE_TRUNCATE`) y a no usar incrementales hasta después de la fase 3.
 
 ### C. Igual que B, pero con Dataform en vez de dbt
 - A favor: es nativo de GCP, viene integrado en la consola de BigQuery y no requiere otro contenedor ni otro job.
@@ -49,7 +51,7 @@ _Utilizar opción C. BigQuery + Dataform, dado que el objetivo de proyecto es ut
 - **La transformación se escribe en SQLX** dentro de un repositorio de Dataform conectado a GitHub. Los tests de datos
   son *assertions* y el linaje se ve en la consola de BigQuery.
 - **Desaparece el job "dbt" en Cloud Run:** Workflows (ADR-0002) invoca a Dataform directamente. El mecanismo se define en la fase 4.
-- **A verificar antes de la fase 3:** que Dataform funcione con el BigQuery sandbox (sin facturación) y cómo se
+- **A verificar al inicio de la fase 2:** que Dataform funcione con el BigQuery sandbox (sin facturación) y cómo se
   desarrolla y prueba localmente. **Plan B:** si alguna de las dos falla, se vuelve a dbt con un ADR nuevo que reemplace a este.
 - **Pendiente:** actualizar las referencias a dbt en `docs/plan.md` y `CLAUDE.md`.
 
