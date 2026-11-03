@@ -25,3 +25,13 @@ repos:
       - id: detect-secrets
         args: ["--baseline", ".secrets.baseline"]
         exclude: uv.lock
+
+  # Barrera por nombre, sin mirar el contenido: cubre `git add -f .env` y lo que detect-secrets no reconozca.
+  - repo: local
+    hooks:
+      - id: no-env-files
+        name: Bloquear archivos .env
+        entry: "Los archivos .env no se commitean (usa .env.example)"
+        language: fail
+        files: '(^|/)\.env(\..+)?$'
+        exclude: '(^|/)\.env\.example$'
