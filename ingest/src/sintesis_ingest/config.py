@@ -14,9 +14,15 @@ Email = Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^[^@\s
 
 
 class Settings(BaseSettings):
-    """Lo que cambia por máquina o entorno. Se lee de variables SINTESIS_*."""
+    """Lo que cambia por máquina o entorno. Se lee de variables SINTESIS_*.
 
-    model_config = SettingsConfigDict(env_prefix="SINTESIS_", extra="ignore")
+    En local también lee `.env` (en el directorio actual): las credenciales quedan dentro del proceso, sin
+    exportarlas en la terminal. Las variables de entorno tienen prioridad (así llegan en Cloud Run).
+    """
+
+    model_config = SettingsConfigDict(
+        env_prefix="SINTESIS_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
     env: Literal["local", "dev", "prod"] = "local"
     storage_backend: Literal["local", "gcs"] = "local"
