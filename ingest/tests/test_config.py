@@ -119,6 +119,15 @@ def test_settings_read_from_env(clean_env):
     assert (settings.env, settings.gcs_bucket) == ("dev", "my-bucket")
 
 
+def test_settings_errors_do_not_show_values(clean_env, tmp_path):
+    fake = "SINTESIS_BDE_PASSWORD=s3cr3t-value\n"  # pragma: allowlist secret (valor falso de prueba)
+    (tmp_path / ".env").write_text(fake, encoding="utf-8")
+    with pytest.raises(ValidationError) as exc:
+        Settings()  # falta CONTACT_EMAIL
+    assert "contact_email" in str(exc.value)
+    assert "s3cr3t-value" not in str(exc.value)
+
+
 def test_settings_read_dotenv_and_env_wins(clean_env, tmp_path):
     (tmp_path / ".env").write_text(
         "SINTESIS_CONTACT_EMAIL=file@example.com\nSINTESIS_ENV=dev\n", encoding="utf-8"

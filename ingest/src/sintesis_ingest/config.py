@@ -20,8 +20,13 @@ class Settings(BaseSettings):
     exportarlas en la terminal. Las variables de entorno tienen prioridad (así llegan en Cloud Run).
     """
 
+    # hide_input_in_errors: si un campo falla, el error no muestra los valores de los demás (credenciales).
     model_config = SettingsConfigDict(
-        env_prefix="SINTESIS_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_prefix="SINTESIS_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        hide_input_in_errors=True,
     )
 
     env: Literal["local", "dev", "prod"] = "local"
