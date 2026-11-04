@@ -1,7 +1,7 @@
 # Guía del código (fase 1)
 
 Qué hace cada pieza de `ingest/`, en lenguaje simple. Para cada una: su analogía, qué **garantiza** y qué test lo
-demuestra. El *qué* y el *por qué* están aquí; el *cómo* está en el código (unas 900 líneas).
+demuestra. El *qué* y el *por qué* están aquí; el *cómo* está en el código.
 
 ## El recorrido completo
 
@@ -27,8 +27,8 @@ Todo esto viaja dentro de **la caja** (`ingest/Dockerfile`): la misma imagen cor
 
 | Pieza | Analogía | Qué garantiza | Lo demuestra |
 |---|---|---|---|
-| `config.py` + `sources.yaml` | **El manual de operación** | Qué fuentes y series existen (`sources.yaml`, igual en todo entorno) y qué cambia por máquina (`Settings`: carpeta de datos, email de contacto, credenciales). Un campo mal escrito detiene todo antes de empezar. Si falla, el error no muestra valores | `test_config.py` |
-| `log.py` | **La bitácora con censor** | Cada evento es una línea JSON con `run_id` y `source_id`, que Cloud Logging sabe filtrar. El censor tapa con `***` lo que sigue a `pass=` y también los valores exactos de las credenciales, donde aparezcan | `test_log.py` |
+| `config.py` + `sources.yaml` | **El manual de operación** | Qué fuentes y series existen (`sources.yaml`, igual en todo entorno) y qué cambia por máquina (`Settings`: carpeta de datos, email de contacto, credenciales). Un `sources.yaml` mal escrito o un dato obligatorio que falta (p. ej. el email de contacto) detienen todo antes de empezar; si falla, el error no muestra valores. **Ojo:** una variable `SINTESIS_*` mal escrita se ignora (no avisa) | `test_config.py` |
+| `log.py` | **La bitácora con censor** | Cada evento es una línea JSON con `run_id` y `source_id`, que Cloud Logging sabe filtrar. El censor tapa con `***` lo que sigue a `user=`, `pass=`, `token=`, `key=` o `secret=`, y también los valores exactos de las credenciales, donde aparezcan | `test_log.py` |
 | `http.py` | **El mensajero** | Es el único que habla con internet. Se presenta con nombre y contacto, espera 2 s entre pedidos, insiste ante caídas (5xx, 429, red) y no ante errores sin arreglo (404). Nunca deja ver la clave: ni en la URL que devuelve, ni en logs, ni en errores | `test_http.py` |
 | `contract.py` | **El formulario** | Todo conector entrega lo mismo: `RawFile` con los bytes tal cual, la fuente, la URL sin credenciales y la hora (UTC). La huella se calcula del contenido. Todo parser entrega `Observation` (`series_id`, `period`, `value`) | `test_contract.py` |
 | `storage.py` | **El archivo histórico** | Guarda cada contenido una sola vez, aunque llegue otro día (lo reconoce por su huella). Nunca sobrescribe. Si se corta a mitad, no deja archivos a medias | `test_storage.py` |
@@ -38,7 +38,7 @@ Todo esto viaja dentro de **la caja** (`ingest/Dockerfile`): la misma imagen cor
 | `observations.py` | **El que pasa en limpio** | Un CSV por archivo raw, con el nombre de su huella: correr dos veces no duplica, y para reprocesar basta borrar los CSV | `test_cli.py` |
 | `audit.py` | **El libro de turnos** | Una línea por fuente y corrida: cómo le fue, cuántos archivos nuevos, cuántas filas, cuánto tardó y el error (censurado). Solo se agrega, nunca se edita | `test_cli.py` |
 | `cli.py` | **El jefe de turno** | Une todo con una orden. Una fuente que falla no detiene a las demás. Termina con un número que una máquina entiende: 0 bien · 1 falló una fuente · 2 no pudo empezar | `test_cli.py` |
-| `ingest/Dockerfile` + `docker-compose.yml` | **La caja** | La imagen trae Python, las librerías y el código; no trae el `.env`, ni tests, ni uv. Corre sin privilegios. Las credenciales entran al correr | `test_docker.py`, `test_docker_image.py` (`make test-docker`) |
+| `ingest/Dockerfile` + `docker-compose.yml` (raíz) | **La caja** | La imagen trae Python, las librerías y el código; no trae el `.env`, ni tests, ni uv. Corre sin privilegios. Las credenciales entran al correr | `test_docker.py`, `test_docker_image.py` (`make test-docker`) |
 | `tests/conftest.py` | **El canario** | En **todos** los tests: credenciales falsas reconocibles y una carpeta vacía (ningún test ve tu `.env`). Si la credencial aparece en logs o pantalla, el test falla | `test_canary.py` (prueba que la alarma suena) |
 | `tests/fixtures/` | **Las muestras de laboratorio** | Respuestas reales guardadas byte a byte, con su huella en `MANIFEST.yaml`. Los tests nunca usan internet | `test_fixtures.py` |
 
