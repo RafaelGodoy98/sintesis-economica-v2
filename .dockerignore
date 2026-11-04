@@ -1,0 +1,15 @@
+# Lista de permitidos: se excluye TODO y se agrega solo lo que la imagen necesita.
+# Más estricto que listar lo prohibido: un archivo nuevo (p. ej. otro .env) queda fuera sin que nadie lo recuerde.
+# Lo que no entra al contexto de construcción no puede terminar en la imagen.
+*
+
+!pyproject.toml
+!uv.lock
+!ingest/pyproject.toml
+!ingest/src/
+
+# Aun dentro de lo permitido: nada de cachés ni secretos.
+**/__pycache__
+**/*.pyc
+**/.env
+**/.env.*
