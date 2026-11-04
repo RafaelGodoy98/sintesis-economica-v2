@@ -9,11 +9,11 @@ Alimenta `docs/retrospectiva.md` al cierre del proyecto.
 | `v1-analista` | subagente | Leer V1 (solo lectura) y producir la ficha de una fuente | 2026-10-30 · 0.4 (Senado); 2026-11-03 · 1.1 (Banco Central) | Creado |
 | `test-runner` | subagente | Correr tests y devolver solo fallas, sin llenar el contexto con logs | — (1.2: 59 tests, salida corta; aún no hizo falta) | Planificado fase 1; crear cuando los logs de tests crezcan (1.3–1.5) |
 | `agregar-fuente` | skill | Pasos repetibles para sumar un conector (ficha → plan → conector → fixtures → tests) | — | Fase 6, tras el 2.º conector nuevo |
-| `revisor-convenciones` | subagente | Revisar un diff contra CLAUDE.md y convenciones del repo | — | Cierre fase 1 |
+| `revisor-convenciones` | subagente | Revisar un diff contra CLAUDE.md y convenciones del repo | 2026-11-04 · cierre fase 1 (sembrado, limpio, PR #13, su propia rama) | **Creado** (`.claude/agents/`), local por decisión de Rafael. Integrado a `cerrar-tarea` (paso 6). Idea futura: versión genérica global con `configurar-repo` |
 | `revisor-iam` | subagente | Revisar Terraform/IAM en solo lectura (mínimo privilegio) | — | Fase 3 |
 | `validador-cifras` | subagente | Comparar marts contra `contenido_AAAA-MM.yaml` de V1 | — | Fase 2 |
 | `agregar-serie` | skill | Sumar una serie a `dim_serie` + assertions de Dataform | — | Fase 2 |
-| `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`). Usada en: skill; 0.7 (se agregó "Qué se logró"); 0.8; 0.9; replan; 1.0; 1.1a; 1.1; 1.2; 1.3; 1.4; 1.5 |
+| `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`). Usada en: skill; 0.7 (se agregó "Qué se logró"); 0.8; 0.9; replan; 1.0; 1.1a; 1.1; 1.2; 1.3; 1.4; 1.5; revisor |
 | `v1-analista` sin recarga | aviso | Si la rama activa no tiene el archivo del agente, se descarga; vuelve con *Developer: Reload Window*. En 0.6 se usó Explore | 2026-10-30 · 0.6 | Observando |
 | Inspeccionar binarios con un script de librería estándar | patrón | Revisar metadatos y estructura de xlsx/whl sin abrir Excel ni instalar nada | 2026-10-30 · 0.6 (wheel); 0.8 (xlsx) | Observando (2 de 3): candidato a script en `ingest/tests/fixtures/` |
 | Falsos positivos de detect-secrets | aviso | Hashes sha256 en manifiestos; se registran en `.secrets.baseline` | 2026-10-30 · 0.8; 2026-11-03 · 1.3 | Observando |

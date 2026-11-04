@@ -5,7 +5,7 @@ Proyecto de portafolio: debe correr sin intervención de su autor y cada decisi�
 Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Planes por tarea: docs/plans/.
 
 ## Forma de trabajo
-- Toda tarea no trivial empieza en plan mode. El plan aprobado se guarda en docs/plans/AAAA-MM-DD-<tarea>.md (máximo una página).
+- Toda tarea no trivial empieza en plan mode. El plan aprobado se guarda en docs/plans/AAAA-MM-DD-<tarea>.md (máximo una página). Al cerrar se agrega "Resultado de la verificación" en no más de ~15 líneas (qué falló, cómo se resolvió, cifras); el detalle largo va en el PR.
 - Rafael valida y aprueba; no hacer merge, no correr `terraform apply`, no cambiar IAM sin que él lo pida.
 - Bindings IAM y la sección "Decisión" de los ADR los escribe Rafael. Claude puede revisarlos y explicarlos.
 - Al cerrar una tarea, listar explícitamente qué debe validar Rafael (diff, cifras, resultados).
@@ -28,5 +28,5 @@ Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Pl
 - make test · make lint · make run-local SOURCE=<id> · make transform   (se completan a medida que existan)
 
 ## Convenciones
-- Código e identificadores en inglés; documentación de dominio en español (D5). Excepción: ids de fuentes y series (datos del dominio) en español, `snake_case` (p. ej. `empleo_regional`, `senado_leyes_publicadas`).
+- Código e identificadores en inglés; documentación de dominio en español (D5). Excepción: los valores de ids de fuentes y series (datos del dominio) en español, `snake_case` (p. ej. `empleo_regional`, `senado_leyes_publicadas`); los nombres de columnas y campos van en inglés (`source_id`, `series_id`, `period`, `value`).
 - Commits pequeños, una rama y un PR por tarea.

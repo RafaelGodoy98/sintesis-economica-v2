@@ -9,8 +9,11 @@ Archivos reales de las fuentes, guardados para que los tests de los parsers no d
   no contengan el usuario ni la clave antes de copiarlas.
 - **Nombres:** `<source_id>_<AAAA-MM del dato>.<ext>` (en la API BDE, `<source_id>_<serie_id>_<AAAA-MM>.json`). El período sale del contenido o del nombre original, no de la
   carpeta de descarga.
-- **Agregar uno:** copiarlo con `sanitize_xlsx.py`, registrarlo en `MANIFEST.yaml` y correr `make test`. El test
+- **Agregar uno:** un xlsx se copia con `sanitize_xlsx.py`; un JSON de API se copia tal cual (bytes exactos), después
+  de revisar que no traiga credenciales. Luego se registra en `MANIFEST.yaml` y se corre `make test`. El test
   `test_fixtures.py` falla si un archivo no está en el manifiesto o si no coincide con él.
+- **Respuestas de error** (p. ej. `bcentral_uf_credenciales_invalidas.json`): llevan el caso en vez del período.
+  El `source_url` registra la consulta real con la que se bajó el fixture, aunque difiera de `sources.yaml`.
 - **Nunca:** credenciales, datos de empresas, la marca de la empresa ni archivos de más de 500 KB.
 
 Pendientes: respuestas reales de Senado (HTML) y de la API de noticias del INE, capturadas

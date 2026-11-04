@@ -66,6 +66,9 @@ _(Redactada por Claude a partir de lo que dijo Rafael en la sesión del 2026-10-
 - **Experimento con dlt:** después del conector propio de la API BDE, una rama `experiment/dlt-bde` hace lo mismo con
   dlt para comparar líneas de código, comportamiento en el sandbox (¿usa DML?) y qué queda guardado. El resultado se
   documenta, y no se integra a `main` salvo que haya un ADR nuevo.
+  **Actualización (2026-11-04):** Rafael descartó el experimento al cerrar la fase 1. La opción A ya funciona de
+  punta a punta (conector, raw, parser, CLI y Docker), y la pregunta clave del experimento (¿dlt usa DML en el
+  sandbox?) no cambia esta decisión. Se reabre solo si se suman varias APIs REST complejas.
 
 ## Referencias
 - `docs/plan.md` §1 (conocimiento rescatable de V1), §4 (estructura `connectors/`, `parsers/`, `storage.py`).
