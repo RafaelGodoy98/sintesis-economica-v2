@@ -70,3 +70,12 @@ def test_failed_write_leaves_no_file(tmp_path, monkeypatch):
     with pytest.raises(OSError):
         LocalStorage(tmp_path).save(make_raw())
     assert all_files(tmp_path) == []  # ni el archivo final ni el temporal
+
+
+def test_works_with_the_relative_default_data_dir(tmp_path, monkeypatch):
+    # En local, SINTESIS_LOCAL_DATA_DIR vale "data" (relativa). Los demás tests usan rutas absolutas;
+    # este reproduce la falla de la primera corrida real (as_uri exige ruta absoluta).
+    monkeypatch.chdir(tmp_path)
+    stored = LocalStorage(Path("data") / "raw").save(make_raw())
+    assert stored.uri.startswith("file:///")
+    assert LocalStorage(Path("data") / "raw").save(make_raw()).created is False
