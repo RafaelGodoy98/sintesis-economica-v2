@@ -49,6 +49,11 @@ Spike desechable (fuera del repo), corrido por Rafael con sus credenciales; Clau
 - **Codificación cp1252, no UTF-8.** El catálogo y el `GetSeries` del IMACEC traen `í` como byte `0xED` (cp1252) y
   fallan al leerse como UTF-8. La respuesta de la UF es ASCII puro (válida en ambas), así que no prueba lo contrario.
   El raw se guarda tal cual (bytes) y el parser decodifica en cp1252 de forma explícita.
+  **Actualización 1.3:** el servidor sí declara `Content-Type: application/json; charset=ISO-8859-1`. El `RawFile`
+  guarda ese encabezado completo y el parser **respeta lo declarado** con la regla del estándar WHATWG Encoding (la de
+  los navegadores): `iso-8859-1` se lee como windows-1252 (cp1252), que coincide en todo carácter imprimible e
+  interpreta bien 0x80–0x9F (€, comillas). Si la fuente cambia a UTF-8 y lo declara, el parser lo sigue solo. En los
+  fixtures no hay bytes 0x80–0x9F, el único rango donde ambas difieren.
 - **Estructura de `GetSeries`:** `{Codigo, Descripcion, Series: {descripEsp, descripIng, seriesId, Obs: [...]},
   SeriesInfos: []}`. Cada observación: `{indexDateString: "dd-mm-aaaa", value: "<texto>", statusCode: "OK"}`.
   - El valor viene como **texto** con punto decimal (`"41215.77"`, `"111.2147495657"`).
@@ -114,12 +119,13 @@ Spike desechable (fuera del repo), corrido por Rafael con sus credenciales; Clau
 - ¿Se ingesta la UF sin consumidor?: sí, por decisión de alcance (rebanada vertical).
 - Respuesta para fechas sin dato: se omiten (UF). Credenciales malas: `Codigo=-5` con HTTP 200.
 
-### Preguntas abiertas (para el plan de la 1.3)
-1. Ventana de fechas: ¿carga histórica completa la primera vez y después una ventana móvil, o siempre la serie completa?
-   El IMACEC se revisa hacia atrás, así que una ventana corta podría perder revisiones.
-2. Raw: ¿un archivo por código (11 consultas) o uno por fuente que agrupe las respuestas?
-3. `statusCode` distinto de `OK` en una observación: ¿fallar, descartar o guardar con marca?
-4. La nota de prensa PDF del IMACEC: ¿se omite en V2? (Por el WAF no hay vía automática permitida.)
+### Decisiones de la 1.3 (Rafael, 2026-11-03)
+1. **Ventana:** historia completa en cada corrida (UF desde 2000-01-01; IMACEC desde 1996-01-01), hasta hoy + 45 días.
+   Captura las revisiones del IMACEC sin guardar estado; si nada cambió, el archivo es idéntico y no se guarda de nuevo.
+2. **Raw:** un archivo por serie (`<serie_id>.json`), la respuesta tal cual.
+3. **`statusCode` ≠ `OK`:** la fila se excluye y se registra un WARNING con cuántas y cuáles. En la historia completa
+   del IMACEC total (369 meses) todas son `OK`. Un formato de fecha o valor distinto al verificado **falla**.
+4. **Nota de prensa PDF:** pendiente para la fase 2, junto con el control de la variación publicada.
 
 ### Idea de control (Rafael, 2026-11-03): contrastar la variación calculada con la publicada
 La variación del IMACEC desestacionalizado que publica el Banco Central **ya ha venido mal calculada**. Propuesta:
