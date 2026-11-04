@@ -44,9 +44,9 @@ class SourceError(Exception):
 class Observation:
     """Una fila en formato largo: lo que entrega todo parser. Sin cálculos (van en Dataform)."""
 
-    serie_id: str
-    periodo: date
-    valor: Decimal
+    series_id: str
+    period: date
+    value: Decimal
 
 
 class Connector(Protocol):

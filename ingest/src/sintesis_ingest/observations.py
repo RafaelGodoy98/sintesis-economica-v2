@@ -16,7 +16,7 @@ from pathlib import Path
 
 from sintesis_ingest.contract import Observation
 
-COLUMNS = ["source_id", "serie_id", "periodo", "valor", "file_sha256", "archivo_uri", "ingested_at"]
+COLUMNS = ["source_id", "series_id", "period", "value", "file_sha256", "file_uri", "ingested_at"]
 
 
 def csv_path(root: Path, source_id: str, file_sha256: str) -> Path:
@@ -29,7 +29,7 @@ def write_csv(
     *,
     source_id: str,
     file_sha256: str,
-    archivo_uri: str,
+    file_uri: str,
     ingested_at: datetime,
 ) -> None:
     """Escribe el CSV de forma atómica (temporal + rename), como el Storage."""
@@ -44,11 +44,11 @@ def write_csv(
                 writer.writerow(
                     [
                         source_id,
-                        r.serie_id,
-                        r.periodo.isoformat(),
-                        str(r.valor),
+                        r.series_id,
+                        r.period.isoformat(),
+                        str(r.value),
                         file_sha256,
-                        archivo_uri,
+                        file_uri,
                         ingested_at.isoformat(),
                     ]
                 )

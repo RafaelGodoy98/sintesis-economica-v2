@@ -77,9 +77,9 @@ def run(settings: Settings, sources: list[Source], http: HttpClient) -> int:
             record = run_source(source, settings, http, storage, run_id)
             audit.append(data / "ops" / "ejecuciones.jsonl", record)
             records.append(record)
-        failed = [r.source_id for r in records if r.estado == "error"]
+        failed = [r.source_id for r in records if r.status == "error"]
         logger.info(
-            "fin de corrida", extra={"fuentes_ok": len(records) - len(failed), "fuentes_error": failed}
+            "fin de corrida", extra={"sources_ok": len(records) - len(failed), "sources_failed": failed}
         )
     return EXIT_SOURCE_FAILED if failed else EXIT_OK
 
@@ -109,13 +109,13 @@ def run_source(
                     rows,
                     source_id=source.id,
                     file_sha256=stored.sha256,
-                    archivo_uri=stored.uri,
+                    file_uri=stored.uri,
                     ingested_at=raw.fetched_at,
                 )
                 rows_written += len(rows)
             logger.info(
                 "fuente lista",
-                extra={"archivos_nuevos": new, "archivos_existentes": existing, "filas": rows_written},
+                extra={"new_files": new, "existing_files": existing, "rows": rows_written},
             )
         except Exception as e:  # noqa: BLE001 - una fuente que falla no detiene a las demás
             error = f"{type(e).__name__}: {e}"
@@ -124,11 +124,11 @@ def run_source(
         run_id=run_id,
         source_id=source.id,
         started_at=started_at.isoformat(timespec="seconds"),
-        estado="error" if error else "ok",
-        archivos_nuevos=new,
-        archivos_existentes=existing,
-        filas=rows_written,
-        duracion_s=round(time.monotonic() - start, 2),
+        status="error" if error else "ok",
+        new_files=new,
+        existing_files=existing,
+        rows=rows_written,
+        duration_s=round(time.monotonic() - start, 2),
         error=error,
     )
 

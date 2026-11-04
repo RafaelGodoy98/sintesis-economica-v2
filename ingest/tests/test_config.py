@@ -160,11 +160,11 @@ BC_SOURCE = """
 """
 
 
-def test_repeated_serie_id_across_sources_fails(tmp_path):
+def test_repeated_series_id_across_sources_fails(tmp_path):
     body = BC_SOURCE.format(id="a", serie="uf", code="F073.UFF.PRE.Z.D") + BC_SOURCE.format(
         id="b", serie="uf", code="F073.UFF.PRE.Z.D"
     )
-    with pytest.raises(SourcesConfigError, match="serie_id duplicados: uf"):
+    with pytest.raises(SourcesConfigError, match="series_id duplicados: uf"):
         load_sources(write_catalog(tmp_path, body))
 
 

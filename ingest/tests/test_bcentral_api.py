@@ -33,20 +33,20 @@ def catalog_source(source_id: str) -> BcentralSource:
 def test_parser_reads_full_imacec_history():
     rows = parse(IMACEC, IMACEC_SERIES)
     assert len(rows) == 369
-    assert rows[0].serie_id == "imacec_total"
-    assert (rows[0].periodo, rows[0].valor) == (date(1996, 1, 1), Decimal("42.487431369417"))
-    assert (rows[-1].periodo, rows[-1].valor) == (date(2026, 9, 1), Decimal("110.045265996356"))
+    assert rows[0].series_id == "imacec_total"
+    assert (rows[0].period, rows[0].value) == (date(1996, 1, 1), Decimal("42.487431369417"))
+    assert (rows[-1].period, rows[-1].value) == (date(2026, 9, 1), Decimal("110.045265996356"))
 
 
 def test_parser_reads_daily_uf():
     rows = parse(UF, {"uf": "F073.UFF.PRE.Z.D"})
     assert len(rows) == 31
-    assert (rows[0].periodo, rows[0].valor) == (date(2026, 10, 1), Decimal("41065.38"))
+    assert (rows[0].period, rows[0].value) == (date(2026, 10, 1), Decimal("41065.38"))
 
 
 def test_values_are_exact_decimals_not_floats():
     (row, *_) = parse(UF, {"uf": "F073.UFF.PRE.Z.D"})
-    assert isinstance(row.valor, Decimal)
+    assert isinstance(row.value, Decimal)
 
 
 def test_cp1252_accents_are_read():
@@ -78,7 +78,7 @@ def test_row_with_status_other_than_ok_is_excluded_and_warned(caplog):
     )
     with caplog.at_level(logging.WARNING):
         rows = parse(content, {"uf": "F073.UFF.PRE.Z.D"})
-    assert [r.periodo for r in rows] == [date(2026, 10, 1)]
+    assert [r.period for r in rows] == [date(2026, 10, 1)]
     (warning,) = [r for r in caplog.records if r.levelno == logging.WARNING]
     assert warning.count == 1 and warning.examples == ["02-10-2026=ND"]
 
@@ -164,7 +164,7 @@ def test_connector_says_when_credentials_are_missing(monkeypatch):
 def test_end_to_end_parse_of_connector_output():
     (raw,) = run_connector("bcentral_uf", FakeBde())
     rows = parse(raw.content, catalog_source("bcentral_uf").series, raw.media_type)
-    assert {r.serie_id for r in rows} == {"uf"}
+    assert {r.series_id for r in rows} == {"uf"}
 
 
 # --- codificación declarada (regla WHATWG) ---
