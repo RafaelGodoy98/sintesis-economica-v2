@@ -24,3 +24,16 @@ make run-local SOURCE=bcentral_uf   # corre una fuente: descarga, guarda en raw 
 - `data/ops/ejecuciones.jsonl`: una línea por fuente y corrida (estado, archivos nuevos/existentes, filas, error).
 
 Código de salida: 0 todo bien · 1 alguna fuente falló (las demás siguen) · 2 la corrida no pudo empezar.
+
+### Docker
+
+Requisito: Docker (en Windows, Docker Desktop con la integración de WSL activa).
+
+```bash
+make docker-build                    # construye la imagen sintesis-ingest:local (ingest/Dockerfile)
+make docker-run SOURCE=bcentral_uf   # corre una fuente en un contenedor; datos en ./data (o DATA_DIR=<carpeta>)
+make test-docker                     # prueba la imagen aislada: sin repo, sin credenciales y sin red
+```
+
+La imagen no contiene el `.env` ni los tests: las credenciales entran como variables de entorno al correr
+(como en Cloud Run) y `./data` se monta en `/app/data`. Corre como usuario sin privilegios.

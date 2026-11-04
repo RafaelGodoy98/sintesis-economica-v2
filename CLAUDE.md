@@ -22,6 +22,7 @@ Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Pl
 - User-Agent honesto con contacto y pausa entre solicitudes. No evadir bloqueos (WAF) de las fuentes.
 - Niveles de log: INFO hitos normales · WARNING inesperado pero la corrida siguió · ERROR la fuente falló y su dato no se guardó · CRITICAL la corrida no puede seguir (detalle en docs/plans/2026-10-30-0.7-logging.md).
 - Sin datos de empresas ni marca ASIVA en el repo (fixtures incluidos).
+- Todo test que protege algo (credenciales, idempotencia, aislamiento, permisos) se comprueba haciéndolo fallar a propósito antes de darlo por bueno.
 
 ## Comandos
 - make test · make lint · make run-local SOURCE=<id> · make transform   (se completan a medida que existan)
