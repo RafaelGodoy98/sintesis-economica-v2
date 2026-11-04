@@ -4,8 +4,11 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
+      # Los fixtures son bytes tal cual los entregó la fuente: no se tocan (su sha256 está en MANIFEST.yaml).
       - id: end-of-file-fixer
+        exclude: ^ingest/tests/fixtures/
       - id: trailing-whitespace
+        exclude: ^ingest/tests/fixtures/
       - id: check-yaml
       - id: check-toml
       - id: check-merge-conflict

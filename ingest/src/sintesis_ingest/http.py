@@ -15,6 +15,7 @@ from urllib.parse import quote
 import httpx
 
 from sintesis_ingest import __version__
+from sintesis_ingest.log import register_secret
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +80,8 @@ class HttpClient:
         secret_params: Mapping[str, str] | None = None,
     ) -> Response:
         """GET con pausa y reintentos. `secret_params` viajan en la URL pero nunca se muestran."""
+        for value in (secret_params or {}).values():
+            register_secret(value)  # desde aquí, los logs lo tapan aunque aparezca sin `pass=` adelante
         public_url = _with_query(url, dict(params or {}))
         full_url = _with_query(url, {**(params or {}), **(secret_params or {})})
 

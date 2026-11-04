@@ -34,3 +34,23 @@ fixtures:
     sheets: ["1"]
     sha256_original: 108dc63ddb956ee18c5ea82883e5e0d3f22316bf8b7e20f54b46cf10f14efe56
     sha256: a6f2dabaf75121b7d88160c6a503bd3f350c3d6038b3b20fb708dfb846ee2931
+
+  # --- API BDE del Banco Central: respuestas JSON tal cual (sin limpieza: no traen metadatos ni credenciales) ---
+  # Bajadas el 2026-11-03 por Rafael con HttpClient (1.3). source_url sin credenciales (van en user= y pass=).
+  - file: bcentral/bcentral_imacec_imacec_total_2026-09.json
+    source_id: bcentral_imacec
+    data_period: 2026-09
+    source_url: https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx?function=GetSeries&timeseries=F032.IMC.IND.Z.Z.EP18.Z.Z.0.M&firstdate=1990-01-01&lastdate=2026-12-31
+    sha256: ef07768d0da677db01d1e6e644443e2085181377b5ac323a560c38f958bfc4a9
+
+  - file: bcentral/bcentral_uf_uf_2026-10.json
+    source_id: bcentral_uf
+    data_period: 2026-10
+    source_url: https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx?function=GetSeries&timeseries=F073.UFF.PRE.Z.D&firstdate=2026-10-01&lastdate=2026-10-31
+    sha256: c07fa658edadcc4474998ba8926b7fcec3e89cf839fe25db29c1c1e7dc7eb109
+
+  - file: bcentral/bcentral_uf_credenciales_invalidas.json
+    source_id: bcentral_uf
+    data_period: null  # respuesta de error: clave inválida a propósito (HTTP 200, Codigo=-5)
+    source_url: https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx?function=GetSeries&timeseries=F073.UFF.PRE.Z.D&firstdate=2026-10-01&lastdate=2026-10-31
+    sha256: 7d01476c552922a020b075d92363f85085e0f3d702fe06a93f974f0259f53591

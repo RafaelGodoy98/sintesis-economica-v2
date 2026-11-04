@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from datetime import UTC, datetime
 from typing import TextIO
+from urllib.parse import quote
 
 _context: ContextVar[dict[str, str]] = ContextVar("log_context")
 
@@ -20,8 +21,32 @@ _RECORD_ATTRS = set(vars(logging.makeLogRecord({}))) | {"message", "asctime", "t
 _SECRET_PARAM = re.compile(r"(?i)\b(user|pass|password|token|key|api_?key|secret)=([^&\s\"']+)")
 
 
+# Valores secretos conocidos (p. ej. la clave BDE). Se tapan donde aparezcan, con o sin `pass=` adelante.
+_secret_values: set[str] = set()
+_MIN_SECRET_LEN = 4  # un valor más corto taparía texto común
+
+
+def register_secret(value: str) -> None:
+    """Registra un valor secreto: desde ahora, toda línea de log lo muestra como `***`.
+
+    Registra también sus formas codificadas: en una URL (`#` → `%23`) y dentro de un JSON (`"` → `\\"`).
+    """
+    if len(value) < _MIN_SECRET_LEN:
+        return
+    _secret_values.update(
+        {value, quote(value, safe=""), quote(value, safe="@"), json.dumps(value, ensure_ascii=False)[1:-1]}
+    )
+
+
+def clear_secrets() -> None:
+    """Olvida los valores registrados (para tests)."""
+    _secret_values.clear()
+
+
 def redact(text: str) -> str:
-    """Reemplaza el valor de parámetros sensibles (`user=`, `pass=`, `token=`, ...) por `***`."""
+    """Tapa con `***` los valores secretos registrados y los parámetros sensibles (`user=`, `pass=`, ...)."""
+    for value in sorted(_secret_values, key=len, reverse=True):  # los más largos primero
+        text = text.replace(value, "***")
     return _SECRET_PARAM.sub(r"\1=***", text)
 
 
