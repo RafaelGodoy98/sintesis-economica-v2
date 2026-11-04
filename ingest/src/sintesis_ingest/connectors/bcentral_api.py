@@ -29,7 +29,7 @@ class BcentralApiConnector:
         last_date: date = self._now().date() + timedelta(days=LOOKAHEAD_DAYS)
 
         files = []
-        for serie_id, code in source.series.items():
+        for series_id, code in source.series.items():
             resp = http.get(
                 BASE_URL,
                 params={
@@ -46,7 +46,7 @@ class BcentralApiConnector:
             files.append(
                 RawFile(
                     source_id=source.id,
-                    name=f"{serie_id}.json",
+                    name=f"{series_id}.json",
                     content=resp.content,
                     # Completo, con `charset`: lo que declaró el servidor queda registrado y el parser lo usa.
                     media_type=resp.content_type or "application/json",

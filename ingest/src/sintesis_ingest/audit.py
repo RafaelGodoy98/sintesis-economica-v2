@@ -16,11 +16,11 @@ class RunRecord:
     run_id: str
     source_id: str
     started_at: str  # ISO 8601, UTC
-    estado: Literal["ok", "error"]
-    archivos_nuevos: int  # raw guardados en esta corrida
-    archivos_existentes: int  # raw que ya estaban (mismo sha256): no se guardaron de nuevo
-    filas: int  # observaciones escritas en esta corrida (0 si los CSV ya existían)
-    duracion_s: float
+    status: Literal["ok", "error"]
+    new_files: int  # raw guardados en esta corrida
+    existing_files: int  # raw que ya estaban (mismo sha256): no se guardaron de nuevo
+    rows: int  # observaciones escritas en esta corrida (0 si los CSV ya existían)
+    duration_s: float
     error: str | None = None
 
 

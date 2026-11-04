@@ -7,7 +7,7 @@ Archivos reales de las fuentes, guardados para que los tests de los parsers no d
   `sanitize_xlsx.py`. Las hojas no cambian. Por eso `sha256` difiere de `sha256_original` (el del archivo del INE).
 - **API BDE:** respuestas JSON guardadas sin cambios (no traen metadatos personales ni credenciales); se revisó que
   no contengan el usuario ni la clave antes de copiarlas.
-- **Nombres:** `<source_id>_<AAAA-MM del dato>.<ext>` (en la API BDE, `<source_id>_<serie_id>_<AAAA-MM>.json`). El período sale del contenido o del nombre original, no de la
+- **Nombres:** `<source_id>_<AAAA-MM del dato>.<ext>` (en la API BDE, `<source_id>_<series_id>_<AAAA-MM>.json`). El período sale del contenido o del nombre original, no de la
   carpeta de descarga.
 - **Agregar uno:** un xlsx se copia con `sanitize_xlsx.py`; un JSON de API se copia tal cual (bytes exactos), después
   de revisar que no traiga credenciales. Luego se registra en `MANIFEST.yaml` y se corre `make test`. El test

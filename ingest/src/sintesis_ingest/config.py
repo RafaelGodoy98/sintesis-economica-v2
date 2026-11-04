@@ -87,7 +87,7 @@ class BcentralSource(_Source):
     """API BDE del Banco Central: una consulta GetSeries por serie (ver docs/fuentes.md)."""
 
     connector: Literal["bcentral_api"]
-    series: dict[SourceId, BdeCode] = Field(min_length=1)  # serie_id → código BDE
+    series: dict[SourceId, BdeCode] = Field(min_length=1)  # series_id → código BDE
     first_date: date  # se pide la historia completa desde aquí en cada corrida (decisión 1.3)
 
 
@@ -105,10 +105,10 @@ class SourceCatalog(BaseModel):
         duplicated = sorted({i for i in ids if ids.count(i) > 1})
         if duplicated:
             raise ValueError(f"ids duplicados: {', '.join(duplicated)}")
-        serie_ids = [k for s in self.sources if isinstance(s, BcentralSource) for k in s.series]
-        repeated = sorted({i for i in serie_ids if serie_ids.count(i) > 1})
+        series_ids = [k for s in self.sources if isinstance(s, BcentralSource) for k in s.series]
+        repeated = sorted({i for i in series_ids if series_ids.count(i) > 1})
         if repeated:
-            raise ValueError(f"serie_id duplicados: {', '.join(repeated)}")
+            raise ValueError(f"series_id duplicados: {', '.join(repeated)}")
         return self
 
 

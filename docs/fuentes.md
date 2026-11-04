@@ -64,7 +64,7 @@ Spike desechable (fuera del repo), corrido por Rafael con sus credenciales; Clau
 
 **Códigos de serie** (títulos tomados del catálogo; la UF, de `descripEsp` de `GetSeries`, porque es diaria):
 
-| `serie_id` (propuesto) | Código BDE | Título oficial | Qué usaba V1 (`config.yaml:104-121`) |
+| `series_id` (valor) | Código BDE | Título oficial | Qué usaba V1 (`config.yaml:104-121`) |
 |---|---|---|---|
 | `uf` | `F073.UFF.PRE.Z.D` | Unidad de fomento (UF) | (sin uso) |
 | `imacec_total` | `F032.IMC.IND.Z.Z.EP18.Z.Z.0.M` | Imacec empalmado, serie original (índice 2018=100) | `imacec.var12` |
@@ -85,7 +85,7 @@ Spike desechable (fuera del repo), corrido por Rafael con sus credenciales; Clau
 
 ### Parseo y entidad (para la 1.3)
 - Raw: la respuesta JSON tal cual, una por código o una por fuente (se decide en la 1.3).
-- Entidad: `(serie_id, periodo, valor)`. `periodo` desde `indexDateString` (`dd-mm-aaaa`); `valor` de texto a decimal.
+- Entidad: `(series_id, period, value)`. `period` desde `indexDateString` (`dd-mm-aaaa`); `value` de texto a decimal.
   Solo limpieza estructural; nada de cálculos.
 - V1 no revisaba `Codigo` ni `statusCode`, ni convertía tipos (`bcentral_api.py:64-68`).
 
@@ -122,7 +122,7 @@ Spike desechable (fuera del repo), corrido por Rafael con sus credenciales; Clau
 ### Decisiones de la 1.3 (Rafael, 2026-11-03)
 1. **Ventana:** historia completa en cada corrida (UF desde 2000-01-01; IMACEC desde 1996-01-01), hasta hoy + 45 días.
    Captura las revisiones del IMACEC sin guardar estado; si nada cambió, el archivo es idéntico y no se guarda de nuevo.
-2. **Raw:** un archivo por serie (`<serie_id>.json`), la respuesta tal cual.
+2. **Raw:** un archivo por serie (`<series_id>.json`), la respuesta tal cual.
 3. **`statusCode` ≠ `OK`:** la fila se excluye y se registra un WARNING con cuántas y cuáles. En la historia completa
    del IMACEC total (369 meses) todas son `OK`. Un formato de fecha o valor distinto al verificado **falla**.
 4. **Nota de prensa PDF:** pendiente para la fase 2, junto con el control de la variación publicada.

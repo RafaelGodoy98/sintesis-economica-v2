@@ -1,4 +1,4 @@
-"""Parser de la API BDE: respuesta JSON de GetSeries → filas (serie_id, periodo, valor).
+"""Parser de la API BDE: respuesta JSON de GetSeries → filas (series_id, period, value).
 
 Solo limpieza estructural: texto → fecha y número. Nada de variaciones ni KPI (van en Dataform).
 Formato verificado en el spike de la 1.1 y en la historia completa del IMACEC (docs/fuentes.md).
@@ -61,16 +61,16 @@ def decode_response(content: bytes, content_type: str | None = None) -> dict:
 
 
 def parse(content: bytes, series: Mapping[str, str], content_type: str | None = None) -> list[Observation]:
-    """`series`: serie_id → código BDE (sources.yaml); `content_type`: el declarado por el servidor.
+    """`series`: series_id → código BDE (sources.yaml); `content_type`: el declarado por el servidor.
 
     Devuelve las observaciones con statusCode OK.
     """
     data = decode_response(content, content_type)
     code = (data.get("Series") or {}).get("seriesId")
-    by_code = {c: serie_id for serie_id, c in series.items()}
+    by_code = {c: series_id for series_id, c in series.items()}
     if code not in by_code:
         raise SourceError(f"el código {code!r} no está en la configuración de la fuente")
-    serie_id = by_code[code]
+    series_id = by_code[code]
 
     rows: list[Observation] = []
     excluded: list[str] = []
@@ -79,21 +79,21 @@ def parse(content: bytes, series: Mapping[str, str], content_type: str | None = 
             excluded.append(f"{obs.get('indexDateString')}={obs.get('statusCode')}")
             continue
         try:
-            periodo = datetime.strptime(obs["indexDateString"], DATE_FORMAT).date()
-            valor = Decimal(obs["value"])
+            period = datetime.strptime(obs["indexDateString"], DATE_FORMAT).date()
+            value = Decimal(obs["value"])
         except (KeyError, ValueError, InvalidOperation):
             # Un formato distinto al verificado es un cambio de la fuente:
             # mejor fallar que guardar datos malos.
-            raise SourceError(f"{serie_id}: observación con formato inesperado: {obs!r}") from None
-        if not valor.is_finite():
-            raise SourceError(f"{serie_id}: valor no numérico con statusCode OK: {obs!r}")
-        rows.append(Observation(serie_id, periodo, valor))
+            raise SourceError(f"{series_id}: observación con formato inesperado: {obs!r}") from None
+        if not value.is_finite():
+            raise SourceError(f"{series_id}: valor no numérico con statusCode OK: {obs!r}")
+        rows.append(Observation(series_id, period, value))
 
     if excluded:  # decisión 1.3: excluir y avisar; el raw queda intacto para reprocesar
         logger.warning(
             "observaciones excluidas por statusCode",
-            extra={"serie_id": serie_id, "count": len(excluded), "examples": excluded[:10]},
+            extra={"series_id": series_id, "count": len(excluded), "examples": excluded[:10]},
         )
     if not rows:
-        logger.warning("serie sin observaciones", extra={"serie_id": serie_id})
+        logger.warning("serie sin observaciones", extra={"series_id": series_id})
     return rows

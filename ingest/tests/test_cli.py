@@ -58,7 +58,7 @@ def test_a_run_leaves_raw_csv_and_audit_line(settings):
     assert len(files_under(data / "observaciones" / "source=bcentral_imacec")) == 10
     (record,) = audit_lines(settings)
     assert record["source_id"] == "bcentral_imacec"
-    assert (record["estado"], record["archivos_nuevos"], record["filas"]) == ("ok", 10, 3690)
+    assert (record["status"], record["new_files"], record["rows"]) == ("ok", 10, 3690)
     assert record["error"] is None
 
 
@@ -73,7 +73,7 @@ def test_second_run_creates_nothing_new(settings):
     )
     assert after == before
     first, second = audit_lines(settings)
-    assert (second["archivos_nuevos"], second["archivos_existentes"], second["filas"]) == (0, 1, 0)
+    assert (second["new_files"], second["existing_files"], second["rows"]) == (0, 1, 0)
     assert first["run_id"] != second["run_id"]
 
 
@@ -83,11 +83,11 @@ def test_csv_has_exact_values_and_traceability(settings):
     with path.open(encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
     assert len(rows) == 31
-    assert rows[0]["serie_id"] == "uf"
-    assert (rows[0]["periodo"], rows[0]["valor"]) == ("2026-10-01", "41065.38")  # exacto, sin redondeo
+    assert rows[0]["series_id"] == "uf"
+    assert (rows[0]["period"], rows[0]["value"]) == ("2026-10-01", "41065.38")  # exacto, sin redondeo
     (raw,) = files_under(settings.local_data_dir / "raw")
     assert rows[0]["file_sha256"] == path.stem and raw.name.startswith(path.stem)
-    assert rows[0]["archivo_uri"] == raw.as_uri()
+    assert rows[0]["file_uri"] == raw.as_uri()
 
 
 def test_failing_source_does_not_stop_the_others(settings, caplog):
@@ -95,9 +95,9 @@ def test_failing_source_does_not_stop_the_others(settings, caplog):
     with caplog.at_level(logging.ERROR):
         code = run_ids(settings, "bcentral_uf", "senado_leyes_publicadas", "bcentral_imacec")
     assert code == EXIT_SOURCE_FAILED
-    estados = {r["source_id"]: r["estado"] for r in audit_lines(settings)}
-    assert estados == {"bcentral_uf": "ok", "senado_leyes_publicadas": "error", "bcentral_imacec": "ok"}
-    (failed,) = [r for r in audit_lines(settings) if r["estado"] == "error"]
+    statuses = {r["source_id"]: r["status"] for r in audit_lines(settings)}
+    assert statuses == {"bcentral_uf": "ok", "senado_leyes_publicadas": "error", "bcentral_imacec": "ok"}
+    (failed,) = [r for r in audit_lines(settings) if r["status"] == "error"]
     assert "conector aún no implementado" in failed["error"]
     assert any(r.levelno == logging.ERROR for r in caplog.records)
 
