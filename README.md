@@ -4,7 +4,8 @@ Pipeline ELT de indicadores económicos de la Región de Valparaíso y Chile (IN
 desplegable en Google Cloud: ingesta en Cloud Run Jobs → Cloud Storage (raw) → BigQuery → Dataform,
 con infraestructura como código (Terraform) y CI/CD en GitHub Actions.
 
-> **Estado:** en construcción — fase 1 (ingesta del Banco Central). Ver [docs/plan.md](docs/plan.md).
+> **Estado:** en construcción — fase 1 cerrada (ingesta del Banco Central, en Docker); sigue la fase 2 (BigQuery +
+> Dataform). Ver [docs/plan.md](docs/plan.md) y la [guía del código](docs/codigo.md).
 
 ## Desarrollo local
 

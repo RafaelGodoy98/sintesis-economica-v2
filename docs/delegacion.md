@@ -13,7 +13,7 @@ Alimenta `docs/retrospectiva.md` al cierre del proyecto.
 | `revisor-iam` | subagente | Revisar Terraform/IAM en solo lectura (mínimo privilegio) | — | Fase 3 |
 | `validador-cifras` | subagente | Comparar marts contra `contenido_AAAA-MM.yaml` de V1 | — | Fase 2 |
 | `agregar-serie` | skill | Sumar una serie a `dim_serie` + assertions de Dataform | — | Fase 2 |
-| `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`). Usada en: skill; 0.7 (se agregó "Qué se logró"); 0.8; 0.9; replan; 1.0; 1.1a; 1.1; 1.2; 1.3; 1.4; 1.5; revisor; 1.7 |
+| `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`). Usada en: skill; 0.7 (se agregó "Qué se logró"); 0.8; 0.9; replan; 1.0; 1.1a; 1.1; 1.2; 1.3; 1.4; 1.5; revisor; 1.7; codigo.md |
 | `v1-analista` sin recarga | aviso | Si la rama activa no tiene el archivo del agente, se descarga; vuelve con *Developer: Reload Window*. En 0.6 se usó Explore | 2026-10-30 · 0.6 | Observando |
 | Inspeccionar binarios con un script de librería estándar | patrón | Revisar metadatos y estructura de xlsx/whl sin abrir Excel ni instalar nada | 2026-10-30 · 0.6 (wheel); 0.8 (xlsx) | Observando (2 de 3): candidato a script en `ingest/tests/fixtures/` |
 | Falsos positivos de detect-secrets | aviso | Hashes sha256 en manifiestos; se registran en `.secrets.baseline` | 2026-10-30 · 0.8; 2026-11-03 · 1.3 | Observando |
