@@ -94,10 +94,10 @@ Dataform ya entrega el grafo de dependencias y el linaje de la parte de transfor
 | Capa | Dónde | Contenido | Regla |
 |---|---|---|---|
 | Landing / raw files | `gs://<proyecto>-raw/source=<fuente>/dataset=<x>/ingest_date=AAAA-MM-DD/<sha256>_<nombre>` | Archivo tal como lo entrega la fuente | Inmutable. Mismo hash = no se vuelve a subir |
-| Raw tables | BigQuery `raw` | `observaciones`: `source_id, serie_id, periodo (DATE), valor (NUMERIC), unidad, archivo_uri, file_sha256, run_id, ingested_at` | Solo se agrega. Particionada por `ingested_at`, cluster por `serie_id` |
+| Raw tables | BigQuery `raw` | `observaciones`: `source_id, series_id, period (DATE), value (NUMERIC), unit, file_uri, file_sha256, run_id, ingested_at` | Solo se agrega. Particionada por `ingested_at`, cluster por `series_id` |
 | Staging | `stg` (Dataform) | Tipos, nombres, deduplicación, **última vintage por (serie, periodo)** | Una vista por fuente |
 | Marts | `marts` (Dataform) | `dim_serie`, `fct_observacion_mensual`, `mart_kpi_edicion`, `mart_comparacion_indicador`, `mart_proyectos_ley` | Lo que consume el reporte/dashboard |
-| Ops | `ops` | `ejecuciones` (run_id, fuente, estado, archivos, filas, duración, error) | Reemplaza `reporte.py` y el JSON de estado |
+| Ops | `ops` | `ejecuciones` (`run_id, source_id, status, new_files, existing_files, rows, duration_s, error`) | Reemplaza `reporte.py` y el JSON de estado |
 
 **Concepto clave a demostrar: vintages.** El INE y el Banco Central revisan cifras. Guardar cada carga con su
 `ingested_at` permite reconstruir "qué cifra se publicó en la edición de septiembre" versus "cuál es la cifra vigente hoy".
@@ -193,7 +193,7 @@ a la service account `sa-dataform`.
 **Aprendes:** diseño de conectores, idempotencia, contenedores, manejo de secretos en local.
 - Ficha de la fuente (`v1-analista`) y códigos de serie de UF e IMACEC verificados con `SearchSeries`.
 - Contrato común (ADR-0003): el conector solo descarga; `Storage` local idempotente por `sha256` (si el objeto existe, no se sube ni se recarga); cliente HTTP común (User-Agent honesto, pausa, reintentos, redacción de credenciales).
-- Parser del JSON → formato largo `(serie_id, periodo, valor)`. Solo limpieza estructural; **los cálculos (var. 12 meses, KPI) van a Dataform**.
+- Parser del JSON → formato largo `(series_id, period, value)`. Solo limpieza estructural; **los cálculos (var. 12 meses, KPI) van a Dataform**.
 - Tests contra un fixture JSON real, sin credenciales.
 - CLI `sintesis-ingest run --source <id>`, registro de ejecuciones y `make run-local`.
 - `Dockerfile` multi-stage, imagen slim, usuario no root; `docker compose run ingest`.
