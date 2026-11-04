@@ -15,6 +15,8 @@ Cierra la tarea actual siguiendo estos pasos en orden. No te saltes ninguno; si 
 - Nunca uses `git add -A` ni `git add .`: agrega los archivos por nombre.
 
 ## 3. Verificación
+- Antes del lint, agrega a git los archivos nuevos sin prepararlos (`git add -N <archivo>`): `pre-commit run
+  --all-files` solo revisa archivos que git conoce, y un archivo nuevo quedaría sin revisar hasta el commit (1.5).
 - Corre `make lint` y `make test`. Si fallan, corrige y repite antes de seguir.
 - Resume el resultado (p. ej. "13 passed, lint limpio"); no pegues logs largos.
 
@@ -31,23 +33,26 @@ Cierra la tarea actual siguiendo estos pasos en orden. No te saltes ninguno; si 
 - Mensajes en inglés, con la atribución que indique la sesión.
 - Si pre-commit modifica o bloquea el commit, revisa por qué antes de reintentar. Prefiere corregir la causa (configuración) en vez de aceptar el cambio a ciegas.
 
-## 6. Subir y abrir el PR
+## 6. Revisión de convenciones
+- Guarda el diff de la rama en el scratchpad (`git diff main...HEAD > <scratchpad>/revision.diff`) y pásale esa ruta
+  al subagente `revisor-convenciones`. Si el agente aún no aparece (uno recién creado puede tardar
+  en detectarse, o requerir una sesión nueva), usa `Explore` con sus instrucciones (`.claude/agents/revisor-convenciones.md`).
+- Corrige lo que **bloquea** antes de subir. Lo que **sugiere**: corrígelo o explica por qué no.
+- El informe (veredicto y hallazgos) va en el PR, en la sección **Revisión de convenciones**.
+
+## 7. Subir y abrir el PR
 - Antes de subir, muestra qué se va a enviar: `git log --oneline main..HEAD` y `git diff --stat main`.
-- `git push -u origin <rama>` y `gh pr create --base main` con estas secciones: **Qué** (plan y archivos), **Verificación** (resultados reales, incluidas las fallas) y **Para validar (Rafael)** (casillas concretas).
+- `git push -u origin <rama>` y `gh pr create --base main` con estas secciones: **Qué** (plan y archivos), **Verificación** (resultados reales, incluidas las fallas), **Revisión de convenciones** (veredicto del subagente) y **Para validar (Rafael)** (casillas concretas).
 - Nunca hagas merge ni push a `main`: eso lo decide y lo hace Rafael.
 
-## 7. Resumen para Rafael
+## 8. Resumen para Rafael
 Termina con un mensaje breve que contenga:
 1. **Qué se logró**, en 3–5 líneas de lenguaje simple y sin jerga: qué problema resuelve la tarea, qué se puede hacer
    ahora que antes no, y para qué servirá más adelante en el proyecto. Rafael debe poder explicarlo con sus palabras.
 2. **Qué quedó** y el enlace al PR.
 3. **Para validar:** diff, cifras o resultados concretos, cada uno con su archivo.
 4. **Oportunidades de delegación:** qué hizo o pudo hacer un subagente o skill existente, y qué patrón se repitió (con su conteo en `docs/delegacion.md`).
-5. **Comandos para integrar**, descritos por lo que hace cada uno:
-   ```bash
-   git switch main
-   git merge --ff-only <rama>        # main avanza a los commits de la tarea
-   git push origin main              # GitHub cierra el PR
-   git branch -d <rama> && git push origin --delete <rama>   # borra la rama integrada
-   ```
+5. **Cómo integrar:** Rafael revisa el PR en GitHub, usa **Squash and merge** (la rama queda como un commit en
+   `main`) y **Delete branch**. Cuando avise, Claude sincroniza: `git switch main && git pull --ff-only`,
+   `git fetch --prune` y borra la rama local con `git branch -D <rama>` (con squash, git no la reconoce como integrada).
 6. **Siguiente tarea** según el plan de fase.
