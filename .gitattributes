@@ -5,3 +5,6 @@
 *.pdf binary
 *.parquet binary
 *.png binary
+
+# Fixtures: bytes exactos de la fuente (su sha256 está en MANIFEST.yaml). Sin conversión de fin de línea.
+ingest/tests/fixtures/** -text
