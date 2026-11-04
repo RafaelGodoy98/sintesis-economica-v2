@@ -26,7 +26,8 @@ class StoredFile:
 
 class LocalStorage:
     def __init__(self, root: Path) -> None:
-        self.root = root
+        # Ruta absoluta: la URI (file:///...) lo exige, y la de local es relativa (`data/raw`).
+        self.root = root.resolve()
 
     def save(self, raw: RawFile, ingest_date: date | None = None) -> StoredFile:
         sha = raw.sha256
