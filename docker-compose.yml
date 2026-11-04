@@ -1,0 +1,16 @@
+# Correr la ingesta en Docker, en local:
+#   make docker-build
+#   make docker-run SOURCE=bcentral_uf
+services:
+  ingest:
+    build:
+      context: .
+      dockerfile: ingest/Dockerfile
+    image: sintesis-ingest:local
+    # Credenciales y configuración: llegan como variables de entorno al correr (igual que en Cloud Run).
+    # Nunca dentro de la imagen.
+    env_file: .env
+    # Los archivos de ./data quedan a nombre de tu usuario (no del uid de la imagen). make docker-run pasa UID/GID.
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ${DATA_DIR:-./data}:/app/data  # make docker-run DATA_DIR=<carpeta> para usar otra

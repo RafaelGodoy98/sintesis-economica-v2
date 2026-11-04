@@ -36,4 +36,7 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "S"]
 
 [tool.pytest.ini_options]
 testpaths = ["ingest/tests"]
-addopts = "--import-mode=importlib"
+# Los tests marcados `docker` construyen la imagen: no corren en `make test` (rápido, sin Docker), sino en
+# `make test-docker` (y en la CI, fase 5).
+addopts = "--import-mode=importlib -m 'not docker'"
+markers = ["docker: construyen y prueban la imagen de Docker (make test-docker)"]
