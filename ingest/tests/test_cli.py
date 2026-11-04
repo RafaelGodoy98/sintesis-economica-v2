@@ -95,8 +95,8 @@ def test_failing_source_does_not_stop_the_others(settings, caplog):
     with caplog.at_level(logging.ERROR):
         code = run_ids(settings, "bcentral_uf", "senado_leyes_publicadas", "bcentral_imacec")
     assert code == EXIT_SOURCE_FAILED
-    estados = {r["source_id"]: r["status"] for r in audit_lines(settings)}
-    assert estados == {"bcentral_uf": "ok", "senado_leyes_publicadas": "error", "bcentral_imacec": "ok"}
+    statuses = {r["source_id"]: r["status"] for r in audit_lines(settings)}
+    assert statuses == {"bcentral_uf": "ok", "senado_leyes_publicadas": "error", "bcentral_imacec": "ok"}
     (failed,) = [r for r in audit_lines(settings) if r["status"] == "error"]
     assert "conector aún no implementado" in failed["error"]
     assert any(r.levelno == logging.ERROR for r in caplog.records)
