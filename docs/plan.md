@@ -223,6 +223,8 @@ a la service account `sa-dataform`.
 > **Al empezar esta fase se activa la prueba gratuita de 90 días** (sección 6): las fases 3, 4 y 5 deben caber en ese plazo.
 **Aprendes:** Terraform, IAM, Secret Manager, gestión de costos.
 - **Antes de autenticar `gcloud` en local: reevaluar el sandbox de Claude Code** (postergado en la tarea 1.1a). Las credenciales de GCP dan acceso a la cuenta de nube y valen mucho más que la clave BDE.
+  En la misma discusión, como concepto: un **hook de Claude Code** que revise la salida de cada comando y bloquee las
+  credenciales reales antes de que lleguen a Claude (idea de Rafael, 1.2). Lo leería el script del hook, nunca Claude.
 - `infra/bootstrap`: bucket de estado remoto (con versionado), habilitación de APIs, presupuesto con alertas (budget de billing).
 - Recursos: buckets (raw con lifecycle hacia Nearline/Coldline), datasets BQ (`raw`, `stg`, `marts`, `ops`) con descripción y labels, Artifact Registry, Secret Manager (el **valor** del secreto se carga a mano con `gcloud`, nunca en Terraform/tfvars), service accounts y bindings de la tabla IAM.
 - Separación dev/prod (ver D3).
