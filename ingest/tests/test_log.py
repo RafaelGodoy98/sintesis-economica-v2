@@ -4,7 +4,14 @@ import logging
 
 import pytest
 
-from sintesis_ingest.log import configure_logging, log_context, new_run_id, redact
+from sintesis_ingest.log import (
+    clear_secrets,
+    configure_logging,
+    log_context,
+    new_run_id,
+    redact,
+    register_secret,
+)
 
 logger = logging.getLogger("sintesis_ingest.test")
 
@@ -108,3 +115,42 @@ def test_level_filters_lower_severities(log_buffer, log_lines):
 
 def test_run_ids_are_unique():
     assert new_run_id() != new_run_id()
+
+
+# --- redacción por valor (1.3) ---
+
+
+@pytest.fixture
+def secret_registered():
+    register_secret("Xk9#clave-real")  # pragma: allowlist secret (valor falso de prueba)
+    yield
+    clear_secrets()
+
+
+def test_registered_secret_is_hidden_even_without_param_name(secret_registered, log_lines):
+    logger.error("clave inválida: Xk9#clave-real")
+    (line,) = log_lines()
+    assert "Xk9#clave-real" not in json.dumps(line)
+    assert line["message"] == "clave inválida: ***"
+
+
+def test_registered_secret_is_hidden_in_url_encoded_form(secret_registered, log_lines):
+    logger.info("GET https://x.test/?p=Xk9%23clave-real")
+    (line,) = log_lines()
+    assert "Xk9" not in line["message"]
+
+
+def test_registered_secret_is_hidden_in_extras_and_exceptions(secret_registered, log_lines):
+    try:
+        raise RuntimeError("falló con Xk9#clave-real")
+    except RuntimeError:
+        logger.exception("error", extra={"detalle": "Xk9#clave-real"})
+    (line,) = log_lines()
+    assert "Xk9" not in json.dumps(line)
+
+
+def test_short_values_are_not_registered(log_lines):
+    register_secret("abc")  # taparía texto común
+    logger.info("abcdef")
+    (line,) = log_lines()
+    assert line["message"] == "abcdef"

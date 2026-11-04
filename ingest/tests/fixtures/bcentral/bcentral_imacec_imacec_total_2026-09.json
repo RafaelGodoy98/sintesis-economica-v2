@@ -1,0 +1,1857 @@
+{
+  "Codigo": 0,
+  "Descripcion": "Success",
+  "Series": {
+    "descripEsp": "Imacec empalmado, serie original (índice 2018=100)",
+    "descripIng": "Monthly indicator of economic activity Imacec,  linked series (2018 index=100)",
+    "seriesId": "F032.IMC.IND.Z.Z.EP18.Z.Z.0.M",
+    "Obs": [
+      {
+        "indexDateString": "01-01-1996",
+        "value": "42.487431369417",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-1996",
+        "value": "41.164549016881",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-1996",
+        "value": "44.717816536594",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-1996",
+        "value": "43.672806351396",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-1996",
+        "value": "43.487324742889",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-1996",
+        "value": "41.867915080919",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-1996",
+        "value": "41.448824430024",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-1996",
+        "value": "42.05654343401",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-1996",
+        "value": "40.53461788727",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-1996",
+        "value": "44.073788058156",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-1996",
+        "value": "44.480451094525",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-1996",
+        "value": "47.138699249958",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-1997",
+        "value": "45.107779974988",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-1997",
+        "value": "43.238607318856",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-1997",
+        "value": "47.222939767798",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-1997",
+        "value": "46.292025468874",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-1997",
+        "value": "46.943954187161",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-1997",
+        "value": "44.578450287978",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-1997",
+        "value": "44.560426439284",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-1997",
+        "value": "45.422611706274",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-1997",
+        "value": "44.170361547815",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-1997",
+        "value": "47.79131721692",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-1997",
+        "value": "48.550895247711",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-1997",
+        "value": "51.476356080406",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-1998",
+        "value": "48.427697084282",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-1998",
+        "value": "46.391450543201",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-1998",
+        "value": "51.132096315379",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-1998",
+        "value": "50.472164175264",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-1998",
+        "value": "49.549324708447",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-1998",
+        "value": "47.362483322844",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-1998",
+        "value": "46.79768562137",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-1998",
+        "value": "47.039303226186",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-1998",
+        "value": "45.591184021196",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-1998",
+        "value": "47.734877214373",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-1998",
+        "value": "47.666392466529",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-1998",
+        "value": "50.409859794275",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-1999",
+        "value": "47.306614904928",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-1999",
+        "value": "45.21115861471",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-1999",
+        "value": "49.739128214233",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-1999",
+        "value": "48.051451450532",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-1999",
+        "value": "47.926951710777",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-1999",
+        "value": "46.645793849273",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-1999",
+        "value": "45.775290929419",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-1999",
+        "value": "46.722540165161",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-1999",
+        "value": "45.955465165439",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-1999",
+        "value": "49.606204545304",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-1999",
+        "value": "50.781863650593",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-1999",
+        "value": "53.268893748389",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2000",
+        "value": "49.971312156722",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2000",
+        "value": "47.757648961496",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2000",
+        "value": "52.773356450772",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2000",
+        "value": "51.37539699981",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2000",
+        "value": "51.048322220629",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2000",
+        "value": "48.533063718236",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2000",
+        "value": "48.351408583386",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2000",
+        "value": "49.336918128206",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2000",
+        "value": "47.686866848186",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2000",
+        "value": "51.639067160489",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2000",
+        "value": "52.389410091593",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2000",
+        "value": "54.814411917121",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2001",
+        "value": "51.091949399933",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2001",
+        "value": "49.367213736532",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2001",
+        "value": "55.139305364006",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2001",
+        "value": "53.212774134741",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2001",
+        "value": "52.832417888978",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2001",
+        "value": "51.266221369556",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2001",
+        "value": "49.666345567046",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2001",
+        "value": "50.702357383896",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2001",
+        "value": "49.023918775831",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2001",
+        "value": "53.099156731635",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2001",
+        "value": "53.73944370959",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2001",
+        "value": "55.639349064575",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2002",
+        "value": "52.386842733463",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2002",
+        "value": "49.572388645635",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2002",
+        "value": "55.496862230513",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2002",
+        "value": "54.831662879904",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2002",
+        "value": "53.959495469834",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2002",
+        "value": "52.591305977677",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2002",
+        "value": "51.574149311361",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2002",
+        "value": "52.645300668426",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2002",
+        "value": "51.486675858879",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2002",
+        "value": "55.585457086248",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2002",
+        "value": "56.19572686576",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2002",
+        "value": "58.465048348095",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2003",
+        "value": "54.900606275459",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2003",
+        "value": "52.48618405385",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2003",
+        "value": "58.467205606835",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2003",
+        "value": "57.430155993455",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2003",
+        "value": "56.898668669087",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2003",
+        "value": "55.359901669113",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2003",
+        "value": "54.184751468318",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2003",
+        "value": "54.948693368022",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2003",
+        "value": "53.722113357047",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2003",
+        "value": "57.956402117919",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2003",
+        "value": "58.266846088052",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2003",
+        "value": "60.624443844482",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2004",
+        "value": "56.955084196657",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2004",
+        "value": "54.856650202714",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2004",
+        "value": "61.862995629042",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2004",
+        "value": "60.637087338803",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2004",
+        "value": "60.085063570149",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2004",
+        "value": "58.541869244343",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2004",
+        "value": "57.991105850779",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2004",
+        "value": "59.147606140564",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2004",
+        "value": "57.833755537243",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2004",
+        "value": "62.943605435077",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2004",
+        "value": "63.373358052551",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2004",
+        "value": "66.085423779699",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2005",
+        "value": "60.997060204058",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2005",
+        "value": "58.268919701988",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2005",
+        "value": "65.160412346315",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2005",
+        "value": "64.37545096138",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2005",
+        "value": "63.300283169448",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2005",
+        "value": "62.240974281921",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2005",
+        "value": "60.62778019104",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2005",
+        "value": "63.155196419262",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2005",
+        "value": "61.204357372753",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2005",
+        "value": "65.630502708453",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2005",
+        "value": "66.99599793774",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2005",
+        "value": "70.401704127295",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2006",
+        "value": "64.269602795469",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2006",
+        "value": "62.488110171123",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2006",
+        "value": "68.647650118138",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2006",
+        "value": "67.635320987464",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2006",
+        "value": "67.864066098357",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2006",
+        "value": "66.446413492688",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2006",
+        "value": "64.332903078673",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2006",
+        "value": "65.948273488541",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2006",
+        "value": "65.113551695834",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2006",
+        "value": "70.480971763766",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2006",
+        "value": "70.667382582297",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2006",
+        "value": "74.587020892956",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2007",
+        "value": "67.845191279381",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2007",
+        "value": "65.116565114977",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2007",
+        "value": "73.244219190879",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2007",
+        "value": "71.488095617641",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2007",
+        "value": "71.440798702796",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2007",
+        "value": "70.072986345226",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2007",
+        "value": "66.805588387192",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2007",
+        "value": "69.297823047217",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2007",
+        "value": "68.798380919881",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2007",
+        "value": "73.415997744712",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2007",
+        "value": "74.134087787802",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2007",
+        "value": "78.605712387657",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2008",
+        "value": "72.021359084329",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2008",
+        "value": "69.921220421093",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2008",
+        "value": "76.844728447913",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2008",
+        "value": "75.053531974984",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2008",
+        "value": "74.871055326447",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2008",
+        "value": "73.741646042606",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2008",
+        "value": "71.175614376829",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2008",
+        "value": "70.786547912996",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2008",
+        "value": "70.220106541471",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2008",
+        "value": "75.251925378092",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2008",
+        "value": "74.105553698677",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2008",
+        "value": "78.492054985693",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2009",
+        "value": "71.012969470127",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2009",
+        "value": "67.35317472083",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2009",
+        "value": "75.47801242437",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2009",
+        "value": "73.301019024223",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2009",
+        "value": "72.779489795381",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2009",
+        "value": "71.269542073",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2009",
+        "value": "68.749135142568",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2009",
+        "value": "71.488672153271",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2009",
+        "value": "70.422142442318",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2009",
+        "value": "75.065190753094",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2009",
+        "value": "76.253120201958",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2009",
+        "value": "79.446361235564",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2010",
+        "value": "72.478647028526",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2010",
+        "value": "69.784255933159",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2010",
+        "value": "75.714061392483",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2010",
+        "value": "77.836153679346",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2010",
+        "value": "77.265079570532",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2010",
+        "value": "76.186444175657",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2010",
+        "value": "74.112635101111",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2010",
+        "value": "77.296542693899",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2010",
+        "value": "75.05015526522",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2010",
+        "value": "80.061679388225",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2010",
+        "value": "82.742487762095",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2010",
+        "value": "85.153296099552",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2011",
+        "value": "78.010367477195",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2011",
+        "value": "74.279064630843",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2011",
+        "value": "84.796447395721",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2011",
+        "value": "82.417454723301",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2011",
+        "value": "82.970070411295",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2011",
+        "value": "80.371445138843",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2011",
+        "value": "77.225680203992",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2011",
+        "value": "80.76100654037",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2011",
+        "value": "78.670318350874",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2011",
+        "value": "84.178775752689",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2011",
+        "value": "86.446293627724",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2011",
+        "value": "91.043493166839",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2012",
+        "value": "82.48850775212",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2012",
+        "value": "79.583912810663",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2012",
+        "value": "89.288491287334",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2012",
+        "value": "87.623528867105",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2012",
+        "value": "88.03861747833",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2012",
+        "value": "86.063196111227",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2012",
+        "value": "82.963262681021",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2012",
+        "value": "86.65082638185",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2012",
+        "value": "82.73009513732",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2012",
+        "value": "89.847446247651",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2012",
+        "value": "91.596476733005",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2012",
+        "value": "94.690431285772",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2013",
+        "value": "86.554672664635",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2013",
+        "value": "82.285195359712",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2013",
+        "value": "92.915157208564",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2013",
+        "value": "91.368569088713",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2013",
+        "value": "90.698739135295",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2013",
+        "value": "88.646666078708",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2013",
+        "value": "85.498049116008",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2013",
+        "value": "88.96484131586",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2013",
+        "value": "85.273491618431",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2013",
+        "value": "92.312526870442",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2013",
+        "value": "94.526531734956",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2013",
+        "value": "96.980609650914",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2014",
+        "value": "88.078671663367",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2014",
+        "value": "84.838081379971",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2014",
+        "value": "95.263987189245",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2014",
+        "value": "92.838728367733",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2014",
+        "value": "92.54806051706",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2014",
+        "value": "89.942043284048",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2014",
+        "value": "86.087121980501",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2014",
+        "value": "89.666893555672",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2014",
+        "value": "87.372380292488",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2014",
+        "value": "94.000625580328",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2014",
+        "value": "95.3287724996",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2014",
+        "value": "99.349040900448",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2015",
+        "value": "90.417666680005",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2015",
+        "value": "87.073518075102",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2015",
+        "value": "97.390514439681",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2015",
+        "value": "95.096728372158",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2015",
+        "value": "93.712205895916",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2015",
+        "value": "92.150143156088",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2015",
+        "value": "88.231811991162",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2015",
+        "value": "90.888637975423",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2015",
+        "value": "89.969027331847",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2015",
+        "value": "95.106440692775",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2015",
+        "value": "97.421909724648",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2015",
+        "value": "101.42633911097",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2016",
+        "value": "92.082792234138",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2016",
+        "value": "90.823609958958",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2016",
+        "value": "100.17965075824",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2016",
+        "value": "95.675414396105",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2016",
+        "value": "95.636998859548",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2016",
+        "value": "93.198731794271",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2016",
+        "value": "89.160380103014",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2016",
+        "value": "93.789747944194",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2016",
+        "value": "91.494745099879",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2016",
+        "value": "94.731691176603",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2016",
+        "value": "98.699999126543",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2016",
+        "value": "103.02566861012",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2017",
+        "value": "92.497622169324",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2017",
+        "value": "89.148005380232",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2017",
+        "value": "100.45563676548",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2017",
+        "value": "95.359503851237",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2017",
+        "value": "96.948867824757",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2017",
+        "value": "94.232194643779",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2017",
+        "value": "90.896341183784",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2017",
+        "value": "95.883750539008",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2017",
+        "value": "92.848000807428",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2017",
+        "value": "97.831789204845",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2017",
+        "value": "102.10587787944",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2017",
+        "value": "105.7491939013",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2018",
+        "value": "96.902527717273",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2018",
+        "value": "92.866827911117",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2018",
+        "value": "105.27264033824",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2018",
+        "value": "102.01646828916",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2018",
+        "value": "101.52246775893",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2018",
+        "value": "98.316622477765",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2018",
+        "value": "93.700993978119",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2018",
+        "value": "98.203196939308",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2018",
+        "value": "94.414393305275",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2018",
+        "value": "102.1916299675",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2018",
+        "value": "105.56211613868",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2018",
+        "value": "109.03011517858",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2019",
+        "value": "98.807623610085",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2019",
+        "value": "93.240562119026",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2019",
+        "value": "106.69070751607",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2019",
+        "value": "103.83449766231",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2019",
+        "value": "103.40967214337",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2019",
+        "value": "99.182117282143",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2019",
+        "value": "96.292136249094",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2019",
+        "value": "101.33680473836",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2019",
+        "value": "97.04316397109",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2019",
+        "value": "97.557815395142",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2019",
+        "value": "100.29597151742",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2019",
+        "value": "110.03960862792",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2020",
+        "value": "99.726585989509",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2020",
+        "value": "95.777693546887",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2020",
+        "value": "102.04995529307",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2020",
+        "value": "88.167635520628",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2020",
+        "value": "86.887787133634",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2020",
+        "value": "85.333955241404",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2020",
+        "value": "85.009016978429",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2020",
+        "value": "90.178266811196",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2020",
+        "value": "92.23888919338",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2020",
+        "value": "96.232464096099",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2020",
+        "value": "101.31170190947",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2020",
+        "value": "110.66572544925",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2021",
+        "value": "96.307192010259",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2021",
+        "value": "93.702525143204",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2021",
+        "value": "108.81866607455",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2021",
+        "value": "101.64409031591",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2021",
+        "value": "103.87593905846",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2021",
+        "value": "102.72709053896",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2021",
+        "value": "99.821756520536",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2021",
+        "value": "106.38023149111",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2021",
+        "value": "104.65741939941",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2021",
+        "value": "108.99438765152",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2021",
+        "value": "114.8186157965",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2021",
+        "value": "120.35026222044",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2022",
+        "value": "103.25055214499",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2022",
+        "value": "98.392747587433",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2022",
+        "value": "114.98830904692",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2022",
+        "value": "107.64602778696",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2022",
+        "value": "109.68114129005",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2022",
+        "value": "105.60043224277",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2022",
+        "value": "99.384453159201",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2022",
+        "value": "107.05564715782",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2022",
+        "value": "104.84429958116",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2022",
+        "value": "106.94628305303",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2022",
+        "value": "111.52735576664",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2022",
+        "value": "118.82960695024",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2023",
+        "value": "104.65385748989",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2023",
+        "value": "98.553545282275",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2023",
+        "value": "113.27434917839",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2023",
+        "value": "107.11089855154",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2023",
+        "value": "109.0237569557",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2023",
+        "value": "105.62943122294",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2023",
+        "value": "102.28184918977",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2023",
+        "value": "107.50349983061",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2023",
+        "value": "105.7903745421",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2023",
+        "value": "109.50089477486",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2023",
+        "value": "114.07168353179",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2023",
+        "value": "119.47378929813",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2024",
+        "value": "108.57310427614",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2024",
+        "value": "104.30565037628",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2024",
+        "value": "114.6162650446",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2024",
+        "value": "111.28337857208",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2024",
+        "value": "109.38123881741",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2024",
+        "value": "104.87634192427",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2024",
+        "value": "106.87583275",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2024",
+        "value": "109.90525559164",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2024",
+        "value": "106.32873388951",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2024",
+        "value": "112.6697629105",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2024",
+        "value": "116.84504090734",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2024",
+        "value": "127.58610908617",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2025",
+        "value": "112.1861404956",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2025",
+        "value": "104.63103572958",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2025",
+        "value": "120.26442117979",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2025",
+        "value": "115.59860362448",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2025",
+        "value": "113.68325414443",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2025",
+        "value": "108.41654927337",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2025",
+        "value": "108.58247960021",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2025",
+        "value": "110.20157047333",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2025",
+        "value": "109.83345754609",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-10-2025",
+        "value": "114.98767952324",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-11-2025",
+        "value": "118.44721471715",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-12-2025",
+        "value": "129.2022409563",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-01-2026",
+        "value": "111.2147495657",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-02-2026",
+        "value": "104.40023494049",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-03-2026",
+        "value": "120.37461245107",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-04-2026",
+        "value": "114.36151833836",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-05-2026",
+        "value": "112.1062643168",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-06-2026",
+        "value": "110.60144683703",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-07-2026",
+        "value": "106.967730924136",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-08-2026",
+        "value": "109.084544965603",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "01-09-2026",
+        "value": "110.045265996356",
+        "statusCode": "OK"
+      }
+    ]
+  },
+  "SeriesInfos": []
+}

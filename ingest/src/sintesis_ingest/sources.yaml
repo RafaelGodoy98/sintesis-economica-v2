@@ -49,3 +49,27 @@ sources:
     connector: senado
     status: L
     date_field: publicacion
+
+  # --- Banco Central, API BDE: historia completa en cada corrida; un raw por serie (docs/fuentes.md) ---
+  - id: bcentral_uf
+    name: Unidad de Fomento (UF)
+    connector: bcentral_api
+    first_date: 2000-01-01
+    series:
+      uf: F073.UFF.PRE.Z.D
+
+  - id: bcentral_imacec
+    name: IMACEC (índices base 2018)
+    connector: bcentral_api
+    first_date: 1996-01-01
+    series:
+      imacec_total: F032.IMC.IND.Z.Z.EP18.Z.Z.0.M
+      imacec_no_minero: F032.IMC.IND.Z.Z.EP18.N03.Z.0.M
+      imacec_mineria: F032.IMC.IND.Z.Z.EP18.03.Z.0.M
+      imacec_industria: F032.IMC.IND.Z.Z.EP18.04.Z.0.M
+      imacec_resto_bienes: F032.IMC.IND.Z.Z.EP18.RB.Z.0.M
+      imacec_comercio: F032.IMC.IND.Z.Z.EP18.COM.Z.0.M
+      imacec_servicios: F032.IMC.IND.Z.Z.EP18.SERV.Z.0.M
+      imacec_produccion_bienes: F032.IMC.IND.Z.Z.EP18.PB.Z.0.M
+      imacec_impuestos: F032.IMC.IND.Z.Z.EP18.IMP.Z.0.M
+      imacec_total_desest: F032.IMC.IND.Z.Z.EP18.Z.Z.1.M

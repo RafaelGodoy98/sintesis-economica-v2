@@ -136,3 +136,48 @@ def test_settings_read_dotenv_and_env_wins(clean_env, tmp_path):
     settings = Settings()
     assert settings.contact_email == "file@example.com"  # viene del .env
     assert settings.env == "prod"  # la variable de entorno le gana al archivo
+
+
+# --- Banco Central (1.3) ---
+
+
+def test_bcentral_sources_have_the_eleven_verified_series():
+    catalog = load_sources()
+    bc = {s.id: s for s in catalog.sources if s.connector == "bcentral_api"}
+    assert set(bc) == {"bcentral_uf", "bcentral_imacec"}
+    assert bc["bcentral_uf"].series == {"uf": "F073.UFF.PRE.Z.D"}
+    assert len(bc["bcentral_imacec"].series) == 10
+    assert bc["bcentral_imacec"].series["imacec_total_desest"] == "F032.IMC.IND.Z.Z.EP18.Z.Z.1.M"
+
+
+BC_SOURCE = """
+  - id: {id}
+    name: Prueba
+    connector: bcentral_api
+    first_date: 2000-01-01
+    series:
+      {serie}: {code}
+"""
+
+
+def test_repeated_serie_id_across_sources_fails(tmp_path):
+    body = BC_SOURCE.format(id="a", serie="uf", code="F073.UFF.PRE.Z.D") + BC_SOURCE.format(
+        id="b", serie="uf", code="F073.UFF.PRE.Z.D"
+    )
+    with pytest.raises(SourcesConfigError, match="serie_id duplicados: uf"):
+        load_sources(write_catalog(tmp_path, body))
+
+
+def test_malformed_bde_code_fails(tmp_path):
+    body = BC_SOURCE.format(id="a", serie="uf", code="f073 uff")
+    with pytest.raises(SourcesConfigError, match="series"):
+        load_sources(write_catalog(tmp_path, body))
+
+
+def test_bde_credentials_are_optional_and_secret(clean_env):
+    clean_env.setenv("SINTESIS_CONTACT_EMAIL", "a@example.com")
+    clean_env.delenv("SINTESIS_BDE_USER")
+    clean_env.delenv("SINTESIS_BDE_PASSWORD")
+    assert Settings().bde_password is None
+    clean_env.setenv("SINTESIS_BDE_PASSWORD", "otra-clave-falsa")  # pragma: allowlist secret
+    assert "otra-clave-falsa" not in repr(Settings())

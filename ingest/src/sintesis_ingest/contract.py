@@ -5,7 +5,8 @@ Guardar (sha256, raw) y parsear son piezas aparte, iguales para todas las fuente
 
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
 from typing import Protocol
 
 from sintesis_ingest.config import Source
@@ -19,7 +20,7 @@ class RawFile:
     source_id: str
     name: str  # nombre del archivo, sin carpetas (p. ej. "uf.json")
     content: bytes = field(repr=False)  # repr=False: un print no vuelca megas de bytes
-    media_type: str  # p. ej. "application/json"
+    media_type: str  # el Content-Type declarado, con sus parámetros: "application/json; charset=ISO-8859-1"
     source_url: str  # SIN credenciales (HttpClient la entrega así)
     fetched_at: datetime  # con zona horaria (UTC)
 
@@ -33,6 +34,19 @@ class RawFile:
     def sha256(self) -> str:
         """Huella del contenido. Se calcula, no se guarda: nunca puede quedar desalineada."""
         return hashlib.sha256(self.content).hexdigest()
+
+
+class SourceError(Exception):
+    """La fuente respondió, pero con un error en el contenido (p. ej. HTTP 200 con `Codigo=-5`)."""
+
+
+@dataclass(frozen=True)
+class Observation:
+    """Una fila en formato largo: lo que entrega todo parser. Sin cálculos (van en Dataform)."""
+
+    serie_id: str
+    periodo: date
+    valor: Decimal
 
 
 class Connector(Protocol):

@@ -1,0 +1,167 @@
+{
+  "Codigo": 0,
+  "Descripcion": "Success",
+  "Series": {
+    "descripEsp": "Unidad de fomento (UF)",
+    "descripIng": "Unit of account (UF)",
+    "seriesId": "F073.UFF.PRE.Z.D",
+    "Obs": [
+      {
+        "indexDateString": "01-10-2026",
+        "value": "41065.38",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "02-10-2026",
+        "value": "41073.57",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "03-10-2026",
+        "value": "41081.76",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "04-10-2026",
+        "value": "41089.96",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "05-10-2026",
+        "value": "41098.15",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "06-10-2026",
+        "value": "41106.35",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "07-10-2026",
+        "value": "41114.54",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "08-10-2026",
+        "value": "41122.74",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "09-10-2026",
+        "value": "41130.94",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "10-10-2026",
+        "value": "41136.24",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "11-10-2026",
+        "value": "41141.53",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "12-10-2026",
+        "value": "41146.83",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "13-10-2026",
+        "value": "41152.13",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "14-10-2026",
+        "value": "41157.43",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "15-10-2026",
+        "value": "41162.73",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "16-10-2026",
+        "value": "41168.03",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "17-10-2026",
+        "value": "41173.33",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "18-10-2026",
+        "value": "41178.64",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "19-10-2026",
+        "value": "41183.94",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "20-10-2026",
+        "value": "41189.24",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "21-10-2026",
+        "value": "41194.55",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "22-10-2026",
+        "value": "41199.85",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "23-10-2026",
+        "value": "41205.16",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "24-10-2026",
+        "value": "41210.47",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "25-10-2026",
+        "value": "41215.77",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "26-10-2026",
+        "value": "41221.08",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "27-10-2026",
+        "value": "41226.39",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "28-10-2026",
+        "value": "41231.7",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "29-10-2026",
+        "value": "41237.01",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "30-10-2026",
+        "value": "41242.32",
+        "statusCode": "OK"
+      },
+      {
+        "indexDateString": "31-10-2026",
+        "value": "41247.63",
+        "statusCode": "OK"
+      }
+    ]
+  },
+  "SeriesInfos": []
+}

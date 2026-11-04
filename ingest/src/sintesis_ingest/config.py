@@ -1,16 +1,27 @@
 """Configuración de ejecución (variables de entorno) y catálogo de fuentes (sources.yaml)."""
 
+from datetime import date
 from importlib.resources import files
 from pathlib import Path
 from typing import Annotated, Literal
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, ValidationError, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SecretStr,
+    StringConstraints,
+    ValidationError,
+    model_validator,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 SourceId = Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_]*$")]
 Email = Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")]
+# Código de serie de la API BDE, p. ej. F032.IMC.IND.Z.Z.EP18.Z.Z.0.M
+BdeCode = Annotated[str, StringConstraints(pattern=r"^[A-Z0-9]+(\.[A-Z0-9]+)+$")]
 
 
 class Settings(BaseSettings):
@@ -36,6 +47,9 @@ class Settings(BaseSettings):
     contact_email: Email  # va en el User-Agent: sin valor por defecto a propósito
     request_pause_seconds: float = Field(default=2.0, ge=0)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    # API BDE (Banco Central). Opcionales: solo las exige el conector bcentral_api.
+    bde_user: Email | None = None  # el email registrado en la BDE
+    bde_password: SecretStr | None = None
 
     @model_validator(mode="after")
     def _gcs_needs_bucket(self) -> "Settings":
@@ -69,7 +83,15 @@ class SenadoSource(_Source):
     date_field: Literal["ingreso", "publicacion"]
 
 
-Source = Annotated[IneRegionalSource | SenadoSource, Field(discriminator="connector")]
+class BcentralSource(_Source):
+    """API BDE del Banco Central: una consulta GetSeries por serie (ver docs/fuentes.md)."""
+
+    connector: Literal["bcentral_api"]
+    series: dict[SourceId, BdeCode] = Field(min_length=1)  # serie_id → código BDE
+    first_date: date  # se pide la historia completa desde aquí en cada corrida (decisión 1.3)
+
+
+Source = Annotated[IneRegionalSource | SenadoSource | BcentralSource, Field(discriminator="connector")]
 
 
 class SourceCatalog(BaseModel):
@@ -83,6 +105,10 @@ class SourceCatalog(BaseModel):
         duplicated = sorted({i for i in ids if ids.count(i) > 1})
         if duplicated:
             raise ValueError(f"ids duplicados: {', '.join(duplicated)}")
+        serie_ids = [k for s in self.sources if isinstance(s, BcentralSource) for k in s.series]
+        repeated = sorted({i for i in serie_ids if serie_ids.count(i) > 1})
+        if repeated:
+            raise ValueError(f"serie_id duplicados: {', '.join(repeated)}")
         return self
 
 
@@ -114,7 +140,9 @@ def _describe(error: ValidationError, data: object) -> str:
             item = raw[index] if isinstance(raw, list) and index < len(raw) else None
             source_id = item.get("id", "?") if isinstance(item, dict) else "?"
             where = f"sources[{index}] (id={source_id})"
-            loc = loc[3:] if len(loc) > 2 and loc[2] in ("ine_regional", "senado") else loc[2:]
+            loc = (
+                loc[3:] if len(loc) > 2 and loc[2] in ("ine_regional", "senado", "bcentral_api") else loc[2:]
+            )
         field = ".".join(str(p) for p in loc) or "-"
         lines.append(f"  {where} → {field}: {err['msg']}")
     return "\n".join(lines)
