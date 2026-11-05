@@ -208,6 +208,10 @@ a la service account `sa-dataform`.
 
 **Aprendes:** modelado analítico, Dataform, calidad de datos, costos de BigQuery.
 - **Primera tarea: go/no-go de Dataform con el sandbox.** Si no funciona, ADR nuevo y plan B (dbt).
+  Verificar ahí también (2.0, documentación revisada el 2026-11-04): Dataform tiene **solo ubicaciones regionales**
+  (no la multirregión `US`; existe `southamerica-west1`) y no está documentado si el repositorio debe estar en la
+  misma ubicación que los datasets; ni la página del sandbox ni la de Dataform dicen si Cloud Storage funciona sin
+  facturación. Si no funciona, `warehouse.py` carga desde archivos locales y GCS llega en la fase 3.
 - Alcance de la rebanada: solo las series del Banco Central (UF, IMACEC). Las demás fuentes se modelan en la fase 6.
 - `warehouse.py`: carga con *load jobs* desde GCS (parquet), esquema explícito, tabla particionada y clusterizada.
 - dbt: `sources.yml` con **freshness** (reemplaza parte de `verificar.py`); staging por fuente; dedupe de vintages; marts.
@@ -222,7 +226,7 @@ a la service account `sa-dataform`.
 ### Fase 3 — Fundación GCP con Terraform · ~1–2 semanas
 > **Al empezar esta fase se activa la prueba gratuita de 90 días** (sección 6): las fases 3, 4 y 5 deben caber en ese plazo.
 **Aprendes:** Terraform, IAM, Secret Manager, gestión de costos.
-- **Antes de autenticar `gcloud` en local: reevaluar el sandbox de Claude Code** (postergado en la tarea 1.1a). Las credenciales de GCP dan acceso a la cuenta de nube y valen mucho más que la clave BDE.
+- **Al activar la facturación: reevaluar el sandbox de Claude Code** (postergado en la 1.1a y de nuevo en la 2.0, cuando `gcloud` se autenticó sin facturación: el disparador es que la credencial pase a valer dinero). Alternativa a evaluar en la misma discusión: trabajar dentro de un *devcontainer* con impersonación de una service account (credenciales de vida corta), como hacen equipos con más infraestructura (idea de Rafael, 2.0).
   En la misma discusión, como concepto: un **hook de Claude Code** que revise la salida de cada comando y bloquee las
   credenciales reales antes de que lleguen a Claude (idea de Rafael, 1.2). Lo leería el script del hook, nunca Claude.
 - `infra/bootstrap`: bucket de estado remoto (con versionado), habilitación de APIs, presupuesto con alertas (budget de billing).
