@@ -35,11 +35,9 @@ override.tf.json
 *_override.tf.json
 *.tfplan
 
-# --- dbt ---
-transform/target/
-transform/dbt_packages/
-transform/logs/
-transform/.user.yml
+# --- Dataform (transform/) y su CLI (Node, en la raíz) ---
+node_modules/
+.df-credentials.json
 
 # --- Basura heredada de V1 / Office ---
 ~$*

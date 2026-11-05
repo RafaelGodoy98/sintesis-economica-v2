@@ -5,7 +5,7 @@ desplegable en Google Cloud: ingesta en Cloud Run Jobs → Cloud Storage (raw) �
 con infraestructura como código (Terraform) y CI/CD en GitHub Actions.
 
 > **Estado:** en construcción — fase 1 cerrada (ingesta del Banco Central, en Docker); en curso la fase 2 (BigQuery +
-> Dataform). Ver [docs/plan.md](docs/plan.md) y la [guía del código](docs/codigo.md).
+> Dataform; go/no-go de Dataform con el sandbox: GO). Ver [docs/plan.md](docs/plan.md) y la [guía del código](docs/codigo.md).
 
 ## Desarrollo local
 
@@ -70,3 +70,25 @@ Revocar (si se sospecha una fuga, o al terminar):
 gcloud auth application-default revoke
 gcloud auth revoke
 ```
+
+### Transformación (Dataform)
+
+El proyecto Dataform (SQLX) vive en `transform/`. Su CLI es una herramienta de desarrollo y CI: en producción, Dataform
+corre como servicio administrado de Google (ADR-0001), por eso Node no va en la imagen de ingesta.
+
+Requisitos: credenciales de GCP (arriba) y Node.js con [nvm](https://github.com/nvm-sh/nvm) (versión en `.nvmrc`,
+como `.python-version` para Python):
+
+```bash
+nvm install                # instala la versión de .nvmrc
+make transform-setup       # instala la CLI de Dataform fijada en package-lock.json (en ./node_modules)
+npx dataform init-creds transform   # una vez: elegir ADC; crea transform/.df-credentials.json (sin secretos, ignorado por git)
+make transform-compile     # compila el SQLX sin tocar BigQuery
+make transform             # ejecuta contra BigQuery (datasets en us-central1)
+```
+
+El proyecto GCP y la región están en `transform/workflow_settings.yaml`, el archivo de configuración propio de Dataform
+(excepción a la regla de configurar por variables de entorno; ver ADR-0001).
+
+En el sandbox de BigQuery (sin facturación) solo se usan `table` y `view`: una tabla `incremental` funciona la primera
+vez y falla desde la segunda, porque usa DML.

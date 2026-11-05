@@ -201,24 +201,27 @@ a la service account `sa-dataform`.
 - **Listo cuando:** con Docker, una corrida baja UF e IMACEC, deja el JSON en `./data/raw` y las observaciones en parquet/CSV, y una segunda corrida no duplica nada.
 
 ### Fase 2 — BigQuery + Dataform (sandbox, sin tarjeta) · ~2 semanas
-> **Nota (2026-10-30, ADR-0001):** la transformación pasó de dbt a Dataform. Los puntos de esta fase y de las fases 4–5
-> que nombran funciones de dbt (freshness, seeds, `dbt docs`, `dbt build --target ci`) se reescriben con sus
-> equivalentes en Dataform al planificar esta fase, después de verificar que Dataform funciona con el sandbox.
-> Si no funciona, se vuelve a dbt con un ADR nuevo (plan B).
+> **Nota (2026-11-04, tarea 2.1):** go/no-go de Dataform con el sandbox = **GO** (ADR-0001, Consecuencias). Los puntos
+> de esta fase y de la 5 se reescribieron con sus equivalentes en Dataform. Restricciones verificadas del sandbox:
+> sin DML (las tablas `incremental` funcionan la 1.ª vez y fallan desde la 2.ª: solo `table`/`view` hasta la fase 3) y
+> sin Cloud Storage (exige facturación).
 
 **Aprendes:** modelado analítico, Dataform, calidad de datos, costos de BigQuery.
-- **Primera tarea: go/no-go de Dataform con el sandbox.** Si no funciona, ADR nuevo y plan B (dbt).
-  Verificar ahí también (2.0, documentación revisada el 2026-11-04): Dataform tiene **solo ubicaciones regionales**
-  (no la multirregión `US`; existe `southamerica-west1`) y no está documentado si el repositorio debe estar en la
-  misma ubicación que los datasets; ni la página del sandbox ni la de Dataform dicen si Cloud Storage funciona sin
-  facturación. Si no funciona, `warehouse.py` carga desde archivos locales y GCS llega en la fase 3.
+- ~~Go/no-go de Dataform con el sandbox~~ → **GO** (2.1). Región `us-central1` (decisión de Rafael). Desarrollo con la
+  CLI local (`make transform-compile` / `make transform`), sin repositorio de Dataform en GCP hasta la fase 3/4.
 - Alcance de la rebanada: solo las series del Banco Central (UF, IMACEC). Las demás fuentes se modelan en la fase 6.
-- `warehouse.py`: carga con *load jobs* desde GCS (parquet), esquema explícito, tabla particionada y clusterizada.
-- dbt: `sources.yml` con **freshness** (reemplaza parte de `verificar.py`); staging por fuente; dedupe de vintages; marts.
-- Seeds: `dim_serie` (id, nombre, unidad, fuente, frecuencia, `desfase_meses` heredado de `config.yaml` de V1), calendario.
-- Tests: `unique`/`not_null`/`relationships`, `accepted_values`, y uno propio `dato_al_dia(desfase_meses)` que reproduce la lógica "dato esperado vs último dato" de V1. Test de atípicos (variación fuera de N desviaciones) como `warn`.
+- `warehouse.py`: carga con *load jobs* **desde archivos locales** (GCS exige facturación; pasa a GCS en la fase 3), esquema
+  explícito, tabla particionada y clusterizada. `value` no cabe en `NUMERIC` (el Banco Central entrega 11 decimales):
+  decidir entre `BIGNUMERIC`, `FLOAT64` o texto en raw.
+- Dataform: tablas raw como `declaration`; **frescura** como assertion propia (según la documentación, Dataform no trae `freshness`; reemplaza
+  parte de `verificar.py`); staging por fuente; dedupe de vintages; marts.
+- Tablas de referencia (Dataform no tiene *seeds*; candidatos para la 2.3: CSV versionado cargado con `bq load` y
+  declarado, o SQLX con `VALUES`): `dim_serie` (id, nombre, unidad, fuente, frecuencia, `desfase_meses` heredado de `config.yaml` de V1), calendario.
+- Assertions: `uniqueKey`/`nonNull`/`rowConditions` (integradas) y propias para relaciones y valores aceptados, y uno propio `dato_al_dia(desfase_meses)` que reproduce la lógica "dato esperado vs último dato" de V1. Atípicos (variación fuera de N desviaciones) como aviso: en Dataform una assertion falla o no falla, así que el aviso
+  se resuelve aparte (p. ej. una tag que no corta la corrida).
 - Lógica de `cifras.py` (KPI y comparaciones) traducida a SQL en marts.
-- `dbt docs generate` publicado (artefacto de CI o GitHub Pages).
+- Documentación: Dataform no genera un sitio como `dbt docs`. Candidatos para la 2.6: descripciones en SQLX (a verificar
+  que lleguen a BigQuery como descripciones de tablas y columnas) y el grafo de `dataform compile --json` publicado en CI o Pages.
 - **Validación cruzada:** las cifras de `mart_kpi_edicion` para una edición pasada deben coincidir con las publicadas por V1. Es la prueba de que la migración es correcta.
 - **Listo cuando:** la transformación corre en dev sin errores y los KPI de UF/IMACEC de 2026-09 coinciden con el `contenido_2026-09.yaml` de V1 (el resto de los KPI, en la fase 6).
 - **Pendiente (30-10-2026):** `contenido_2026-09.yaml` no está en la carpeta `/V1`; probablemente vive en Drive (`I:\Mi unidad\...`). Ubicarlo y copiarlo como fixture de referencia antes de la validación cruzada.
@@ -246,11 +249,12 @@ a la service account `sa-dataform`.
 
 ### Fase 5 — CI/CD · ~1 semana
 **Aprendes:** GitHub Actions, Workload Identity Federation, flujo de PR.
-- `ci.yml` (en cada PR): ruff, pytest, `sqlfluff lint`, `dbt build --target ci` en un dataset efímero por PR, `terraform fmt -check` + `validate` + `plan` comentado en el PR.
+- `ci.yml` (en cada PR): ruff, pytest, `sqlfluff lint`, `dataform compile` + `dataform run --dry-run` (y luego `run`) con sufijo de dataset por PR (el `dry-run` valida
+  contra tablas que ya existen: necesita un entorno con las tablas creadas), `terraform fmt -check` + `validate` + `plan` comentado en el PR.
 - `deploy.yml` (merge a `main`): build y push de imágenes con tag del commit SHA, `terraform apply` en dev; prod con aprobación manual (GitHub Environments).
 - Autenticación a GCP solo por WIF, restringida al repositorio y rama.
 - Trabajar con ramas y PR aunque estés solo: el historial de PRs es parte del portafolio.
-- **Listo cuando:** un cambio de una línea en un modelo dbt llega a prod solo vía PR + aprobación.
+- **Listo cuando:** un cambio de una línea en un SQLX de Dataform llega a prod solo vía PR + aprobación.
 
 ### Fase 6 — Ensanche: Senado e INE · ~2–3 semanas
 **Aprendes:** generalizar un contrato, scraping responsable, reemplazar una transformación manual (Power Query) con tests.
