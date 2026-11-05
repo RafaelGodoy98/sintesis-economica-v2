@@ -4,7 +4,7 @@ Pipeline ELT de indicadores económicos de la Región de Valparaíso y Chile (IN
 desplegable en Google Cloud: ingesta en Cloud Run Jobs → Cloud Storage (raw) → BigQuery → Dataform,
 con infraestructura como código (Terraform) y CI/CD en GitHub Actions.
 
-> **Estado:** en construcción — fase 1 cerrada (ingesta del Banco Central, en Docker); sigue la fase 2 (BigQuery +
+> **Estado:** en construcción — fase 1 cerrada (ingesta del Banco Central, en Docker); en curso la fase 2 (BigQuery +
 > Dataform). Ver [docs/plan.md](docs/plan.md) y la [guía del código](docs/codigo.md).
 
 ## Desarrollo local
@@ -38,3 +38,35 @@ make test-docker                     # prueba la imagen aislada: sin repo, sin c
 
 La imagen no contiene el `.env` ni los tests: las credenciales entran como variables de entorno al correr
 (como en Cloud Run) y `./data` se monta en `/app/data`. Corre como usuario sin privilegios.
+
+### Credenciales de GCP (fase 2, BigQuery sandbox)
+
+La fase 2 usa BigQuery con tu usuario de Google. El login lo hace la persona en su terminal (en Claude Code, con `!`),
+nunca el asistente:
+
+```bash
+gcloud auth login                                      # credencial de gcloud y bq
+gcloud config set project <ID_DEL_PROYECTO>
+gcloud auth application-default login                  # credencial ADC: la usan las librerías (Python, Dataform)
+gcloud auth application-default set-quota-project <ID_DEL_PROYECTO>   # solo si el login no lo dejó configurado
+```
+
+Ambas credenciales viven en `~/.config/gcloud/` y guardan un *refresh token* que no vence solo: quien lea esos archivos
+puede actuar como tú en GCP. Barreras en `.claude/settings.json`:
+- `deny` de lectura sobre `~/.config/gcloud/**`: seguro para la herramienta Read; sobre Bash, `cat`/`head`/`sed`
+  quedan bloqueados (probado), pero es una protección de mejor esfuerzo.
+- `deny` de los comandos que imprimen tokens: `gcloud auth print-*`, `gcloud auth application-default print-*`,
+  `gcloud config config-helper`.
+- `ask` sobre `gcloud auth *`: el asistente no puede autenticar ni revocar sin permiso.
+
+**Riesgo residual (aceptado hasta activar la facturación):** las reglas no frenan `grep -r` ni un subproceso cualquiera
+que lea el archivo, ni variantes con opciones globales antes del subcomando (`gcloud --project X auth print-...`); eso solo lo haría el sandbox de Claude Code, que se reevalúa al activar la facturación (fase 3).
+Este proyecto no tiene facturación (verificado: `billingEnabled: false`) y, según su autor, ningún otro de la cuenta;
+aun así, quien tenga la credencial actúa como tu usuario en todos los recursos de GCP de la cuenta.
+
+Revocar (si se sospecha una fuga, o al terminar):
+
+```bash
+gcloud auth application-default revoke
+gcloud auth revoke
+```

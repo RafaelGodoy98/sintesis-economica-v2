@@ -5,6 +5,10 @@
       "Read(//**/.env)",
       "Read(./.env)",
       "Read(./.env.*)",
+      "Read(~/.config/gcloud/**)",
+      "Bash(gcloud auth print-*)",
+      "Bash(gcloud auth application-default print-*)",
+      "Bash(gcloud config config-helper*)",
       "Edit(//mnt/c/Users/rafae/Workspace Rafael/02_Trabajo/Codes/Sintesis Economica/V1/**)",
       "Bash(terraform apply*)",
       "Bash(terraform destroy*)",
@@ -13,7 +17,8 @@
     ],
     "ask": [
       "Bash(git push*)",
-      "Bash(gh pr merge*)"
+      "Bash(gh pr merge*)",
+      "Bash(gcloud auth *)"
     ]
   }
 }
