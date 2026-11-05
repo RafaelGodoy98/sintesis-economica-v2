@@ -213,15 +213,15 @@ a la service account `sa-dataform`.
 - `warehouse.py`: carga con *load jobs* **desde archivos locales** (GCS exige facturación; pasa a GCS en la fase 3), esquema
   explícito, tabla particionada y clusterizada. `value` no cabe en `NUMERIC` (el Banco Central entrega 11 decimales):
   decidir entre `BIGNUMERIC`, `FLOAT64` o texto en raw.
-- Dataform: tablas raw como `declaration`; **frescura** como assertion propia (Dataform no trae `freshness`; reemplaza
+- Dataform: tablas raw como `declaration`; **frescura** como assertion propia (según la documentación, Dataform no trae `freshness`; reemplaza
   parte de `verificar.py`); staging por fuente; dedupe de vintages; marts.
 - Tablas de referencia (Dataform no tiene *seeds*; candidatos para la 2.3: CSV versionado cargado con `bq load` y
   declarado, o SQLX con `VALUES`): `dim_serie` (id, nombre, unidad, fuente, frecuencia, `desfase_meses` heredado de `config.yaml` de V1), calendario.
 - Assertions: `uniqueKey`/`nonNull`/`rowConditions` (integradas) y propias para relaciones y valores aceptados, y uno propio `dato_al_dia(desfase_meses)` que reproduce la lógica "dato esperado vs último dato" de V1. Atípicos (variación fuera de N desviaciones) como aviso: en Dataform una assertion falla o no falla, así que el aviso
   se resuelve aparte (p. ej. una tag que no corta la corrida).
 - Lógica de `cifras.py` (KPI y comparaciones) traducida a SQL en marts.
-- Documentación: Dataform no genera un sitio como `dbt docs`. Candidatos para la 2.6: descripciones en SQLX (llegan a
-  BigQuery como descripciones de tablas y columnas) y el grafo de `dataform compile --json` publicado en CI o Pages.
+- Documentación: Dataform no genera un sitio como `dbt docs`. Candidatos para la 2.6: descripciones en SQLX (a verificar
+  que lleguen a BigQuery como descripciones de tablas y columnas) y el grafo de `dataform compile --json` publicado en CI o Pages.
 - **Validación cruzada:** las cifras de `mart_kpi_edicion` para una edición pasada deben coincidir con las publicadas por V1. Es la prueba de que la migración es correcta.
 - **Listo cuando:** la transformación corre en dev sin errores y los KPI de UF/IMACEC de 2026-09 coinciden con el `contenido_2026-09.yaml` de V1 (el resto de los KPI, en la fase 6).
 - **Pendiente (30-10-2026):** `contenido_2026-09.yaml` no está en la carpeta `/V1`; probablemente vive en Drive (`I:\Mi unidad\...`). Ubicarlo y copiarlo como fixture de referencia antes de la validación cruzada.

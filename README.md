@@ -87,5 +87,8 @@ make transform-compile     # compila el SQLX sin tocar BigQuery
 make transform             # ejecuta contra BigQuery (datasets en us-central1)
 ```
 
+El proyecto GCP y la región están en `transform/workflow_settings.yaml`, el archivo de configuración propio de Dataform
+(excepción a la regla de configurar por variables de entorno; ver ADR-0001).
+
 En el sandbox de BigQuery (sin facturación) solo se usan `table` y `view`: una tabla `incremental` funciona la primera
 vez y falla desde la segunda, porque usa DML.

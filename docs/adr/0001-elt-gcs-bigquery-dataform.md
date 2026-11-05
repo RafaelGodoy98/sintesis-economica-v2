@@ -54,8 +54,11 @@ _Utilizar opción C. BigQuery + Dataform, dado que el objetivo de proyecto es ut
 - **Verificado en la tarea 2.1 (2026-11-04): GO.** Con la CLI local (`@dataform/cli` 3.1.2, ADC, us-central1) contra el
   sandbox: `compile`, `run` (vista y tabla), 2.ª corrida sin duplicados, assertions que pasan y una sembrada que corta la
   corrida (salida 1). Límites: `incremental` falla desde la 2.ª corrida (DML) → solo `table`/`view` hasta la fase 3;
-  Cloud Storage exige facturación → carga local hasta la fase 3. Se desarrolla y prueba en local sin repositorio en GCP;
-  el repositorio administrado (cuenta de servicio propia + IAM, modo *strict act-as*) llega en la fase 3/4.
+  Cloud Storage exige facturación → carga local hasta la fase 3; `dry-run` solo valida contra tablas ya creadas (aviso
+  para la CI). Se desarrolla y prueba en local sin repositorio en GCP. Según la documentación (no probado): el
+  repositorio administrado exige cuenta de servicio propia + IAM (modo *strict act-as*); llega en la fase 3/4.
+  `workflow_settings.yaml` es la configuración nativa de Dataform: el ID del proyecto y la región van ahí (no se leen de
+  `Settings`); excepción a la regla de configuración por variables de entorno, que la CLI permite sobrescribir por flags.
   El plan B (dbt) no fue necesario. Plan: `docs/plans/2026-11-04-2.1-dataform-go-no-go.md`.
 - Referencias a dbt en `docs/plan.md` (fases 2 y 5): actualizadas en la 2.1 (`CLAUDE.md` ya no tenía). Quedan solo las históricas
   (borrador de CLAUDE.md en el §7 y tabla de la fase 0).
