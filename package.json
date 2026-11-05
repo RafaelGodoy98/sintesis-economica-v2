@@ -1,0 +1,12 @@
+{
+  "name": "sintesis-transform",
+  "private": true,
+  "description": "Dev/CI tooling for the Dataform project in transform/ (SQLX). Production runs on the managed Dataform service.",
+  "scripts": {
+    "compile": "dataform compile transform",
+    "run": "dataform run transform"
+  },
+  "devDependencies": {
+    "@dataform/cli": "3.1.2"
+  }
+}
