@@ -51,9 +51,14 @@ _Utilizar opción C. BigQuery + Dataform, dado que el objetivo de proyecto es ut
 - **La transformación se escribe en SQLX** dentro de un repositorio de Dataform conectado a GitHub. Los tests de datos
   son *assertions* y el linaje se ve en la consola de BigQuery.
 - **Desaparece el job "dbt" en Cloud Run:** Workflows (ADR-0002) invoca a Dataform directamente. El mecanismo se define en la fase 4.
-- **A verificar al inicio de la fase 2:** que Dataform funcione con el BigQuery sandbox (sin facturación) y cómo se
-  desarrolla y prueba localmente. **Plan B:** si alguna de las dos falla, se vuelve a dbt con un ADR nuevo que reemplace a este.
-- **Pendiente:** actualizar las referencias a dbt en `docs/plan.md` y `CLAUDE.md`.
+- **Verificado en la tarea 2.1 (2026-11-04): GO.** Con la CLI local (`@dataform/cli` 3.1.2, ADC, us-central1) contra el
+  sandbox: `compile`, `run` (vista y tabla), 2.ª corrida sin duplicados, assertions que pasan y una sembrada que corta la
+  corrida (salida 1). Límites: `incremental` falla desde la 2.ª corrida (DML) → solo `table`/`view` hasta la fase 3;
+  Cloud Storage exige facturación → carga local hasta la fase 3. Se desarrolla y prueba en local sin repositorio en GCP;
+  el repositorio administrado (cuenta de servicio propia + IAM, modo *strict act-as*) llega en la fase 3/4.
+  El plan B (dbt) no fue necesario. Plan: `docs/plans/2026-11-04-2.1-dataform-go-no-go.md`.
+- Referencias a dbt en `docs/plan.md` (fases 2 y 5): actualizadas en la 2.1 (`CLAUDE.md` ya no tenía). Quedan solo las históricas
+  (borrador de CLAUDE.md en el §7 y tabla de la fase 0).
 
 ## Referencias
 - `docs/plan.md` §2 (objetivo), §3 (capas de datos y vintages), §6 (sandbox).
