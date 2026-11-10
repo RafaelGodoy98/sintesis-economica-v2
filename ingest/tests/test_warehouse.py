@@ -317,3 +317,12 @@ def test_reference_header_must_match_schema(ref_settings):
     write_reference(ref_settings, "series", "series_id,name\nuf,UF\n")
     with pytest.raises(warehouse.LoadError, match="columnas inesperadas"):
         warehouse.load_all(ref_settings, FakeBigQuery())
+
+
+def test_reference_default_dir_is_the_repo_folder(monkeypatch):
+    # Con la configuración por defecto, reference_dir es "reference" relativa: desde la raíz del repo apunta
+    # a los CSV versionados (como en `make load`).
+    monkeypatch.chdir(REPO_REFERENCE.parent)
+    settings = Settings(contact_email="contacto@example.com")
+    assert settings.reference_dir == Path("reference")
+    assert "series" in warehouse.read_reference(settings.reference_dir)
