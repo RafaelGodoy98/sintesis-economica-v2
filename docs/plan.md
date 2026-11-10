@@ -172,8 +172,8 @@ Después se ensancha con las demás fuentes (fase 6). Motivos: los riesgos (Data
 menos conocidas están en las fases de nube; un pipeline completo con una fuente vale más que uno a medias con tres; y el
 contrato de conectores (ADR-0003) se valida con una fuente real antes de generalizarlo.
 
-**Orden = numeración (por el costo, sección 6):** 0 → 1 → 2 (sandbox, sin tarjeta) → activar prueba gratuita → 3 → 4 →
-5 → 6 → 7 → 8. La fase 2 usa autenticación con tu usuario (`gcloud auth application-default login`); en la fase 4 pasa
+**Orden = numeración (por el costo, sección 6):** 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. La prueba gratuita se activó
+**durante la fase 2** (2026-11-06, tarea 2.2a; vence ~2027-02-04), no al inicio de la 3 como se había planeado: ver §6. La fase 2 usa autenticación con tu usuario (`gcloud auth application-default login`); en la fase 4 pasa
 a la service account `sa-dataform`.
 
 > **Renumeración (2026-11-02).** Antes → ahora: 1 → 1 (solo Banco Central) · 3 → 2 · 2 → 3 · 4 → 4 · 5 → 5 · (nueva) → 6
@@ -229,7 +229,7 @@ a la service account `sa-dataform`.
 ### Fase 3 — Fundación GCP con Terraform · ~1–2 semanas
 > **Al empezar esta fase se activa la prueba gratuita de 90 días** (sección 6): las fases 3, 4 y 5 deben caber en ese plazo.
 **Aprendes:** Terraform, IAM, Secret Manager, gestión de costos.
-- **Al activar la facturación: reevaluar el sandbox de Claude Code** (postergado en la 1.1a y de nuevo en la 2.0, cuando `gcloud` se autenticó sin facturación: el disparador es que la credencial pase a valer dinero). Alternativa a evaluar en la misma discusión: trabajar dentro de un *devcontainer* con impersonación de una service account (credenciales de vida corta), como hacen equipos con más infraestructura (idea de Rafael, 2.0).
+- **Al pasar a cuenta pagada: reevaluar el sandbox de Claude Code** (postergado en la 1.1a, la 2.0 y la 2.2a. Al activar la prueba gratuita se reevaluó y se mantuvieron las reglas: durante la prueba Google no cobra, así que la credencial recién vale dinero real con la cuenta pagada). Alternativa a evaluar en la misma discusión: trabajar dentro de un *devcontainer* con impersonación de una service account (credenciales de vida corta), como hacen equipos con más infraestructura (idea de Rafael, 2.0).
   En la misma discusión, como concepto: un **hook de Claude Code** que revise la salida de cada comando y bloquee las
   credenciales reales antes de que lleguen a Claude (idea de Rafael, 1.2). Lo leería el script del hook, nunca Claude.
 - `infra/bootstrap`: bucket de estado remoto (con versionado), habilitación de APIs, presupuesto con alertas (budget de billing).
@@ -287,14 +287,19 @@ a la service account `sa-dataform`.
 - **Prueba gratuita:** USD 300 por 90 días. Pide tarjeta, pero no cobra: si no se actualiza manualmente a cuenta
   pagada, al terminar se cierra y los recursos se detienen (30 días de gracia). El reloj de 90 días corre desde la activación.
 - Consecuencia en el diseño:
-  1. **Fases 0, 1 y 2 se hacen sin tarjeta**: local + Docker + Dataform contra BigQuery sandbox (a verificar, ADR-0001).
-  2. Se activa la prueba gratuita **recién al empezar la fase 3**, con las fases 3, 4 y 5 planificadas para caber en 90 días.
-     El ensanche (fase 6) puede ocurrir después de la prueba: se desarrolla en local y sandbox.
+  1. Fases 0 y 1 sin tarjeta; la fase 2 empezó en el sandbox (2.0–2.1: go/no-go de Dataform).
+  2. **Cambio (2026-11-06, 2.2a):** la prueba gratuita se activó durante la fase 2, no al inicio de la 3. Motivo
+     (Rafael): demostrar GCP como lo opera una empresa; los límites del sandbox (sin DML, sin Cloud Storage, expiración
+     de 60 días) agregaban ruido. Su límite personal es febrero de 2027, así que el reloj sirve. Vence ~**2027-02-04**:
+     las fases 2–5 deben caber; el ensanche (fase 6) se recorta si no alcanza.
+     Presupuesto adelantado desde la fase 3: **CLP 10.000 mensual**, alertas 50/90/100 % (se reproduce en Terraform).
   3. Por la falta de DML en sandbox: tablas de Dataform materializadas como `table`/`view` (no `incremental` con `merge`),
      y la capa raw se recarga completa desde los archivos con *load jobs* (`WRITE_TRUNCATE`). Los archivos raw son la
      fuente de verdad; BigQuery se puede reconstruir en cualquier momento. Esto además es buena práctica.
   4. Por la expiración de 60 días: nada en BigQuery sandbox es permanente; `make rebuild` debe dejar todo como estaba.
   5. Incrementales con `merge` se introducen después de la fase 3, ya con facturación, como mejora documentada en un ADR.
+- **Pendiente (enero de 2027):** decidir entre pasar a cuenta pagada (los recursos siguen; cobra lo que exceda el
+  nivel gratuito) o cerrar. Si la cuenta de prueba se cierra: recursos detenidos, 30 días de gracia y luego borrado.
 - Al cerrar la prueba: `terraform destroy` y el repo queda como evidencia (README, capturas, linaje de Dataform, historial de CI).
 
 ### Uso del crédito

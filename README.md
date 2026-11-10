@@ -39,7 +39,7 @@ make test-docker                     # prueba la imagen aislada: sin repo, sin c
 La imagen no contiene el `.env` ni los tests: las credenciales entran como variables de entorno al correr
 (como en Cloud Run) y `./data` se monta en `/app/data`. Corre como usuario sin privilegios.
 
-### Credenciales de GCP (fase 2, BigQuery sandbox)
+### Credenciales de GCP (fase 2, prueba gratuita)
 
 La fase 2 usa BigQuery con tu usuario de Google. El login lo hace la persona en su terminal (en Claude Code, con `!`),
 nunca el asistente:
@@ -59,10 +59,14 @@ puede actuar como tú en GCP. Barreras en `.claude/settings.json`:
   `gcloud config config-helper`.
 - `ask` sobre `gcloud auth *`: el asistente no puede autenticar ni revocar sin permiso.
 
-**Riesgo residual (aceptado hasta activar la facturación):** las reglas no frenan `grep -r` ni un subproceso cualquiera
-que lea el archivo, ni variantes con opciones globales antes del subcomando (`gcloud --project X auth print-...`); eso solo lo haría el sandbox de Claude Code, que se reevalúa al activar la facturación (fase 3).
-Este proyecto no tiene facturación (verificado: `billingEnabled: false`) y, según su autor, ningún otro de la cuenta;
-aun así, quien tenga la credencial actúa como tu usuario en todos los recursos de GCP de la cuenta.
+**Riesgo residual (aceptado mientras dure la prueba gratuita):** las reglas no frenan `grep -r` ni un subproceso
+cualquiera que lea el archivo, ni variantes con opciones globales antes del subcomando (`gcloud --project X auth print-...`);
+eso solo lo haría el sandbox de Claude Code, que se reevalúa **al pasar a cuenta pagada**. Desde el 2026-11-06 el proyecto
+usa la prueba gratuita de GCP (`billingEnabled: true`): Google no cobra durante la prueba, así que una credencial filtrada
+podría gastar crédito o crear recursos, pero no cobrar a la tarjeta; el presupuesto (CLP 10.000 mensual) avisa por correo.
+Quien tenga la credencial actúa como tu usuario en todos los recursos de GCP de la cuenta.
+
+Tampoco puedo tocar la facturación sin permiso: `ask` sobre `gcloud billing *`.
 
 Revocar (si se sospecha una fuga, o al terminar):
 
@@ -90,5 +94,5 @@ make transform             # ejecuta contra BigQuery (datasets en us-central1)
 El proyecto GCP y la región están en `transform/workflow_settings.yaml`, el archivo de configuración propio de Dataform
 (excepción a la regla de configurar por variables de entorno; ver ADR-0001).
 
-En el sandbox de BigQuery (sin facturación) solo se usan `table` y `view`: una tabla `incremental` funciona la primera
-vez y falla desde la segunda, porque usa DML.
+Por defecto solo se usan `table` y `view`; `incremental` requiere un ADR. En el sandbox (sin facturación, hasta el
+2026-11-06) una tabla `incremental` funcionaba la primera vez y fallaba desde la segunda, porque usa DML.
