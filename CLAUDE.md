@@ -11,6 +11,8 @@ Plan completo: docs/plan.md. Decisiones: docs/adr/. Fuentes: docs/fuentes.md. Pl
 - Al cerrar una tarea, listar explícitamente qué debe validar Rafael (diff, cifras, resultados).
 - Al cerrar una tarea, incluir "Oportunidades de delegación": qué pudo hacer un subagente/skill existente y qué patrón se repitió. Registrar en docs/delegacion.md; crear uno nuevo solo tras 2–3 repeticiones.
 - Explicar el porqué de cada decisión no obvia; Rafael está aprendiendo y debe poder defenderla.
+- Proyecto de aprendizaje: Rafael hace esto por primera vez. Cada concepto nuevo se presenta con su nombre y una analogía antes de usarlo. Cada decisión y cada prueba se explica: por qué se hace, cómo se ve si falla, cómo se conecta con lo demás y qué no se puede hacer. En tareas con varios pasos nuevos, detenerse en puntos de control para que Rafael vea el resultado antes de seguir. No borrar spikes ni artefactos de aprendizaje antes de que Rafael los revise.
+- Registro de aprendizaje por tarea en docs/aprendizaje/<tarea>.md, escrito mientras se avanza (no al final): conceptos (término + analogía), decisiones (opciones, elegida, por qué), pruebas (qué protegen, cómo se ven al fallar) y errores y límites.
 
 ## Reglas
 - V1 (/mnt/c/Users/rafae/Workspace Rafael/02_Trabajo/Codes/Sintesis Economica/V1) es solo lectura. No copiar su código: portar con tests.

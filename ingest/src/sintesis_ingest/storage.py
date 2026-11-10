@@ -2,6 +2,10 @@
 
 Ruta (igual a la que tendrá GCS, docs/plan.md §3):
     <raíz>/source=<source_id>/ingest_date=AAAA-MM-DD/<sha256>_<nombre>
+
+`raw_path` es la parte después de <raíz>: la misma en local, en Docker y en la nube (allá se antepone gs://<bucket>/).
+`ingest_date` es la fecha del PRIMER guardado: si el mismo contenido vuelve otro día, se conserva la original
+(decisiones 3 y 4 de la 2.2, docs/aprendizaje/2.2-carga-bigquery.md).
 """
 
 import logging
@@ -18,7 +22,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class StoredFile:
-    uri: str
+    raw_path: str  # relativa a la raíz de raw, con "/" (p. ej. source=x/ingest_date=2026-11-04/<sha>_x.json)
+    ingest_date: date  # fecha del primer guardado de este contenido
     sha256: str
     size: int
     created: bool  # False = ese contenido ya estaba guardado (en cualquier fecha) y no se escribió nada
@@ -26,8 +31,12 @@ class StoredFile:
 
 class LocalStorage:
     def __init__(self, root: Path) -> None:
-        # Ruta absoluta: la URI (file:///...) lo exige, y la de local es relativa (`data/raw`).
         self.root = root.resolve()
+
+    def _stored(self, path: Path, sha: str, created: bool) -> StoredFile:
+        ingest_date = date.fromisoformat(path.parent.name.removeprefix("ingest_date="))
+        raw_path = path.relative_to(self.root).as_posix()
+        return StoredFile(raw_path, ingest_date, sha, path.stat().st_size, created)
 
     def save(self, raw: RawFile, ingest_date: date | None = None) -> StoredFile:
         sha = raw.sha256
@@ -37,8 +46,9 @@ class LocalStorage:
         # no se vuelve a guardar.
         existing = next(source_dir.glob(f"ingest_date=*/{sha}_*"), None)
         if existing is not None:
-            logger.info("ya existía en raw", extra={"uri": existing.as_uri(), "sha256": sha})
-            return StoredFile(existing.as_uri(), sha, existing.stat().st_size, created=False)
+            stored = self._stored(existing, sha, created=False)
+            logger.info("ya existía en raw", extra={"raw_path": stored.raw_path, "sha256": sha})
+            return stored
 
         day = ingest_date or raw.fetched_at.date()
         target_dir = source_dir / f"ingest_date={day.isoformat()}"
@@ -58,7 +68,8 @@ class LocalStorage:
             Path(tmp).unlink(missing_ok=True)
             raise
 
+        stored = self._stored(target, sha, created=True)
         logger.info(
-            "guardado en raw", extra={"uri": target.as_uri(), "sha256": sha, "size": len(raw.content)}
+            "guardado en raw", extra={"raw_path": stored.raw_path, "sha256": sha, "size": stored.size}
         )
-        return StoredFile(target.as_uri(), sha, len(raw.content), created=True)
+        return stored

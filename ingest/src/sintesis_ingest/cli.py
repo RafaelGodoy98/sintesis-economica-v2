@@ -1,24 +1,28 @@
 """`sintesis-ingest run --source <id>`: corre fuentes de punta a punta.
+`sintesis-ingest reparse`: regenera desde data/raw los CSV que falten, sin llamar a las fuentes.
+`sintesis-ingest load`: carga a BigQuery.
 
 Por fuente: conector → Storage (raw, solo lo nuevo) → parser → CSV (solo si falta) → registro de corridas.
 Una fuente que falla no detiene a las demás (ERROR). Si la corrida no puede empezar, CRITICAL.
-Código de salida: 0 todo bien · 1 alguna fuente falló · 2 la corrida no pudo empezar.
+Código de salida: 0 todo bien · 1 alguna fuente falló, la carga a BigQuery falló o `reparse` halló un raw
+alterado · 2 no pudo empezar.
 """
 
 import argparse
+import hashlib
 import logging
 import sys
 import time
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 from pydantic import ValidationError
 
 from sintesis_ingest import audit, observations
 from sintesis_ingest.config import Settings, Source, SourceCatalog, SourcesConfigError, load_sources
-from sintesis_ingest.contract import SourceError
+from sintesis_ingest.contract import RawFile, SourceError
 from sintesis_ingest.http import HttpClient
-from sintesis_ingest.log import configure_logging, log_context, new_run_id, register_secret
+from sintesis_ingest.log import configure_logging, log_context, new_run_id, redact, register_secret
 from sintesis_ingest.registry import CONNECTORS, PARSERS
 from sintesis_ingest.storage import LocalStorage
 
@@ -34,11 +38,17 @@ def build_parser() -> argparse.ArgumentParser:
     which = run.add_mutually_exclusive_group(required=True)
     which.add_argument("--source", action="append", metavar="ID", help="id de sources.yaml (repetible)")
     which.add_argument("--all", action="store_true", help="todas las fuentes activas")
+    sub.add_parser("reparse", help="regenera desde data/raw los CSV que falten, sin llamar a las fuentes")
+    sub.add_parser("load", help="carga observaciones y corridas locales a BigQuery (raw y ops)")
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "load":
+        return load()
+    if args.command == "reparse":
+        return reparse()
     try:
         settings = Settings()
         catalog = load_sources()
@@ -49,11 +59,113 @@ def main(argv: Sequence[str] | None = None) -> int:
         return EXIT_CANNOT_START
 
     configure_logging(settings.log_level)
+    _register_secrets(settings)
+    with HttpClient(settings.contact_email, settings.request_pause_seconds) as http:
+        return run(settings, sources, http)
+
+
+def _register_secrets(settings: Settings) -> None:
     for secret in (settings.bde_user, settings.bde_password and settings.bde_password.get_secret_value()):
         if secret:
             register_secret(secret)  # el censor de logs las conoce desde el primer mensaje
-    with HttpClient(settings.contact_email, settings.request_pause_seconds) as http:
-        return run(settings, sources, http)
+
+
+def reparse() -> int:
+    try:
+        settings = Settings()
+        catalog = load_sources()
+    except (ValidationError, SourcesConfigError) as e:
+        configure_logging("INFO")
+        logger.critical("el reparseo no puede empezar", extra={"error": str(e)})
+        return EXIT_CANNOT_START
+    configure_logging(settings.log_level)
+    _, altered = reparse_missing(settings, catalog.sources)
+    return EXIT_SOURCE_FAILED if altered else EXIT_OK
+
+
+def reparse_missing(settings: Settings, sources: Sequence[Source]) -> tuple[int, int]:
+    """Parsea desde el disco cada raw que no tenga su CSV. Devuelve (filas escritas, raw alterados).
+
+    Un raw alterado (su contenido ya no coincide con la huella de su nombre) no se parsea: ERROR y salida 1.
+
+    Es lo que hace real "raw es la fuente de verdad": si los CSV se pierden o cambia el parser, se regeneran
+    sin volver a pedir nada a la fuente. No recibe cliente HTTP: no puede llamar a la red.
+    El Content-Type no se guarda en disco: el parser usa su codificación por defecto (cp1252 en la API BDE).
+    """
+    raw_root = settings.local_data_dir / "raw"
+    obs_root = settings.local_data_dir / observations.FOLDER
+    written = altered = 0
+    for source in sources:
+        if source.connector not in PARSERS:
+            continue
+        with log_context(source_id=source.id):
+            for path in sorted((raw_root / f"source={source.id}").glob("ingest_date=*/*")):
+                if path.name.startswith(".tmp-"):
+                    continue  # escritura a medias de una corrida interrumpida
+                sha, _, name = path.name.partition("_")
+                csv_file = observations.csv_path(obs_root, source.id, sha)
+                if csv_file.exists():
+                    continue
+                content = path.read_bytes()
+                if hashlib.sha256(content).hexdigest() != sha:
+                    logger.error(
+                        "raw alterado: su contenido no coincide con su huella", extra={"raw": path.name}
+                    )
+                    altered += 1
+                    continue
+                ingest_date = date.fromisoformat(path.parent.name.removeprefix("ingest_date="))
+                fetched_at = datetime.combine(ingest_date, datetime.min.time(), tzinfo=UTC)
+                raw = RawFile(source.id, name, content, media_type="", source_url="", fetched_at=fetched_at)
+                rows = PARSERS[source.connector](raw, source)
+                raw_path = path.relative_to(raw_root).as_posix()
+                observations.write_csv(
+                    csv_file,
+                    rows,
+                    source_id=source.id,
+                    file_sha256=sha,
+                    raw_path=raw_path,
+                    ingest_date=ingest_date,
+                )
+                logger.info("CSV regenerado desde raw", extra={"raw_path": raw_path, "rows": len(rows)})
+                written += len(rows)
+    logger.info("reparseo listo", extra={"rows": written, "altered": altered})
+    return written, altered
+
+
+def load() -> int:
+    """Carga los archivos locales a BigQuery con credenciales ADC (del usuario o de la cuenta de servicio)."""
+    try:
+        settings = Settings()
+        if not settings.gcp_project:
+            raise ValueError("SINTESIS_GCP_PROJECT es obligatoria para `load` (el ID del proyecto de GCP)")
+    except (ValidationError, ValueError) as e:
+        configure_logging("INFO")
+        logger.critical("la carga no puede empezar", extra={"error": str(e)})
+        return EXIT_CANNOT_START
+
+    configure_logging(settings.log_level)
+    _register_secrets(settings)
+    from google.cloud import bigquery  # aquí y no arriba: `run` no necesita cargar la librería de BigQuery
+
+    from sintesis_ingest import warehouse
+
+    try:
+        # Sin credenciales ADC (o sin red), el cliente falla al crearse: la carga no puede empezar.
+        client = bigquery.Client(project=settings.gcp_project, location=settings.bq_location)
+    except Exception as e:  # noqa: BLE001
+        logger.critical("la carga no puede empezar: cliente de BigQuery", extra={"error": redact(str(e))})
+        return EXIT_CANNOT_START
+    try:
+        warehouse.load_all(settings, client)
+    except warehouse.LoadError as e:
+        logger.critical("la carga no puede empezar", extra={"error": str(e)})
+        return EXIT_CANNOT_START
+    except Exception as e:  # noqa: BLE001 - BigQuery rechazó la carga: la tabla quedó como estaba (atómico)
+        logger.error(
+            "la carga a BigQuery falló; las tablas quedaron como estaban", extra={"error": redact(str(e))}
+        )
+        return EXIT_SOURCE_FAILED
+    return EXIT_OK
 
 
 def select_sources(catalog: SourceCatalog, ids: list[str] | None, all_sources: bool) -> list[Source]:
@@ -75,7 +187,7 @@ def run(settings: Settings, sources: list[Source], http: HttpClient) -> int:
         records = []
         for source in sources:
             record = run_source(source, settings, http, storage, run_id)
-            audit.append(data / "ops" / "ejecuciones.jsonl", record)
+            audit.append(data / audit.RUNS_FILE, record)
             records.append(record)
         failed = [r.source_id for r in records if r.status == "error"]
         logger.info(
@@ -90,7 +202,7 @@ def run_source(
     started_at = datetime.now(UTC)
     start = time.monotonic()
     new = existing = rows_written = 0
-    obs_root = settings.local_data_dir / "observaciones"
+    obs_root = settings.local_data_dir / observations.FOLDER
     error = None
     with log_context(source_id=source.id):
         try:
@@ -109,8 +221,8 @@ def run_source(
                     rows,
                     source_id=source.id,
                     file_sha256=stored.sha256,
-                    file_uri=stored.uri,
-                    ingested_at=raw.fetched_at,
+                    raw_path=stored.raw_path,
+                    ingest_date=stored.ingest_date,
                 )
                 rows_written += len(rows)
             logger.info(
@@ -127,7 +239,7 @@ def run_source(
         status="error" if error else "ok",
         new_files=new,
         existing_files=existing,
-        rows=rows_written,
+        rows_written=rows_written,
         duration_s=round(time.monotonic() - start, 2),
         error=error,
     )

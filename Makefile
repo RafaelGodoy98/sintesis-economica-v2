@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help setup test test-docker lint run-local docker-build docker-run transform-setup transform-compile transform
+.PHONY: help setup test test-docker lint run-local load docker-build docker-run transform-setup transform-compile transform
 
 help: ## Lista los comandos disponibles
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-18s %s\n", $$1, $$2}'
@@ -20,6 +20,9 @@ lint: ## Corre todos los hooks de pre-commit sobre el repo
 run-local: ## Corre una fuente en local: make run-local SOURCE=bcentral_uf (datos en ./data)
 	@test -n "$(SOURCE)" || (echo "Falta SOURCE. Ej.: make run-local SOURCE=bcentral_uf"; exit 2)
 	uv run sintesis-ingest run --source $(SOURCE)
+
+load: ## Carga data/observations y data/ops a BigQuery (raw.observations, ops.runs; requiere SINTESIS_GCP_PROJECT y ADC)
+	uv run sintesis-ingest load
 
 docker-build: ## Construye la imagen de ingesta (sintesis-ingest:local)
 	docker compose build

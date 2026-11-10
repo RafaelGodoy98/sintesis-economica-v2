@@ -8,7 +8,15 @@ from pathlib import Path
 import httpx
 import pytest
 
-from sintesis_ingest.cli import EXIT_CANNOT_START, EXIT_OK, EXIT_SOURCE_FAILED, main, run, select_sources
+from sintesis_ingest.cli import (
+    EXIT_CANNOT_START,
+    EXIT_OK,
+    EXIT_SOURCE_FAILED,
+    main,
+    reparse_missing,
+    run,
+    select_sources,
+)
 from sintesis_ingest.config import Settings, load_sources
 from sintesis_ingest.http import HttpClient
 
@@ -47,7 +55,7 @@ def files_under(path: Path) -> list[Path]:
 
 
 def audit_lines(settings) -> list[dict]:
-    path = settings.local_data_dir / "ops" / "ejecuciones.jsonl"
+    path = settings.local_data_dir / "ops" / "runs.jsonl"
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
 
@@ -55,31 +63,31 @@ def test_a_run_leaves_raw_csv_and_audit_line(settings):
     assert run_ids(settings, "bcentral_imacec") == EXIT_OK
     data = settings.local_data_dir
     assert len(files_under(data / "raw" / "source=bcentral_imacec")) == 10
-    assert len(files_under(data / "observaciones" / "source=bcentral_imacec")) == 10
+    assert len(files_under(data / "observations" / "source=bcentral_imacec")) == 10
     (record,) = audit_lines(settings)
     assert record["source_id"] == "bcentral_imacec"
-    assert (record["status"], record["new_files"], record["rows"]) == ("ok", 10, 3690)
+    assert (record["status"], record["new_files"], record["rows_written"]) == ("ok", 10, 3690)
     assert record["error"] is None
 
 
 def test_second_run_creates_nothing_new(settings):
     run_ids(settings, "bcentral_uf")
     before = files_under(settings.local_data_dir / "raw") + files_under(
-        settings.local_data_dir / "observaciones"
+        settings.local_data_dir / "observations"
     )
     assert run_ids(settings, "bcentral_uf") == EXIT_OK
     after = files_under(settings.local_data_dir / "raw") + files_under(
-        settings.local_data_dir / "observaciones"
+        settings.local_data_dir / "observations"
     )
     assert after == before
     first, second = audit_lines(settings)
-    assert (second["new_files"], second["existing_files"], second["rows"]) == (0, 1, 0)
+    assert (second["new_files"], second["existing_files"], second["rows_written"]) == (0, 1, 0)
     assert first["run_id"] != second["run_id"]
 
 
 def test_csv_has_exact_values_and_traceability(settings):
     run_ids(settings, "bcentral_uf")
-    (path,) = files_under(settings.local_data_dir / "observaciones")
+    (path,) = files_under(settings.local_data_dir / "observations")
     with path.open(encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
     assert len(rows) == 31
@@ -87,7 +95,9 @@ def test_csv_has_exact_values_and_traceability(settings):
     assert (rows[0]["period"], rows[0]["value"]) == ("2026-10-01", "41065.38")  # exacto, sin redondeo
     (raw,) = files_under(settings.local_data_dir / "raw")
     assert rows[0]["file_sha256"] == path.stem and raw.name.startswith(path.stem)
-    assert rows[0]["file_uri"] == raw.as_uri()
+    raw_root = settings.local_data_dir / "raw"
+    assert raw_root / rows[0]["raw_path"] == raw  # la ruta relativa apunta al raw guardado
+    assert rows[0]["ingest_date"] == raw.parent.name.removeprefix("ingest_date=")
 
 
 def test_failing_source_does_not_stop_the_others(settings, caplog):
@@ -111,7 +121,7 @@ def test_a_source_error_never_writes_credentials_to_the_audit(settings, canary):
     http = HttpClient("contacto@example.com", 0, transport=httpx.MockTransport(bad), sleep=lambda s: None)
     sources = select_sources(load_sources(), ["bcentral_uf"], all_sources=False)
     assert run(settings, sources, http) == EXIT_SOURCE_FAILED
-    text = (settings.local_data_dir / "ops" / "ejecuciones.jsonl").read_text(encoding="utf-8")
+    text = (settings.local_data_dir / "ops" / "runs.jsonl").read_text(encoding="utf-8")
     assert "Invalid username or password" in text
     assert canary["password"] not in text and canary["user"] not in text
 
@@ -150,3 +160,38 @@ def test_run_with_default_relative_data_dir(monkeypatch):
     assert not settings.local_data_dir.is_absolute()
     assert run_ids(settings, "bcentral_uf") == EXIT_OK
     assert run_ids(settings, "bcentral_uf") == EXIT_OK
+
+
+def test_reparse_rebuilds_missing_csv_from_raw_without_the_source(settings):
+    # "Raw es la fuente de verdad": si un CSV se pierde, se regenera idéntico desde el archivo raw.
+    # reparse_missing no recibe cliente HTTP, así que no puede llamar al Banco Central.
+    run_ids(settings, "bcentral_uf")
+    (path,) = files_under(settings.local_data_dir / "observations")
+    original = path.read_bytes()
+    path.unlink()
+    rows, altered = reparse_missing(
+        settings, select_sources(load_sources(), ["bcentral_uf"], all_sources=False)
+    )
+    assert (rows, altered) == (31, 0)
+    assert path.read_bytes() == original  # mismas filas, mismo raw_path, misma ingest_date
+
+
+def test_reparse_leaves_existing_csv_alone(settings):
+    run_ids(settings, "bcentral_uf")
+    sources = select_sources(load_sources(), ["bcentral_uf"], all_sources=False)
+    assert reparse_missing(settings, sources) == (0, 0)
+
+
+def test_reparse_refuses_an_altered_raw(settings, caplog):
+    # Si alguien edita un raw a mano, su contenido ya no coincide con la huella de su nombre: no se parsea
+    # (el CSV mentiría sobre su origen) y queda un ERROR.
+    run_ids(settings, "bcentral_uf")
+    (csv_file,) = files_under(settings.local_data_dir / "observations")
+    (raw,) = files_under(settings.local_data_dir / "raw")
+    csv_file.unlink()
+    raw.write_bytes(raw.read_bytes().replace(b"41065.38", b"99999.99"))
+    sources = select_sources(load_sources(), ["bcentral_uf"], all_sources=False)
+    with caplog.at_level(logging.ERROR):
+        assert reparse_missing(settings, sources) == (0, 1)
+    assert not csv_file.exists()
+    assert "raw alterado" in caplog.text

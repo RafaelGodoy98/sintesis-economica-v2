@@ -16,8 +16,13 @@ sintesis-ingest run --source bcentral_imacec          (el jefe de turno: cli.py)
              └─ entrega formularios RawFile (contract.py): el JSON tal cual, con su huella sha256
                     ├─▶ archivo histórico (storage.py) .......... data/raw/   (solo lo nuevo)
                     ├─▶ traductor (parsers/bcentral_api.py) ..... filas (series_id, period, value)
-                    │      └─▶ observations.py ................. data/observaciones/  (CSV)
-                    └─▶ libro de turnos (audit.py) ............. data/ops/ejecuciones.jsonl
+                    │      └─▶ observations.py ................. data/observations/  (CSV)
+                    └─▶ libro de turnos (audit.py) ............. data/ops/runs.jsonl
+
+sintesis-ingest reparse     (2.2) raw sin CSV ─▶ traductor ─▶ data/observations/   (desde el disco, sin red)
+sintesis-ingest load        (2.2) el camión de mudanza: warehouse.py
+   data/observations/*.csv ─▶ un load job ─▶ BigQuery raw.observations  (todas las ediciones; reemplaza la tabla)
+   data/ops/runs.jsonl     ─▶ un load job ─▶ BigQuery ops.runs
 ```
 
 Todo esto viaja dentro de **la caja** (`ingest/Dockerfile`): la misma imagen corre en tu máquina y, desde la fase
@@ -28,6 +33,7 @@ Todo esto viaja dentro de **la caja** (`ingest/Dockerfile`): la misma imagen cor
 | Pieza | Analogía | Qué garantiza | Lo demuestra |
 |---|---|---|---|
 | `config.py` + `sources.yaml` | **El manual de operación** | Qué fuentes y series existen (`sources.yaml`, igual en todo entorno) y qué cambia por máquina (`Settings`: carpeta de datos, email de contacto, credenciales). Un `sources.yaml` mal escrito o un dato obligatorio que falta (p. ej. el email de contacto) detienen todo antes de empezar; si falla, el error no muestra valores. **Ojo:** una variable `SINTESIS_*` mal escrita se ignora (no avisa) | `test_config.py` |
+| `warehouse.py` | **El camión de mudanza** | Lleva los archivos locales a BigQuery en un solo viaje por tabla (atómico: llega todo o nada), con esquema fijo, `value` exacto (BIGNUMERIC), partición mensual por `ingest_date` y cluster por fuente y serie. Nunca vacía raw: con cero filas no carga. Ver `docs/aprendizaje/2.2-carga-bigquery.md` | `test_warehouse.py` |
 | `log.py` | **La bitácora con censor** | Cada evento es una línea JSON con `run_id` y `source_id`, que Cloud Logging sabe filtrar. El censor tapa con `***` lo que sigue a `user=`, `pass=`, `token=`, `key=` o `secret=`, y también los valores exactos de las credenciales, donde aparezcan | `test_log.py` |
 | `http.py` | **El mensajero** | Es el único que habla con internet. Se presenta con nombre y contacto, espera 2 s entre pedidos, insiste ante caídas (5xx, 429, red) y no ante errores sin arreglo (404). Nunca deja ver la clave: ni en la URL que devuelve, ni en logs, ni en errores | `test_http.py` |
 | `contract.py` | **El formulario** | Todo conector entrega lo mismo: `RawFile` con los bytes tal cual, la fuente, la URL sin credenciales y la hora (UTC). La huella se calcula del contenido. Todo parser entrega `Observation` (`series_id`, `period`, `value`) | `test_contract.py` |
@@ -47,8 +53,8 @@ Todo esto viaja dentro de **la caja** (`ingest/Dockerfile`): la misma imagen cor
 | Carpeta | Qué hay | Regla |
 |---|---|---|
 | `data/raw/source=<id>/ingest_date=<fecha>/<sha256>_<nombre>` | Lo que entregó la fuente, tal cual | Inmutable; una vez por contenido |
-| `data/observaciones/source=<id>/<sha256>.csv` | `source_id, series_id, period, value, file_sha256, file_uri, ingested_at` | Se regenera desde raw |
-| `data/ops/ejecuciones.jsonl` | El libro de turnos | Solo se agrega |
+| `data/observations/source=<id>/<sha256>.csv` | `source_id, series_id, period, value, file_sha256, raw_path, ingest_date` | Se regenera desde raw |
+| `data/ops/runs.jsonl` | El libro de turnos | Solo se agrega |
 
 ## Comandos
 

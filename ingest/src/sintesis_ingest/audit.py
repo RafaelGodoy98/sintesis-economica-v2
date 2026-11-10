@@ -1,6 +1,6 @@
 """Registro de corridas: una línea JSON por fuente y corrida. Solo se agrega, nunca se edita.
 
-Equivalente local de la tabla `ops.ejecuciones` (docs/plan.md §3); reemplaza el `estado_descargas.json` de V1.
+Equivalente local de la tabla `ops.runs` (warehouse.py); reemplaza el `estado_descargas.json` de V1.
 """
 
 import json
@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Literal
 
 from sintesis_ingest.log import redact
+
+RUNS_FILE = Path("ops") / "runs.jsonl"  # bajo SINTESIS_LOCAL_DATA_DIR
 
 
 @dataclass(frozen=True)
@@ -19,7 +21,9 @@ class RunRecord:
     status: Literal["ok", "error"]
     new_files: int  # raw guardados en esta corrida
     existing_files: int  # raw que ya estaban (mismo sha256): no se guardaron de nuevo
-    rows: int  # observaciones escritas en esta corrida (0 si los CSV ya existían)
+    # observaciones escritas en esta corrida (0 si los CSV ya existían). No se llama `rows`: es palabra
+    # reservada de SQL y en BigQuery obligaría a escribirla entre comillas invertidas (2.2).
+    rows_written: int
     duration_s: float
     error: str | None = None
 
