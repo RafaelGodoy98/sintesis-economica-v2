@@ -6,13 +6,13 @@ Alimenta `docs/retrospectiva.md` al cierre del proyecto.
 
 | Candidato | Tipo | Para qué | Repeticiones (fecha · tarea) | Estado |
 |---|---|---|---|---|
-| `v1-analista` | subagente | Leer V1 (solo lectura) y producir la ficha de una fuente | 2026-10-30 · 0.4 (Senado); 2026-11-03 · 1.1 (Banco Central) | Creado |
+| `v1-analista` | subagente | Leer V1 (solo lectura) y producir la ficha de una fuente | 2026-10-30 · 0.4 (Senado); 2026-11-03 · 1.1 (Banco Central); 2026-11-10 · 2.3 (metadatos de series y KPI de V1) | Creado. En la 2.3 también sirvió para diseño (no solo para fichas) |
 | `test-runner` | subagente | Correr tests y devolver solo fallas, sin llenar el contexto con logs | — (1.2: 59 tests, salida corta; aún no hizo falta) | Planificado fase 1; crear cuando los logs de tests crezcan (1.3–1.5) |
 | `agregar-fuente` | skill | Pasos repetibles para sumar un conector (ficha → plan → conector → fixtures → tests) | — | Fase 6, tras el 2.º conector nuevo |
 | `revisor-convenciones` | subagente | Revisar un diff contra CLAUDE.md y convenciones del repo | 2026-11-04 · cierre fase 1 (sembrado, limpio, PR #13, su propia rama) | **Creado** (`.claude/agents/`), local por decisión de Rafael. Integrado a `cerrar-tarea` (paso 6). Idea futura: versión genérica global con `configurar-repo` |
 | `revisor-iam` | subagente | Revisar Terraform/IAM en solo lectura (mínimo privilegio) | — | Fase 3 |
 | `validador-cifras` | subagente | Comparar marts contra `contenido_AAAA-MM.yaml` de V1 | — | Fase 2 |
-| `agregar-serie` | skill | Sumar una serie a `dim_series` + assertions de Dataform | — | Fase 2 |
+| `agregar-serie` | skill | Sumar una serie: código en `sources.yaml` + fila en `reference/series.csv` (+ calendario en la 2.4) + assertions | — (2.3 dejó el mecanismo) | Crear en la fase 6, cuando se sumen INE y Senado (primera repetición real) |
 | `cerrar-tarea` | skill | Checklist de cierre (validación, docs, delegación, PR) | 2026-10-30 · 0.4; 0.5; 0.6 | Creado (`.claude/skills/cerrar-tarea/`). Usada en: skill; 0.7 (se agregó "Qué se logró"); 0.8; 0.9; replan; 1.0; 1.1a; 1.1; 1.2; 1.3; 1.4; 1.5; revisor; 1.7; codigo.md |
 | `v1-analista` sin recarga | aviso | Si la rama activa no tiene el archivo del agente, se descarga; vuelve con *Developer: Reload Window*. En 0.6 se usó Explore | 2026-10-30 · 0.6 | Observando |
 | Inspeccionar binarios con un script de librería estándar | patrón | Revisar metadatos y estructura de xlsx/whl sin abrir Excel ni instalar nada | 2026-10-30 · 0.6 (wheel); 0.8 (xlsx) | Observando (2 de 3): candidato a script en `ingest/tests/fixtures/` |
@@ -26,5 +26,6 @@ Alimenta `docs/retrospectiva.md` al cierre del proyecto.
 | Spike desechable con criterios go/no-go | patrón | Dataset aislado (`spike_21`), criterios escritos antes de correr, una prueba sembrada para fallar; se borra al terminar | 2026-11-04 · 2.1 (Dataform) | Observando (1 de 3): candidato a skill si se repite (p. ej. Terraform en la fase 3) |
 | `web-fetch` sin permiso en dominios nuevos | aviso | El subagente corre sin poder preguntar: si un sitio redirige a un dominio no aprobado (p. ej. `cloud.google.com` → `docs.cloud.google.com`), falla. Alternativa: que Rafael pegue el texto, o aprobar el dominio en la configuración | 2026-11-06 · 2.2a | Observando (1 de 3): si se repite, proponer agregar `WebFetch(domain:docs.cloud.google.com)` a la configuración |
 | Probar con la configuración por defecto | aviso | Los tests usaban rutas absolutas (`tmp_path`); la corrida real usa `data` (relativa) y falló en `as_uri()`. Al menos un test por pieza debe correr con los valores por defecto de `Settings` | 2026-11-04 · 1.4 | Observando (1 de 3) |
+| CSV de referencia con esquema explícito | patrón | Dato escrito a mano = CSV en `reference/` + entrada en `REFERENCE_SCHEMAS` + test que valida el CSV real del repo | 2026-11-10 · 2.3 (series) | Observando (1 de 3): se repetirá con el calendario (2.4) |
 | Lista de tests aprobada antes del código | patrón | Rafael valida por nombre qué protege cada test antes de escribirlo; después se rompe el código para ver que cada test atrapa solo su falla | 2026-11-10 · 2.2 | Observando (1 de 3): candidato a paso fijo del plan en tareas con código |
 | Hacer fallar a propósito cada test de una barrera | patrón | Comprobar que el test detecta lo que dice: canario (1.3, encontró que nunca sonaba), ruta relativa (1.4), `USER appuser` (1.5) | 2026-11-03 · 1.3; 2026-11-04 · 1.4; 1.5 | **Regla en `CLAUDE.md`** (aprobada por Rafael, 2026-11-04) |
