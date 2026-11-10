@@ -1,0 +1,6 @@
+config {
+  type: "declaration",
+  schema: "raw",
+  name: "observations",
+  description: "Observaciones tal como llegaron, todas las ediciones (vintages). La carga warehouse.py (make load)."
+}

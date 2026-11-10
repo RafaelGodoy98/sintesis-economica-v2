@@ -1,0 +1,40 @@
+config {
+  type: "view",
+  schema: "stg",
+  description: "Una cifra vigente por serie y período del Banco Central: las filas del archivo más reciente de cada serie (decisión 1 de la 2.3).",
+  columns: {
+    series_id: "Serie (ver marts.dim_series).",
+    period: "Período de la cifra: el día (UF) o el primer día del mes (IMACEC).",
+    value: "Valor exacto, tal como lo publicó el Banco Central (BIGNUMERIC).",
+    ingest_date: "Edición de la que viene la cifra: fecha del primer guardado del archivo raw.",
+    file_sha256: "Huella del archivo raw de origen (trazabilidad)."
+  },
+  assertions: {
+    uniqueKey: ["series_id", "period"],
+    nonNull: ["series_id", "period", "value"]
+  }
+}
+
+-- 1. Para cada serie, la fecha de su edición más reciente.
+WITH latest_edition AS (
+  SELECT
+    series_id,
+    MAX(ingest_date) AS ingest_date
+  FROM ${ref("observations")}
+  WHERE source_id LIKE 'bcentral_%'
+  GROUP BY series_id
+)
+
+-- 2. Las filas de esa edición, completa: si la edición nueva ya no trae un período, ese período desaparece
+--    (sin "datos zombi" de ediciones anteriores).
+SELECT
+  o.source_id,
+  o.series_id,
+  o.period,
+  o.value,
+  o.ingest_date,
+  o.file_sha256
+FROM ${ref("observations")} AS o
+INNER JOIN latest_edition AS l
+  ON o.series_id = l.series_id
+  AND o.ingest_date = l.ingest_date

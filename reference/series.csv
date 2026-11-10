@@ -1,0 +1,12 @@
+series_id,source_id,name,unit,frequency,seasonally_adjusted,expected_lag_months
+uf,bcentral_uf,Unidad de Fomento (UF),pesos,daily,false,
+imacec_total,bcentral_imacec,IMACEC,índice 2018=100,monthly,false,2
+imacec_total_desest,bcentral_imacec,IMACEC desestacionalizado,índice 2018=100,monthly,true,2
+imacec_no_minero,bcentral_imacec,IMACEC no minero,índice 2018=100,monthly,false,2
+imacec_mineria,bcentral_imacec,Minería,índice 2018=100,monthly,false,2
+imacec_industria,bcentral_imacec,Industria,índice 2018=100,monthly,false,2
+imacec_resto_bienes,bcentral_imacec,Resto de bienes,índice 2018=100,monthly,false,2
+imacec_comercio,bcentral_imacec,Comercio,índice 2018=100,monthly,false,2
+imacec_servicios,bcentral_imacec,Servicios,índice 2018=100,monthly,false,2
+imacec_produccion_bienes,bcentral_imacec,Producción de bienes,índice 2018=100,monthly,false,2
+imacec_impuestos,bcentral_imacec,Impuestos sobre productos,índice 2018=100,monthly,false,2

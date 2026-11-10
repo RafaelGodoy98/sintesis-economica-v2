@@ -258,3 +258,62 @@ def test_client_that_cannot_start_exits_2(monkeypatch, caplog):
         assert main(["load"]) == EXIT_CANNOT_START
     (record,) = [r for r in caplog.records if r.levelno == logging.CRITICAL]
     assert "credentials" in record.error
+
+
+REPO_REFERENCE = Path(__file__).resolve().parents[2] / "reference"
+
+
+def write_reference(settings: Settings, name: str, text: str) -> None:
+    settings.reference_dir.mkdir(parents=True, exist_ok=True)
+    (settings.reference_dir / f"{name}.csv").write_text(text, encoding="utf-8")
+
+
+@pytest.fixture
+def ref_settings(tmp_path):
+    return Settings(
+        contact_email="contacto@example.com",
+        local_data_dir=tmp_path / "data",
+        reference_dir=tmp_path / "reference",
+        gcp_project="proyecto-prueba",
+    )
+
+
+def test_repo_reference_files_match_their_schemas():
+    # Los CSV reales de reference/ (editados a mano) deben calzar con su esquema: si alguien agrega una
+    # columna o rompe el encabezado, falla aquí y no en la carga.
+    files = warehouse.read_reference(REPO_REFERENCE)
+    assert "series" in files
+    rows = list(csv.DictReader(io.StringIO(files["series"].decode("utf-8"))))
+    assert len({r["series_id"] for r in rows}) == len(rows)  # sin series repetidas
+
+
+def test_reference_loads_with_explicit_schema(ref_settings):
+    write_csv(ref_settings, "bcentral_uf", "a", [row()])
+    header = ",".join(f.name for f in warehouse.REFERENCE_SCHEMAS["series"])
+    write_reference(ref_settings, "series", header + "\nuf,bcentral_uf,UF,pesos,daily,false,\n")
+    fake = FakeBigQuery()
+    loaded = warehouse.load_all(ref_settings, fake)
+    table = "proyecto-prueba.reference.series"
+    assert loaded[table] == 1
+    config = fake.loads[table]["config"]
+    assert config.schema == warehouse.REFERENCE_SCHEMAS["series"]
+    assert config.write_disposition == bigquery.WriteDisposition.WRITE_TRUNCATE
+    assert ("reference", "us-central1") in [(d.dataset_id, d.location) for d in fake.datasets]
+
+
+def test_reference_csv_without_schema_is_rejected(ref_settings):
+    # Un CSV nuevo en reference/ sin esquema declarado no se sube con tipos adivinados: falla antes de
+    # tocar BigQuery.
+    write_csv(ref_settings, "bcentral_uf", "a", [row()])
+    write_reference(ref_settings, "calendario_sin_esquema", "a,b\n1,2\n")
+    fake = FakeBigQuery()
+    with pytest.raises(warehouse.LoadError, match="calendario_sin_esquema.csv"):
+        warehouse.load_all(ref_settings, fake)
+    assert fake.loads == {}
+
+
+def test_reference_header_must_match_schema(ref_settings):
+    write_csv(ref_settings, "bcentral_uf", "a", [row()])
+    write_reference(ref_settings, "series", "series_id,name\nuf,UF\n")
+    with pytest.raises(warehouse.LoadError, match="columnas inesperadas"):
+        warehouse.load_all(ref_settings, FakeBigQuery())
