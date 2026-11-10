@@ -20,19 +20,24 @@ flowchart LR
     subgraph OPS["BigQuery · dataset ops (2.2)"]
         RUNST[("ops.runs")]
     end
+    subgraph REF["BigQuery · dataset reference (2.3)"]
+        REFS[("reference.series")]
+    end
+    REFCSV["reference/series.csv<br/>(a mano, en git)"] -->|"warehouse.py"| REFS
 
     CSV -->|"warehouse.py<br/>load job WRITE_TRUNCATE"| OBS
     RUNS -->|"warehouse.py"| RUNST
 
     subgraph DF["Dataform (SQL) · fases 2.3 – 2.5"]
-        STG["stg_bcentral__observations<br/>vista: tipos + edición vigente<br/>(2.3)"]
-        DIM[("dim_series<br/>catálogo de series<br/>(2.3, propuesto)")]
+        STG["stg_bcentral__observations<br/>vista: último archivo completo por serie<br/>(2.3 ✔)"]
+        DIM[("dim_series<br/>ficha de las series<br/>(2.3 ✔)")]
         FCT[("fct_observations_monthly<br/>una cifra por serie y mes<br/>(2.5, propuesto)")]
         KPI[("mart_kpi_edition<br/>KPI de cada edición del boletín<br/>(2.5, propuesto)")]
         AS{{"assertions<br/>(2.4)"}}
     end
 
     OBS --> STG
+    REFS --> DIM
     STG --> FCT
     DIM --> FCT
     FCT --> KPI

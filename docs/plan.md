@@ -95,7 +95,8 @@ Dataform ya entrega el grafo de dependencias y el linaje de la parte de transfor
 |---|---|---|---|
 | Landing / raw files | `gs://<proyecto>-raw/source=<fuente>/dataset=<x>/ingest_date=AAAA-MM-DD/<sha256>_<nombre>` | Archivo tal como lo entrega la fuente | Inmutable. Mismo hash = no se vuelve a subir |
 | Raw tables | BigQuery `raw` | `observations`: `source_id, series_id, period (DATE), value (BIGNUMERIC), file_sha256, raw_path, ingest_date (DATE)` | Todas las ediciones; se recarga completa (`WRITE_TRUNCATE`). Partición mensual por `ingest_date`, cluster por `(source_id, series_id)` (2.2) |
-| Staging | `stg` (Dataform) | Tipos, nombres, deduplicación, **última vintage por (serie, periodo)** | Una vista por fuente |
+| Reference | `reference` | Datos mantenidos a mano: `series` (ficha), calendario (2.4). CSV versionados en `reference/` | Se recargan con `make load` |
+| Staging | `stg` (Dataform) | Una cifra vigente por serie y período: **el último archivo completo de cada serie** (2.3) | Una vista por fuente |
 | Marts | `marts` (Dataform) | `dim_series`, `fct_observations_monthly`, `mart_kpi_edition`, `mart_indicator_comparison`, `mart_published_laws` (nombres en inglés propuestos en la 2.2; se confirman en 2.3/2.5 y fase 6) | Lo que consume el reporte/dashboard |
 | Ops | `ops` | `runs` (`run_id, source_id, started_at, status, new_files, existing_files, rows_written, duration_s, error`) | Reemplaza `reporte.py` y el JSON de estado |
 
