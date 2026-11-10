@@ -200,17 +200,17 @@ a la service account `sa-dataform`.
 - (Opcional) experimento `experiment/dlt-bde` (ADR-0003).
 - **Listo cuando:** con Docker, una corrida baja UF e IMACEC, deja el JSON en `./data/raw` y las observaciones en parquet/CSV, y una segunda corrida no duplica nada.
 
-### Fase 2 — BigQuery + Dataform (sandbox, sin tarjeta) · ~2 semanas
+### Fase 2 — BigQuery + Dataform (empezó en el sandbox; prueba gratuita desde la 2.2a) · ~2 semanas
 > **Nota (2026-11-04, tarea 2.1):** go/no-go de Dataform con el sandbox = **GO** (ADR-0001, Consecuencias). Los puntos
 > de esta fase y de la 5 se reescribieron con sus equivalentes en Dataform. Restricciones verificadas del sandbox:
-> sin DML (las tablas `incremental` funcionan la 1.ª vez y fallan desde la 2.ª: solo `table`/`view` hasta la fase 3) y
-> sin Cloud Storage (exige facturación).
+> sin DML (las tablas `incremental` funcionan la 1.ª vez y fallan desde la 2.ª) y sin Cloud Storage (exige facturación).
+> Desde la 2.2a (2026-11-06) hay facturación (prueba gratuita): ambas restricciones ya no aplican.
 
 **Aprendes:** modelado analítico, Dataform, calidad de datos, costos de BigQuery.
 - ~~Go/no-go de Dataform con el sandbox~~ → **GO** (2.1). Región `us-central1` (decisión de Rafael). Desarrollo con la
   CLI local (`make transform-compile` / `make transform`), sin repositorio de Dataform en GCP hasta la fase 3/4.
 - Alcance de la rebanada: solo las series del Banco Central (UF, IMACEC). Las demás fuentes se modelan en la fase 6.
-- `warehouse.py`: carga con *load jobs* **desde archivos locales** (GCS exige facturación; pasa a GCS en la fase 3), esquema
+- `warehouse.py`: carga con *load jobs* **desde archivos locales** (decisión de alcance: el bucket raw se crea con Terraform en la fase 3), esquema
   explícito, tabla particionada y clusterizada. `value` no cabe en `NUMERIC` (el Banco Central entrega 11 decimales):
   decidir entre `BIGNUMERIC`, `FLOAT64` o texto en raw.
 - Dataform: tablas raw como `declaration`; **frescura** como assertion propia (según la documentación, Dataform no trae `freshness`; reemplaza
@@ -227,7 +227,7 @@ a la service account `sa-dataform`.
 - **Pendiente (30-10-2026):** `contenido_2026-09.yaml` no está en la carpeta `/V1`; probablemente vive en Drive (`I:\Mi unidad\...`). Ubicarlo y copiarlo como fixture de referencia antes de la validación cruzada.
 
 ### Fase 3 — Fundación GCP con Terraform · ~1–2 semanas
-> **Al empezar esta fase se activa la prueba gratuita de 90 días** (sección 6): las fases 3, 4 y 5 deben caber en ese plazo.
+> **La prueba gratuita ya está activa desde la fase 2** (2.2a, 2026-11-06; vence ~2027-02-04, sección 6): las fases 3, 4 y 5 deben caber en ese plazo.
 **Aprendes:** Terraform, IAM, Secret Manager, gestión de costos.
 - **Al pasar a cuenta pagada: reevaluar el sandbox de Claude Code** (postergado en la 1.1a, la 2.0 y la 2.2a. Al activar la prueba gratuita se reevaluó y se mantuvieron las reglas: durante la prueba Google no cobra, así que la credencial recién vale dinero real con la cuenta pagada). Alternativa a evaluar en la misma discusión: trabajar dentro de un *devcontainer* con impersonación de una service account (credenciales de vida corta), como hacen equipos con más infraestructura (idea de Rafael, 2.0).
   En la misma discusión, como concepto: un **hook de Claude Code** que revise la salida de cada comando y bloquee las
@@ -293,11 +293,11 @@ a la service account `sa-dataform`.
      de 60 días) agregaban ruido. Su límite personal es febrero de 2027, así que el reloj sirve. Vence ~**2027-02-04**:
      las fases 2–5 deben caber; el ensanche (fase 6) se recorta si no alcanza.
      Presupuesto adelantado desde la fase 3: **CLP 10.000 mensual**, alertas 50/90/100 % (se reproduce en Terraform).
-  3. Por la falta de DML en sandbox: tablas de Dataform materializadas como `table`/`view` (no `incremental` con `merge`),
-     y la capa raw se recarga completa desde los archivos con *load jobs* (`WRITE_TRUNCATE`). Los archivos raw son la
-     fuente de verdad; BigQuery se puede reconstruir en cualquier momento. Esto además es buena práctica.
-  4. Por la expiración de 60 días: nada en BigQuery sandbox es permanente; `make rebuild` debe dejar todo como estaba.
-  5. Incrementales con `merge` se introducen después de la fase 3, ya con facturación, como mejora documentada en un ADR.
+  3. Tablas de Dataform como `table`/`view` por defecto; `incremental` (con `merge`) solo como mejora documentada en un
+     ADR. La capa raw se recarga completa desde los archivos con *load jobs* (`WRITE_TRUNCATE`): los archivos raw son la
+     fuente de verdad y BigQuery se puede reconstruir en cualquier momento. Nació como restricción del sandbox; se
+     mantiene por buena práctica.
+  4. (Sandbox, histórico) La expiración de 60 días ya no aplica a los datasets creados desde el 2026-11-06.
 - **Pendiente (enero de 2027):** decidir entre pasar a cuenta pagada (los recursos siguen; cobra lo que exceda el
   nivel gratuito) o cerrar. Si la cuenta de prueba se cierra: recursos detenidos, 30 días de gracia y luego borrado.
 - Al cerrar la prueba: `terraform destroy` y el repo queda como evidencia (README, capturas, linaje de Dataform, historial de CI).
