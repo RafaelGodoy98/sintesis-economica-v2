@@ -21,7 +21,9 @@ class RunRecord:
     status: Literal["ok", "error"]
     new_files: int  # raw guardados en esta corrida
     existing_files: int  # raw que ya estaban (mismo sha256): no se guardaron de nuevo
-    rows: int  # observaciones escritas en esta corrida (0 si los CSV ya existían)
+    # observaciones escritas en esta corrida (0 si los CSV ya existían). No se llama `rows`: es palabra
+    # reservada de SQL y en BigQuery obligaría a escribirla entre comillas invertidas (2.2).
+    rows_written: int
     duration_s: float
     error: str | None = None
 

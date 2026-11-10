@@ -8,7 +8,15 @@ from pathlib import Path
 import httpx
 import pytest
 
-from sintesis_ingest.cli import EXIT_CANNOT_START, EXIT_OK, EXIT_SOURCE_FAILED, main, run, select_sources
+from sintesis_ingest.cli import (
+    EXIT_CANNOT_START,
+    EXIT_OK,
+    EXIT_SOURCE_FAILED,
+    main,
+    reparse_missing,
+    run,
+    select_sources,
+)
 from sintesis_ingest.config import Settings, load_sources
 from sintesis_ingest.http import HttpClient
 
@@ -58,7 +66,7 @@ def test_a_run_leaves_raw_csv_and_audit_line(settings):
     assert len(files_under(data / "observations" / "source=bcentral_imacec")) == 10
     (record,) = audit_lines(settings)
     assert record["source_id"] == "bcentral_imacec"
-    assert (record["status"], record["new_files"], record["rows"]) == ("ok", 10, 3690)
+    assert (record["status"], record["new_files"], record["rows_written"]) == ("ok", 10, 3690)
     assert record["error"] is None
 
 
@@ -73,7 +81,7 @@ def test_second_run_creates_nothing_new(settings):
     )
     assert after == before
     first, second = audit_lines(settings)
-    assert (second["new_files"], second["existing_files"], second["rows"]) == (0, 1, 0)
+    assert (second["new_files"], second["existing_files"], second["rows_written"]) == (0, 1, 0)
     assert first["run_id"] != second["run_id"]
 
 
@@ -152,3 +160,21 @@ def test_run_with_default_relative_data_dir(monkeypatch):
     assert not settings.local_data_dir.is_absolute()
     assert run_ids(settings, "bcentral_uf") == EXIT_OK
     assert run_ids(settings, "bcentral_uf") == EXIT_OK
+
+
+def test_reparse_rebuilds_missing_csv_from_raw_without_the_source(settings):
+    # "Raw es la fuente de verdad": si un CSV se pierde, se regenera idéntico desde el archivo raw.
+    # reparse_missing no recibe cliente HTTP, así que no puede llamar al Banco Central.
+    run_ids(settings, "bcentral_uf")
+    (path,) = files_under(settings.local_data_dir / "observations")
+    original = path.read_bytes()
+    path.unlink()
+    rows = reparse_missing(settings, select_sources(load_sources(), ["bcentral_uf"], all_sources=False))
+    assert rows == 31
+    assert path.read_bytes() == original  # mismas filas, mismo raw_path, misma ingest_date
+
+
+def test_reparse_leaves_existing_csv_alone(settings):
+    run_ids(settings, "bcentral_uf")
+    sources = select_sources(load_sources(), ["bcentral_uf"], all_sources=False)
+    assert reparse_missing(settings, sources) == 0

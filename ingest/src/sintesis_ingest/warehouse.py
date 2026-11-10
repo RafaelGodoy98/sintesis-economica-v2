@@ -45,7 +45,7 @@ RUNS_SCHEMA = [
     bigquery.SchemaField("status", "STRING", mode="REQUIRED"),
     bigquery.SchemaField("new_files", "INT64", mode="REQUIRED"),
     bigquery.SchemaField("existing_files", "INT64", mode="REQUIRED"),
-    bigquery.SchemaField("rows", "INT64", mode="REQUIRED"),
+    bigquery.SchemaField("rows_written", "INT64", mode="REQUIRED"),
     bigquery.SchemaField("duration_s", "FLOAT64", mode="REQUIRED"),
     bigquery.SchemaField("error", "STRING", mode="NULLABLE"),
 ]

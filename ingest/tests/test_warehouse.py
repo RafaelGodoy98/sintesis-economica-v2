@@ -164,7 +164,7 @@ def test_runs_load_uses_explicit_schema(settings):
         "status": "ok",
         "new_files": 1,
         "existing_files": 0,
-        "rows": 1,
+        "rows_written": 1,
         "duration_s": 1.5,
         "error": None,
     }
