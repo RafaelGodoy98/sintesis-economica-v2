@@ -16,8 +16,8 @@ sintesis-ingest run --source bcentral_imacec          (el jefe de turno: cli.py)
              └─ entrega formularios RawFile (contract.py): el JSON tal cual, con su huella sha256
                     ├─▶ archivo histórico (storage.py) .......... data/raw/   (solo lo nuevo)
                     ├─▶ traductor (parsers/bcentral_api.py) ..... filas (series_id, period, value)
-                    │      └─▶ observations.py ................. data/observaciones/  (CSV)
-                    └─▶ libro de turnos (audit.py) ............. data/ops/ejecuciones.jsonl
+                    │      └─▶ observations.py ................. data/observations/  (CSV)
+                    └─▶ libro de turnos (audit.py) ............. data/ops/runs.jsonl
 ```
 
 Todo esto viaja dentro de **la caja** (`ingest/Dockerfile`): la misma imagen corre en tu máquina y, desde la fase
@@ -47,8 +47,8 @@ Todo esto viaja dentro de **la caja** (`ingest/Dockerfile`): la misma imagen cor
 | Carpeta | Qué hay | Regla |
 |---|---|---|
 | `data/raw/source=<id>/ingest_date=<fecha>/<sha256>_<nombre>` | Lo que entregó la fuente, tal cual | Inmutable; una vez por contenido |
-| `data/observaciones/source=<id>/<sha256>.csv` | `source_id, series_id, period, value, file_sha256, file_uri, ingested_at` | Se regenera desde raw |
-| `data/ops/ejecuciones.jsonl` | El libro de turnos | Solo se agrega |
+| `data/observations/source=<id>/<sha256>.csv` | `source_id, series_id, period, value, file_sha256, raw_path, ingest_date` | Se regenera desde raw |
+| `data/ops/runs.jsonl` | El libro de turnos | Solo se agrega |
 
 ## Comandos
 

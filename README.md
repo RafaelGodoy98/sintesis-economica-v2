@@ -21,8 +21,12 @@ make run-local SOURCE=bcentral_uf   # corre una fuente: descarga, guarda en raw 
 `run-local` necesita un `.env` (ver `.env.example`) con `SINTESIS_CONTACT_EMAIL` y, para el Banco Central,
 `SINTESIS_BDE_USER` y `SINTESIS_BDE_PASSWORD`. Los datos quedan en `./data` (ignorada por git):
 - `data/raw/source=<id>/ingest_date=<AAAA-MM-DD>/<sha256>_<nombre>`: lo que entregó la fuente, tal cual y una sola vez.
-- `data/observaciones/source=<id>/<sha256>.csv`: `source_id, series_id, period, value, file_sha256, file_uri, ingested_at`.
-- `data/ops/ejecuciones.jsonl`: una línea por fuente y corrida (`status`, `new_files`, `existing_files`, `rows`, `duration_s`, `error`).
+- `data/observations/source=<id>/<sha256>.csv`: `source_id, series_id, period, value, file_sha256, raw_path, ingest_date`
+  (`raw_path` relativa a `data/raw/`; `ingest_date` = fecha del primer guardado del raw).
+- `data/ops/runs.jsonl`: una línea por fuente y corrida (`status`, `new_files`, `existing_files`, `rows`, `duration_s`, `error`).
+
+Carga a BigQuery (`raw.observations` y `ops.runs`, en us-central1): `make load`. Requiere las credenciales de GCP (abajo)
+y `SINTESIS_GCP_PROJECT` en el `.env`. Cada carga reemplaza las tablas completas desde estos archivos (`WRITE_TRUNCATE`).
 
 Código de salida: 0 todo bien · 1 alguna fuente falló (las demás siguen) · 2 la corrida no pudo empezar.
 

@@ -74,8 +74,8 @@ Cloud Scheduler (cron mensual/diario)
 Cloud Workflows: pipeline_sintesis
         ├─▶ Cloud Run Job  "ingest"   (SA: sa-ingest)
         │       fuente → GCS raw (archivo original, inmutable)
-        │       parser → BigQuery raw.observaciones (formato largo)
-        │       registro → BigQuery ops.ejecuciones (auditoría)
+        │       parser → BigQuery raw.observations (formato largo)
+        │       registro → BigQuery ops.runs (auditoría)
         ├─▶ Dataform (invocado por Workflows; SA: sa-dataform)
         │       tablas stg/marts + assertions (ADR-0001)
         └─▶ en error: log estructurado → alerta (Cloud Monitoring → email)
@@ -94,13 +94,13 @@ Dataform ya entrega el grafo de dependencias y el linaje de la parte de transfor
 | Capa | Dónde | Contenido | Regla |
 |---|---|---|---|
 | Landing / raw files | `gs://<proyecto>-raw/source=<fuente>/dataset=<x>/ingest_date=AAAA-MM-DD/<sha256>_<nombre>` | Archivo tal como lo entrega la fuente | Inmutable. Mismo hash = no se vuelve a subir |
-| Raw tables | BigQuery `raw` | `observaciones`: `source_id, series_id, period (DATE), value (NUMERIC), unit, file_uri, file_sha256, run_id, ingested_at` | Solo se agrega. Particionada por `ingested_at`, cluster por `series_id` |
+| Raw tables | BigQuery `raw` | `observations`: `source_id, series_id, period (DATE), value (BIGNUMERIC), file_sha256, raw_path, ingest_date (DATE)` | Todas las ediciones; se recarga completa (`WRITE_TRUNCATE`). Partición mensual por `ingest_date`, cluster por `(source_id, series_id)` (2.2) |
 | Staging | `stg` (Dataform) | Tipos, nombres, deduplicación, **última vintage por (serie, periodo)** | Una vista por fuente |
 | Marts | `marts` (Dataform) | `dim_serie`, `fct_observacion_mensual`, `mart_kpi_edicion`, `mart_comparacion_indicador`, `mart_proyectos_ley` | Lo que consume el reporte/dashboard |
-| Ops | `ops` | `ejecuciones` (`run_id, source_id, status, new_files, existing_files, rows, duration_s, error`) | Reemplaza `reporte.py` y el JSON de estado |
+| Ops | `ops` | `runs` (`run_id, source_id, status, new_files, existing_files, rows, duration_s, error`) | Reemplaza `reporte.py` y el JSON de estado |
 
 **Concepto clave a demostrar: vintages.** El INE y el Banco Central revisan cifras. Guardar cada carga con su
-`ingested_at` permite reconstruir "qué cifra se publicó en la edición de septiembre" versus "cuál es la cifra vigente hoy".
+`ingest_date` (fecha del primer guardado del raw) permite reconstruir "qué cifra se publicó en la edición de septiembre" versus "cuál es la cifra vigente hoy".
 Es un tema que aparece en entrevistas y V1 no lo resuelve.
 
 ### Identidades y accesos (diseño IAM)
