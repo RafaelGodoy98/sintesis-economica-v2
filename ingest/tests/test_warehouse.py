@@ -15,7 +15,7 @@ import pytest
 from google.cloud import bigquery
 
 from sintesis_ingest import observations, warehouse
-from sintesis_ingest.cli import EXIT_CANNOT_START, main
+from sintesis_ingest.cli import EXIT_CANNOT_START, EXIT_SOURCE_FAILED, main
 from sintesis_ingest.config import Settings
 
 HEADER = ",".join(observations.COLUMNS)
@@ -215,3 +215,46 @@ def test_works_with_default_settings(monkeypatch, tmp_path):
     write_csv(settings, "bcentral_uf", "a", [row()])
     fake = FakeBigQuery()
     assert warehouse.load_all(settings, fake) == {OBS: 1}
+
+
+class RejectedJob(FakeJob):
+    def __init__(self, message: str) -> None:
+        super().__init__(0)
+        self.message = message
+
+    def result(self) -> None:
+        raise RuntimeError(self.message)
+
+
+def cli_ready(monkeypatch) -> None:
+    """Lo mínimo para `sintesis-ingest load` con la configuración por defecto (data/ relativa al test)."""
+    monkeypatch.setenv("SINTESIS_CONTACT_EMAIL", "contacto@example.com")
+    monkeypatch.setenv("SINTESIS_GCP_PROJECT", "proyecto-prueba")
+    write_csv(Settings(), "bcentral_uf", "a", [row()])
+
+
+def test_rejected_load_exits_1_and_hides_credentials(monkeypatch, caplog, canary):
+    # Si BigQuery rechaza la carga, la tabla queda como estaba (atómico): ERROR y salida 1. El mensaje de la
+    # excepción pasa por el censor: trae la credencial canario y no debe aparecer (lo vigila conftest.py).
+    cli_ready(monkeypatch)
+    fake = FakeBigQuery()
+    fake.load_table_from_file = lambda *a, **k: RejectedJob(f"rechazado; clave={canary['password']}")
+    monkeypatch.setattr("google.cloud.bigquery.Client", lambda **kwargs: fake)
+    with caplog.at_level(logging.ERROR):
+        assert main(["load"]) == EXIT_SOURCE_FAILED
+    (record,) = [r for r in caplog.records if r.levelno == logging.ERROR]
+    assert "rechazado" in record.error
+
+
+def test_client_that_cannot_start_exits_2(monkeypatch, caplog):
+    # Sin credenciales ADC, el cliente falla al crearse: la carga no puede empezar (CRITICAL, salida 2).
+    cli_ready(monkeypatch)
+
+    def no_credentials(**kwargs):
+        raise RuntimeError("Your default credentials were not found")
+
+    monkeypatch.setattr("google.cloud.bigquery.Client", no_credentials)
+    with caplog.at_level(logging.CRITICAL):
+        assert main(["load"]) == EXIT_CANNOT_START
+    (record,) = [r for r in caplog.records if r.levelno == logging.CRITICAL]
+    assert "credentials" in record.error

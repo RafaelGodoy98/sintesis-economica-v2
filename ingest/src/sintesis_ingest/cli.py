@@ -4,7 +4,8 @@
 
 Por fuente: conector → Storage (raw, solo lo nuevo) → parser → CSV (solo si falta) → registro de corridas.
 Una fuente que falla no detiene a las demás (ERROR). Si la corrida no puede empezar, CRITICAL.
-Código de salida: 0 todo bien · 1 alguna fuente falló (o la carga a BigQuery falló) · 2 no pudo empezar.
+Código de salida: 0 todo bien · 1 alguna fuente falló, la carga a BigQuery falló o `reparse` halló un raw
+alterado · 2 no pudo empezar.
 """
 
 import argparse
@@ -58,11 +59,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         return EXIT_CANNOT_START
 
     configure_logging(settings.log_level)
+    _register_secrets(settings)
+    with HttpClient(settings.contact_email, settings.request_pause_seconds) as http:
+        return run(settings, sources, http)
+
+
+def _register_secrets(settings: Settings) -> None:
     for secret in (settings.bde_user, settings.bde_password and settings.bde_password.get_secret_value()):
         if secret:
             register_secret(secret)  # el censor de logs las conoce desde el primer mensaje
-    with HttpClient(settings.contact_email, settings.request_pause_seconds) as http:
-        return run(settings, sources, http)
 
 
 def reparse() -> int:
@@ -74,12 +79,14 @@ def reparse() -> int:
         logger.critical("el reparseo no puede empezar", extra={"error": str(e)})
         return EXIT_CANNOT_START
     configure_logging(settings.log_level)
-    reparse_missing(settings, catalog.sources)
-    return EXIT_OK
+    _, altered = reparse_missing(settings, catalog.sources)
+    return EXIT_SOURCE_FAILED if altered else EXIT_OK
 
 
-def reparse_missing(settings: Settings, sources: Sequence[Source]) -> int:
-    """Parsea desde el disco cada raw que no tenga su CSV. Devuelve las filas escritas.
+def reparse_missing(settings: Settings, sources: Sequence[Source]) -> tuple[int, int]:
+    """Parsea desde el disco cada raw que no tenga su CSV. Devuelve (filas escritas, raw alterados).
+
+    Un raw alterado (su contenido ya no coincide con la huella de su nombre) no se parsea: ERROR y salida 1.
 
     Es lo que hace real "raw es la fuente de verdad": si los CSV se pierden o cambia el parser, se regeneran
     sin volver a pedir nada a la fuente. No recibe cliente HTTP: no puede llamar a la red.
@@ -87,7 +94,7 @@ def reparse_missing(settings: Settings, sources: Sequence[Source]) -> int:
     """
     raw_root = settings.local_data_dir / "raw"
     obs_root = settings.local_data_dir / observations.FOLDER
-    written = 0
+    written = altered = 0
     for source in sources:
         if source.connector not in PARSERS:
             continue
@@ -104,6 +111,7 @@ def reparse_missing(settings: Settings, sources: Sequence[Source]) -> int:
                     logger.error(
                         "raw alterado: su contenido no coincide con su huella", extra={"raw": path.name}
                     )
+                    altered += 1
                     continue
                 ingest_date = date.fromisoformat(path.parent.name.removeprefix("ingest_date="))
                 fetched_at = datetime.combine(ingest_date, datetime.min.time(), tzinfo=UTC)
@@ -120,8 +128,8 @@ def reparse_missing(settings: Settings, sources: Sequence[Source]) -> int:
                 )
                 logger.info("CSV regenerado desde raw", extra={"raw_path": raw_path, "rows": len(rows)})
                 written += len(rows)
-    logger.info("reparseo listo", extra={"rows": written})
-    return written
+    logger.info("reparseo listo", extra={"rows": written, "altered": altered})
+    return written, altered
 
 
 def load() -> int:
@@ -136,12 +144,18 @@ def load() -> int:
         return EXIT_CANNOT_START
 
     configure_logging(settings.log_level)
+    _register_secrets(settings)
     from google.cloud import bigquery  # aquí y no arriba: `run` no necesita cargar la librería de BigQuery
 
     from sintesis_ingest import warehouse
 
     try:
+        # Sin credenciales ADC (o sin red), el cliente falla al crearse: la carga no puede empezar.
         client = bigquery.Client(project=settings.gcp_project, location=settings.bq_location)
+    except Exception as e:  # noqa: BLE001
+        logger.critical("la carga no puede empezar: cliente de BigQuery", extra={"error": redact(str(e))})
+        return EXIT_CANNOT_START
+    try:
         warehouse.load_all(settings, client)
     except warehouse.LoadError as e:
         logger.critical("la carga no puede empezar", extra={"error": str(e)})

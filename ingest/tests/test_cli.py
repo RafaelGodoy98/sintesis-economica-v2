@@ -169,12 +169,29 @@ def test_reparse_rebuilds_missing_csv_from_raw_without_the_source(settings):
     (path,) = files_under(settings.local_data_dir / "observations")
     original = path.read_bytes()
     path.unlink()
-    rows = reparse_missing(settings, select_sources(load_sources(), ["bcentral_uf"], all_sources=False))
-    assert rows == 31
+    rows, altered = reparse_missing(
+        settings, select_sources(load_sources(), ["bcentral_uf"], all_sources=False)
+    )
+    assert (rows, altered) == (31, 0)
     assert path.read_bytes() == original  # mismas filas, mismo raw_path, misma ingest_date
 
 
 def test_reparse_leaves_existing_csv_alone(settings):
     run_ids(settings, "bcentral_uf")
     sources = select_sources(load_sources(), ["bcentral_uf"], all_sources=False)
-    assert reparse_missing(settings, sources) == 0
+    assert reparse_missing(settings, sources) == (0, 0)
+
+
+def test_reparse_refuses_an_altered_raw(settings, caplog):
+    # Si alguien edita un raw a mano, su contenido ya no coincide con la huella de su nombre: no se parsea
+    # (el CSV mentiría sobre su origen) y queda un ERROR.
+    run_ids(settings, "bcentral_uf")
+    (csv_file,) = files_under(settings.local_data_dir / "observations")
+    (raw,) = files_under(settings.local_data_dir / "raw")
+    csv_file.unlink()
+    raw.write_bytes(raw.read_bytes().replace(b"41065.38", b"99999.99"))
+    sources = select_sources(load_sources(), ["bcentral_uf"], all_sources=False)
+    with caplog.at_level(logging.ERROR):
+        assert reparse_missing(settings, sources) == (0, 1)
+    assert not csv_file.exists()
+    assert "raw alterado" in caplog.text
