@@ -96,7 +96,7 @@ Dataform ya entrega el grafo de dependencias y el linaje de la parte de transfor
 | Landing / raw files | `gs://<proyecto>-raw/source=<fuente>/dataset=<x>/ingest_date=AAAA-MM-DD/<sha256>_<nombre>` | Archivo tal como lo entrega la fuente | Inmutable. Mismo hash = no se vuelve a subir |
 | Raw tables | BigQuery `raw` | `observations`: `source_id, series_id, period (DATE), value (BIGNUMERIC), file_sha256, raw_path, ingest_date (DATE)` | Todas las ediciones; se recarga completa (`WRITE_TRUNCATE`). Partición mensual por `ingest_date`, cluster por `(source_id, series_id)` (2.2) |
 | Staging | `stg` (Dataform) | Tipos, nombres, deduplicación, **última vintage por (serie, periodo)** | Una vista por fuente |
-| Marts | `marts` (Dataform) | `dim_serie`, `fct_observacion_mensual`, `mart_kpi_edicion`, `mart_comparacion_indicador`, `mart_proyectos_ley` | Lo que consume el reporte/dashboard |
+| Marts | `marts` (Dataform) | `dim_series`, `fct_observations_monthly`, `mart_kpi_edition`, `mart_indicator_comparison`, `mart_published_laws` (nombres en inglés propuestos en la 2.2; se confirman en 2.3/2.5 y fase 6) | Lo que consume el reporte/dashboard |
 | Ops | `ops` | `runs` (`run_id, source_id, started_at, status, new_files, existing_files, rows_written, duration_s, error`) | Reemplaza `reporte.py` y el JSON de estado |
 
 **Concepto clave a demostrar: vintages.** El INE y el Banco Central revisan cifras. Guardar cada carga con su
@@ -144,7 +144,7 @@ sintesis-economica-v2/
 │   └── Dockerfile
 ├── transform/                # repositorio Dataform (ADR-0001)
 │   ├── models/{staging,marts}/
-│   ├── seeds/                # dim_serie.csv (desfase esperado, unidad, fuente), calendario.csv
+│   ├── seeds/                # (histórico, plan dbt) dim_series: desfase esperado, unidad, fuente; calendario
 │   ├── tests/                # tests genéricos propios (p. ej. dato_al_dia)
 │   ├── profiles.yml          # usa env_var(); method: oauth (ADC)
 │   └── Dockerfile
@@ -216,13 +216,13 @@ a la service account `sa-dataform`.
 - Dataform: tablas raw como `declaration`; **frescura** como assertion propia (según la documentación, Dataform no trae `freshness`; reemplaza
   parte de `verificar.py`); staging por fuente; dedupe de vintages; marts.
 - Tablas de referencia (Dataform no tiene *seeds*; candidatos para la 2.3: CSV versionado cargado con `bq load` y
-  declarado, o SQLX con `VALUES`): `dim_serie` (id, nombre, unidad, fuente, frecuencia, `desfase_meses` heredado de `config.yaml` de V1), calendario.
+  declarado, o SQLX con `VALUES`): `dim_series` (id, nombre, unidad, fuente, frecuencia, `desfase_meses` heredado de `config.yaml` de V1), calendario.
 - Assertions: `uniqueKey`/`nonNull`/`rowConditions` (integradas) y propias para relaciones y valores aceptados, y uno propio `dato_al_dia(desfase_meses)` que reproduce la lógica "dato esperado vs último dato" de V1. Atípicos (variación fuera de N desviaciones) como aviso: en Dataform una assertion falla o no falla, así que el aviso
   se resuelve aparte (p. ej. una tag que no corta la corrida).
 - Lógica de `cifras.py` (KPI y comparaciones) traducida a SQL en marts.
 - Documentación: Dataform no genera un sitio como `dbt docs`. Candidatos para la 2.6: descripciones en SQLX (a verificar
   que lleguen a BigQuery como descripciones de tablas y columnas) y el grafo de `dataform compile --json` publicado en CI o Pages.
-- **Validación cruzada:** las cifras de `mart_kpi_edicion` para una edición pasada deben coincidir con las publicadas por V1. Es la prueba de que la migración es correcta.
+- **Validación cruzada:** las cifras de `mart_kpi_edition` para una edición pasada deben coincidir con las publicadas por V1. Es la prueba de que la migración es correcta.
 - **Listo cuando:** la transformación corre en dev sin errores y los KPI de UF/IMACEC de 2026-09 coinciden con el `contenido_2026-09.yaml` de V1 (el resto de los KPI, en la fase 6).
 - **Pendiente (30-10-2026):** `contenido_2026-09.yaml` no está en la carpeta `/V1`; probablemente vive en Drive (`I:\Mi unidad\...`). Ubicarlo y copiarlo como fixture de referencia antes de la validación cruzada.
 
