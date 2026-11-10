@@ -23,7 +23,7 @@ make run-local SOURCE=bcentral_uf   # corre una fuente: descarga, guarda en raw 
 - `data/raw/source=<id>/ingest_date=<AAAA-MM-DD>/<sha256>_<nombre>`: lo que entregó la fuente, tal cual y una sola vez.
 - `data/observations/source=<id>/<sha256>.csv`: `source_id, series_id, period, value, file_sha256, raw_path, ingest_date`
   (`raw_path` relativa a `data/raw/`; `ingest_date` = fecha del primer guardado del raw).
-- `data/ops/runs.jsonl`: una línea por fuente y corrida (`status`, `new_files`, `existing_files`, `rows`, `duration_s`, `error`).
+- `data/ops/runs.jsonl`: una línea por fuente y corrida (`status`, `new_files`, `existing_files`, `rows_written`, `duration_s`, `error`).
 
 Carga a BigQuery (`raw.observations` y `ops.runs`, en us-central1): `make load`. Requiere las credenciales de GCP (abajo)
 y `SINTESIS_GCP_PROJECT` en el `.env`. Cada carga reemplaza las tablas completas desde estos archivos (`WRITE_TRUNCATE`).

@@ -97,7 +97,7 @@ Dataform ya entrega el grafo de dependencias y el linaje de la parte de transfor
 | Raw tables | BigQuery `raw` | `observations`: `source_id, series_id, period (DATE), value (BIGNUMERIC), file_sha256, raw_path, ingest_date (DATE)` | Todas las ediciones; se recarga completa (`WRITE_TRUNCATE`). Partición mensual por `ingest_date`, cluster por `(source_id, series_id)` (2.2) |
 | Staging | `stg` (Dataform) | Tipos, nombres, deduplicación, **última vintage por (serie, periodo)** | Una vista por fuente |
 | Marts | `marts` (Dataform) | `dim_serie`, `fct_observacion_mensual`, `mart_kpi_edicion`, `mart_comparacion_indicador`, `mart_proyectos_ley` | Lo que consume el reporte/dashboard |
-| Ops | `ops` | `runs` (`run_id, source_id, status, new_files, existing_files, rows, duration_s, error`) | Reemplaza `reporte.py` y el JSON de estado |
+| Ops | `ops` | `runs` (`run_id, source_id, started_at, status, new_files, existing_files, rows_written, duration_s, error`) | Reemplaza `reporte.py` y el JSON de estado |
 
 **Concepto clave a demostrar: vintages.** El INE y el Banco Central revisan cifras. Guardar cada carga con su
 `ingest_date` (fecha del primer guardado del raw) permite reconstruir "qué cifra se publicó en la edición de septiembre" versus "cuál es la cifra vigente hoy".
