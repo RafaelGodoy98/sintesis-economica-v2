@@ -50,6 +50,11 @@ class Settings(BaseSettings):
     # API BDE (Banco Central). Opcionales: solo las exige el conector bcentral_api.
     bde_user: Email | None = None  # el email registrado en la BDE
     bde_password: SecretStr | None = None
+    # BigQuery (warehouse.py). El proyecto es opcional aquí: solo lo exige `sintesis-ingest load`.
+    gcp_project: str | None = None
+    bq_location: str = "us-central1"  # región decidida en la 2.1 (nivel gratuito y Dataform)
+    bq_raw_dataset: str = "raw"
+    bq_ops_dataset: str = "ops"
 
     @model_validator(mode="after")
     def _gcs_needs_bucket(self) -> "Settings":

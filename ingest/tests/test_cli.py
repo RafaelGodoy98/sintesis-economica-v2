@@ -47,7 +47,7 @@ def files_under(path: Path) -> list[Path]:
 
 
 def audit_lines(settings) -> list[dict]:
-    path = settings.local_data_dir / "ops" / "ejecuciones.jsonl"
+    path = settings.local_data_dir / "ops" / "runs.jsonl"
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
 
@@ -55,7 +55,7 @@ def test_a_run_leaves_raw_csv_and_audit_line(settings):
     assert run_ids(settings, "bcentral_imacec") == EXIT_OK
     data = settings.local_data_dir
     assert len(files_under(data / "raw" / "source=bcentral_imacec")) == 10
-    assert len(files_under(data / "observaciones" / "source=bcentral_imacec")) == 10
+    assert len(files_under(data / "observations" / "source=bcentral_imacec")) == 10
     (record,) = audit_lines(settings)
     assert record["source_id"] == "bcentral_imacec"
     assert (record["status"], record["new_files"], record["rows"]) == ("ok", 10, 3690)
@@ -65,11 +65,11 @@ def test_a_run_leaves_raw_csv_and_audit_line(settings):
 def test_second_run_creates_nothing_new(settings):
     run_ids(settings, "bcentral_uf")
     before = files_under(settings.local_data_dir / "raw") + files_under(
-        settings.local_data_dir / "observaciones"
+        settings.local_data_dir / "observations"
     )
     assert run_ids(settings, "bcentral_uf") == EXIT_OK
     after = files_under(settings.local_data_dir / "raw") + files_under(
-        settings.local_data_dir / "observaciones"
+        settings.local_data_dir / "observations"
     )
     assert after == before
     first, second = audit_lines(settings)
@@ -79,7 +79,7 @@ def test_second_run_creates_nothing_new(settings):
 
 def test_csv_has_exact_values_and_traceability(settings):
     run_ids(settings, "bcentral_uf")
-    (path,) = files_under(settings.local_data_dir / "observaciones")
+    (path,) = files_under(settings.local_data_dir / "observations")
     with path.open(encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
     assert len(rows) == 31
@@ -87,7 +87,9 @@ def test_csv_has_exact_values_and_traceability(settings):
     assert (rows[0]["period"], rows[0]["value"]) == ("2026-10-01", "41065.38")  # exacto, sin redondeo
     (raw,) = files_under(settings.local_data_dir / "raw")
     assert rows[0]["file_sha256"] == path.stem and raw.name.startswith(path.stem)
-    assert rows[0]["file_uri"] == raw.as_uri()
+    raw_root = settings.local_data_dir / "raw"
+    assert raw_root / rows[0]["raw_path"] == raw  # la ruta relativa apunta al raw guardado
+    assert rows[0]["ingest_date"] == raw.parent.name.removeprefix("ingest_date=")
 
 
 def test_failing_source_does_not_stop_the_others(settings, caplog):
@@ -111,7 +113,7 @@ def test_a_source_error_never_writes_credentials_to_the_audit(settings, canary):
     http = HttpClient("contacto@example.com", 0, transport=httpx.MockTransport(bad), sleep=lambda s: None)
     sources = select_sources(load_sources(), ["bcentral_uf"], all_sources=False)
     assert run(settings, sources, http) == EXIT_SOURCE_FAILED
-    text = (settings.local_data_dir / "ops" / "ejecuciones.jsonl").read_text(encoding="utf-8")
+    text = (settings.local_data_dir / "ops" / "runs.jsonl").read_text(encoding="utf-8")
     assert "Invalid username or password" in text
     assert canary["password"] not in text and canary["user"] not in text
 

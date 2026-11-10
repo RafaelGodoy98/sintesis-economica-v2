@@ -1,6 +1,6 @@
 """Registro de corridas: una línea JSON por fuente y corrida. Solo se agrega, nunca se edita.
 
-Equivalente local de la tabla `ops.ejecuciones` (docs/plan.md §3); reemplaza el `estado_descargas.json` de V1.
+Equivalente local de la tabla `ops.runs` (warehouse.py); reemplaza el `estado_descargas.json` de V1.
 """
 
 import json
@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Literal
 
 from sintesis_ingest.log import redact
+
+RUNS_FILE = Path("ops") / "runs.jsonl"  # bajo SINTESIS_LOCAL_DATA_DIR
 
 
 @dataclass(frozen=True)

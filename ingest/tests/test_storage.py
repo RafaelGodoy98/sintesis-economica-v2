@@ -31,11 +31,12 @@ def test_saves_original_bytes_in_raw_layout(tmp_path):
     expected = tmp_path / "source=fuente_prueba" / "ingest_date=2026-11-03" / f"{sha}_datos.json"
     assert all_files(tmp_path) == [expected]
     assert expected.read_bytes() == raw.content
-    assert (stored.created, stored.sha256, stored.size, stored.uri) == (
+    assert (stored.created, stored.sha256, stored.size, stored.raw_path, stored.ingest_date) == (
         True,
         sha,
         len(raw.content),
-        expected.as_uri(),
+        f"source=fuente_prueba/ingest_date=2026-11-03/{sha}_datos.json",
+        date(2026, 11, 3),
     )
 
 
@@ -45,7 +46,7 @@ def test_same_content_twice_keeps_one_file_even_on_another_day(tmp_path):
     second = storage.save(make_raw(day=4))
     assert len(all_files(tmp_path)) == 1
     assert second.created is False
-    assert second.uri == first.uri
+    assert second.raw_path == first.raw_path
 
 
 def test_different_content_creates_new_file(tmp_path):
@@ -74,8 +75,27 @@ def test_failed_write_leaves_no_file(tmp_path, monkeypatch):
 
 def test_works_with_the_relative_default_data_dir(tmp_path, monkeypatch):
     # En local, SINTESIS_LOCAL_DATA_DIR vale "data" (relativa). Los demás tests usan rutas absolutas;
-    # este reproduce la falla de la primera corrida real (as_uri exige ruta absoluta).
+    # este reproduce el caso de la primera corrida real (1.4), que falló con la ruta relativa.
     monkeypatch.chdir(tmp_path)
     stored = LocalStorage(Path("data") / "raw").save(make_raw())
-    assert stored.uri.startswith("file:///")
+    assert stored.raw_path.startswith("source=fuente_prueba/")
     assert LocalStorage(Path("data") / "raw").save(make_raw()).created is False
+
+
+def test_raw_path_is_relative_and_hides_the_machine(tmp_path):
+    # raw_path sube a BigQuery: no debe llevar la carpeta de la máquina (/home/<usuario>/...) ni un esquema
+    # (file://). Así es la misma en local, en Docker y en la nube (decisión 3 de la 2.2).
+    stored = LocalStorage(tmp_path).save(make_raw())
+    assert not stored.raw_path.startswith(("/", "file:"))
+    assert str(tmp_path) not in stored.raw_path
+    assert stored.raw_path.split("/")[:2] == ["source=fuente_prueba", "ingest_date=2026-11-03"]
+
+
+def test_ingest_date_is_the_first_save_even_when_seen_again(tmp_path):
+    # La misma edición descargada otro día conserva la fecha en que llegó por primera vez (decisión 4,
+    # 2.2): si no, reprocesar movería la historia de las ediciones (vintages).
+    storage = LocalStorage(tmp_path)
+    storage.save(make_raw(day=3))
+    again = storage.save(make_raw(day=20))
+    assert again.created is False
+    assert again.ingest_date == date(2026, 11, 3)

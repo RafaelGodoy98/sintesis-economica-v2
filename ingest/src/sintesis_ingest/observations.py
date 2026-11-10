@@ -4,19 +4,20 @@
 
 El nombre sale de la huella del raw: correr dos veces escribe el mismo archivo (no duplica). Para reprocesar
 con un parser nuevo basta borrar los CSV: el raw sigue intacto y no hay que volver a pedir nada a la fuente.
-Columnas = las de `raw.observaciones` en BigQuery (docs/plan.md §3), salvo `run_id`, que va en el registro de
+Columnas = las de `raw.observations` en BigQuery (warehouse.py), salvo `run_id`, que va en el registro de
 corridas (si estuviera aquí, cada corrida cambiaría el archivo).
 """
 
 import csv
 import os
 import tempfile
-from datetime import datetime
+from datetime import date
 from pathlib import Path
 
 from sintesis_ingest.contract import Observation
 
-COLUMNS = ["source_id", "series_id", "period", "value", "file_sha256", "file_uri", "ingested_at"]
+FOLDER = "observations"  # bajo SINTESIS_LOCAL_DATA_DIR
+COLUMNS = ["source_id", "series_id", "period", "value", "file_sha256", "raw_path", "ingest_date"]
 
 
 def csv_path(root: Path, source_id: str, file_sha256: str) -> Path:
@@ -29,8 +30,8 @@ def write_csv(
     *,
     source_id: str,
     file_sha256: str,
-    file_uri: str,
-    ingested_at: datetime,
+    raw_path: str,
+    ingest_date: date,
 ) -> None:
     """Escribe el CSV de forma atómica (temporal + rename), como el Storage."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -48,8 +49,8 @@ def write_csv(
                         r.period.isoformat(),
                         str(r.value),
                         file_sha256,
-                        file_uri,
-                        ingested_at.isoformat(),
+                        raw_path,
+                        ingest_date.isoformat(),
                     ]
                 )
         os.replace(tmp, path)

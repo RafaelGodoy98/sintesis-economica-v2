@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Ingesta de indicadores económicos hacia la capa raw (GCS) y BigQuery."
 requires-python = ">=3.13,<3.14"
 dependencies = [
+    "google-cloud-bigquery>=3.46.2,<3.47",
     "httpx>=0.28.1",
     "pydantic>=2.14.2",
     "pydantic-settings>=2.16.2",
