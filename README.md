@@ -25,7 +25,7 @@ make run-local SOURCE=bcentral_uf   # corre una fuente: descarga, guarda en raw 
   (`raw_path` relativa a `data/raw/`; `ingest_date` = fecha del primer guardado del raw).
 - `data/ops/runs.jsonl`: una línea por fuente y corrida (`status`, `new_files`, `existing_files`, `rows_written`, `duration_s`, `error`).
 
-Carga a BigQuery (`raw.observations` y `ops.runs`, en us-central1): `make load`. Requiere las credenciales de GCP (abajo)
+Carga a BigQuery (`raw.observations`, `ops.runs` y los CSV de `reference/`, en us-central1): `make load`. Requiere las credenciales de GCP (abajo)
 y `SINTESIS_GCP_PROJECT` en el `.env`. Cada carga reemplaza las tablas completas desde estos archivos (`WRITE_TRUNCATE`).
 
 Código de salida: 0 todo bien · 1 alguna fuente falló (las demás siguen) · 2 la corrida no pudo empezar.

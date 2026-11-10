@@ -51,6 +51,21 @@ RUNS_SCHEMA = [
 ]
 
 
+# Datos de referencia (2.3): cada reference/<tabla>.csv va a reference.<tabla>, con su esquema explícito.
+# Un CSV que no esté aquí es un error: así nadie sube una tabla con tipos adivinados por BigQuery.
+REFERENCE_SCHEMAS = {
+    "series": [
+        bigquery.SchemaField("series_id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("source_id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("name", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("unit", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("frequency", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("seasonally_adjusted", "BOOL", mode="REQUIRED"),
+        bigquery.SchemaField("expected_lag_months", "INT64", mode="NULLABLE"),
+    ],
+}
+
+
 class LoadError(Exception):
     """La carga no se intentó porque los archivos locales no sirven (vacíos o con columnas inesperadas)."""
 
@@ -119,10 +134,36 @@ def _load(
     return job.output_rows
 
 
+def read_reference(folder: Path) -> dict[str, bytes]:
+    """Lee los CSV de referencia y revisa que cada uno tenga esquema conocido y el encabezado esperado."""
+    files = {}
+    for path in sorted(folder.glob("*.csv")):
+        schema = REFERENCE_SCHEMAS.get(path.stem)
+        if schema is None:
+            raise LoadError(f"{path.name}: no tiene esquema en REFERENCE_SCHEMAS (warehouse.py)")
+        content = path.read_bytes()
+        header = content.decode("utf-8").splitlines()[0] if content else ""
+        expected = ",".join(f.name for f in schema)
+        if header != expected:
+            raise LoadError(f"{path.name}: columnas inesperadas ({header}); se esperaba {expected}")
+        files[path.stem] = content
+    return files
+
+
+def reference_job_config(table: str) -> bigquery.LoadJobConfig:
+    return bigquery.LoadJobConfig(
+        schema=REFERENCE_SCHEMAS[table],
+        source_format=bigquery.SourceFormat.CSV,
+        skip_leading_rows=1,
+        write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
+    )
+
+
 def load_all(settings: Settings, client: Any) -> dict[str, int]:
-    """Carga observaciones y corridas. Devuelve las filas cargadas por tabla."""
+    """Carga observaciones, corridas y datos de referencia. Devuelve las filas cargadas por tabla."""
     data = settings.local_data_dir
     content, rows = combine_observations(data / observations.FOLDER)  # antes de tocar BigQuery
+    reference = read_reference(settings.reference_dir)  # también se revisa antes de tocar BigQuery
 
     ensure_dataset(
         client, settings, settings.bq_raw_dataset, "Observaciones tal como llegaron: todas las ediciones."
@@ -139,5 +180,13 @@ def load_all(settings: Settings, client: Any) -> dict[str, int]:
         loaded[runs_table] = _load(client, settings, runs_path.read_bytes(), runs_table, runs_job_config())
     else:
         logger.warning("no hay registro de corridas: ops.runs no se carga", extra={"path": str(runs_path)})
+
+    if reference:
+        ensure_dataset(
+            client, settings, settings.bq_reference_dataset, "Datos mantenidos a mano (reference/)."
+        )
+    for table, ref_content in reference.items():
+        table_id = f"{settings.gcp_project}.{settings.bq_reference_dataset}.{table}"
+        loaded[table_id] = _load(client, settings, ref_content, table_id, reference_job_config(table))
     logger.info("carga lista", extra={"observations_rows_in_csv": rows})
     return loaded

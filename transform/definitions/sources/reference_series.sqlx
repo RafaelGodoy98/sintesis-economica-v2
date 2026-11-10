@@ -1,0 +1,6 @@
+config {
+  type: "declaration",
+  schema: "reference",
+  name: "series",
+  description: "Ficha de cada serie, mantenida a mano en reference/series.csv y cargada por make load."
+}

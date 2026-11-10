@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     bq_location: str = "us-central1"  # región decidida en la 2.1 (nivel gratuito y Dataform)
     bq_raw_dataset: str = "raw"
     bq_ops_dataset: str = "ops"
+    bq_reference_dataset: str = "reference"
+    # Datos mantenidos a mano (CSV versionados en el repo, no en data/): ficha de series, calendario.
+    reference_dir: Path = Path("reference")
 
     @model_validator(mode="after")
     def _gcs_needs_bucket(self) -> "Settings":
