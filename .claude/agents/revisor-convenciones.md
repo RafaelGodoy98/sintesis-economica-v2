@@ -43,7 +43,8 @@ entender el contexto, empezando por los que el diff toca.
 - **Logs:** `print` en código de producción (fuera de tests y scripts desechables); niveles según la convención
   (INFO hito · WARNING inesperado pero siguió · ERROR la fuente falló · CRITICAL la corrida no puede seguir).
 - **Cortesía con las fuentes:** User-Agent honesto, pausa entre solicitudes, nada que evada bloqueos (WAF).
-- **BigQuery sandbox (hasta la fase 3):** sin DML (`INSERT`, `UPDATE`, `DELETE`, `MERGE`); tablas como table/view.
+- **BigQuery (prueba gratuita desde 2026-11-06):** tablas de Dataform como table/view; `incremental` solo con un ADR; raw
+  se recarga con load jobs `WRITE_TRUNCATE`; nada de `gcloud billing` sin pedido de Rafael.
 - **Tests que protegen algo** (credenciales, idempotencia, aislamiento, permisos): el plan de la tarea debe decir
   que se hicieron fallar a propósito. Al menos un test por pieza nueva debe usar la configuración por defecto.
 - **Documentación de la tarea:** existe `docs/plans/AAAA-MM-DD-<tarea>.md` con "Resultado de la verificación"; el

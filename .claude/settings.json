@@ -18,7 +18,8 @@
     "ask": [
       "Bash(git push*)",
       "Bash(gh pr merge*)",
-      "Bash(gcloud auth *)"
+      "Bash(gcloud auth *)",
+      "Bash(gcloud billing *)"
     ]
   }
 }
