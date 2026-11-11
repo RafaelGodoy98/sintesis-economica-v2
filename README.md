@@ -1,11 +1,90 @@
 # Síntesis Económica V2
 
-Pipeline ELT de indicadores económicos de la Región de Valparaíso y Chile (INE, Banco Central, Senado),
-desplegable en Google Cloud: ingesta en Cloud Run Jobs → Cloud Storage (raw) → BigQuery → Dataform,
-con infraestructura como código (Terraform) y CI/CD en GitHub Actions.
+Pipeline ELT en Google Cloud que automatiza los indicadores económicos de la Región de Valparaíso y de Chile
+(Banco Central, INE, Senado), pensado para correr **sin intervención de su autor** y con cada decisión documentada.
 
-> **Estado:** en construcción — fase 1 cerrada (ingesta del Banco Central, en Docker); en curso la fase 2 (BigQuery +
-> Dataform; go/no-go de Dataform con el sandbox: GO). Ver [docs/plan.md](docs/plan.md) y la [guía del código](docs/codigo.md).
+> **Estado (noviembre 2026):** fases 0 y 1 cerradas; fase 2 (BigQuery + Dataform) en curso. Rebanada vertical:
+> una sola fuente (Banco Central: UF e IMACEC) recorre todo el pipeline antes de sumar las demás.
+> Plan completo en [docs/plan.md](docs/plan.md).
+
+## El problema
+
+La versión 1 de este proceso funciona, pero solo en un PC y con una persona al frente: rutas a Google Drive,
+transformaciones en Power Query dentro de un Excel, estado guardado en un JSON y pasos manuales. V2 lo reconstruye
+desde cero como un pipeline que cualquiera con un proyecto GCP puede desplegar y auditar.
+
+## Arquitectura
+
+```mermaid
+flowchart LR
+    SCH[Cloud Scheduler]:::plan --> WF[Cloud Workflows]:::plan
+    WF --> ING
+    subgraph ING[Ingesta · Docker / Cloud Run Job]
+        C[Conectores<br/>Banco Central · INE · Senado] --> P[Parsers<br/>formato largo]
+    end
+    C -->|archivo original,<br/>inmutable por sha256| RAW[(Raw<br/>local hoy · GCS en fase 3)]
+    P --> BQRAW[(BigQuery<br/>raw.observations)]:::hecho
+    ING --> OPS[(BigQuery<br/>ops.runs · auditoría)]:::hecho
+    BQRAW --> DF[Dataform<br/>staging → marts<br/>+ assertions]:::hecho
+    REF[(reference/<br/>fichas y calendario oficial)]:::hecho --> DF
+    DF --> MARTS[(marts<br/>dim_series · freshness_status)]:::hecho
+    MARTS --> LS[Looker Studio]:::plan
+
+    classDef hecho fill:#d7f0dd,stroke:#2e7d32,color:#1b1b1b
+    classDef plan fill:#f2f2f2,stroke:#9e9e9e,stroke-dasharray:4 3,color:#555
+```
+
+Verde: construido · gris punteado: planificado. Infraestructura con Terraform, IAM de mínimo privilegio por servicio
+y CI/CD con GitHub Actions + Workload Identity Federation llegan en las fases 3–5.
+
+## Lo que ya funciona
+
+- **Ingesta idempotente.** Conector de la API del Banco Central sobre un contrato común ([ADR-0003](docs/adr/0003-conectores-de-ingesta.md)):
+  el archivo original se guarda una sola vez por sha256 y una segunda corrida no duplica nada.
+- **Contenedor endurecido.** Imagen Docker multi-stage, usuario sin privilegios, credenciales solo por variables de entorno;
+  un test corre la imagen aislada (sin repo, sin credenciales y sin red).
+- **Carga a BigQuery** con esquema explícito, tabla particionada por mes y clusterizada por `(source_id, series_id)`.
+- **Transformación en Dataform** ([ADR-0001](docs/adr/0001-elt-gcs-bigquery-dataform.md)): staging que resuelve las
+  revisiones de cifras (*vintages*), dimensión de series y assertions estructurales que cortan la corrida si fallan.
+- **Control de frescura con calendario oficial.** `marts.freshness_status` compara lo que el calendario de publicaciones
+  anunciaba con lo que realmente llegó, por fuente (OK / ATRASADO).
+- **Observabilidad desde el inicio.** Logs JSON estructurados (`run_id`, `source_id`, `severity`) listos para Cloud Logging
+  y una tabla de auditoría por corrida (`ops.runs`: archivos nuevos, filas, duración, error).
+- **Seguridad.** `detect-secrets` en pre-commit, credenciales redactadas en logs y tests con credenciales "canario"
+  que fallan si un secreto se filtra.
+- **126 tests** (`make test`) y linting con `ruff` en pre-commit.
+
+## Decisiones de arquitectura
+
+| Decisión | Elegido | Por qué (resumen) |
+|---|---|---|
+| Dónde transformar | ELT: GCS → BigQuery → **Dataform** | El original queda auditable; Dataform es nativo de BigQuery ([ADR-0001](docs/adr/0001-elt-gcs-bigquery-dataform.md)) |
+| Orquestación | **Cloud Scheduler + Workflows** | Flujo lineal y corto; Composer tiene costo fijo alto a esta escala ([ADR-0002](docs/adr/0002-orquestacion-workflows.md)) |
+| Ingesta | **Conectores propios** con contrato común | Tres patrones de extracción distintos (API, scraping, xlsx) ([ADR-0003](docs/adr/0003-conectores-de-ingesta.md)) |
+| Estrategia | **Rebanada vertical** | Un pipeline completo con una fuente vale más que uno a medias con tres |
+
+## Hoja de ruta
+
+| Fase | Contenido | Estado |
+|---|---|---|
+| 0 | Fundaciones: uv, ruff, pytest, pre-commit, configuración y logging | ✅ |
+| 1 | Ingesta del Banco Central + Docker | ✅ |
+| 2 | BigQuery + Dataform: staging, marts, assertions, frescura | 🔄 en curso |
+| 3 | Fundación GCP con Terraform (GCS, IAM, Secret Manager) | ⏳ |
+| 4 | Despliegue en Cloud Run Jobs + orquestación con Workflows | ⏳ |
+| 5 | CI/CD con GitHub Actions y Workload Identity Federation | ⏳ |
+| 6 | Ensanche: Senado e INE regional | ⏳ |
+| 7 | Dashboard en Looker Studio | ⏳ |
+
+## Stack
+
+Python 3.13 · uv · pydantic-settings · pytest · Docker · BigQuery · Dataform (SQLX) · Cloud Storage · Cloud Run ·
+Cloud Workflows · Terraform · GitHub Actions
+
+## Documentación
+
+- [Plan del proyecto](docs/plan.md) · [Guía del código](docs/codigo.md) · [Fuentes](docs/fuentes.md)
+- [Decisiones (ADR)](docs/adr/) · [Planes por tarea](docs/plans/) · [Registro de aprendizaje](docs/aprendizaje/)
 
 ## Desarrollo local
 
