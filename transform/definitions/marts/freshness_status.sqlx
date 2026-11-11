@@ -8,7 +8,7 @@ config {
     last_period: "Último período disponible en staging.",
     calendar_until: "Última fecha de publicación que trae el calendario para la fuente.",
     data_status: "OK o ATRASADO.",
-    calendar_status: "VIGENTE, VENCIDO (año en curso sin calendario) o NO APLICA (UF, diaria)."
+    calendar_status: "VIGENTE o VENCIDO (año en curso sin calendario)."
   }
 }
 
@@ -17,9 +17,9 @@ WITH today AS (
   SELECT ${dates.asOfDate()} AS as_of_date
 ),
 
--- 2. Las fuentes que tienen ficha, con su frecuencia.
+-- 2. Las fuentes que tienen ficha (la lista de lo que debería estar vigilado).
 sources AS (
-  SELECT DISTINCT source_id, frequency
+  SELECT DISTINCT source_id
   FROM ${ref("dim_series")}
 ),
 
@@ -47,13 +47,12 @@ SELECT
   e.expected_period,
   d.last_period,
   e.calendar_until,
+  -- Una sola regla para todas las fuentes, también la UF (Rafael agregó su calendario: el día 9 publica el mes siguiente).
   CASE
-    WHEN s.frequency = 'daily' THEN IF(d.last_period >= t.as_of_date, 'OK', 'ATRASADO')  -- UF: cubre hasta hoy
     WHEN d.last_period >= e.expected_period THEN 'OK'
     ELSE 'ATRASADO'
   END AS data_status,
   CASE
-    WHEN s.frequency = 'daily' THEN 'NO APLICA'
     WHEN e.calendar_until IS NULL
       OR EXTRACT(YEAR FROM t.as_of_date) > EXTRACT(YEAR FROM e.calendar_until) THEN 'VENCIDO'
     ELSE 'VIGENTE'

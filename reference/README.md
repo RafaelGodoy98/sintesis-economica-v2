@@ -29,4 +29,5 @@ Si el calendario no cubre la fecha actual, `marts.freshness_status` lo marca com
 | `release_date` | `AAAA-MM-DD` | El día de publicación, según el calendario oficial | `2026-11-02` |
 | `notes` | texto (opcional) | Aclaraciones; sin comas, o entre comillas | `trimestre móvil JAS 2026` |
 
-La UF (diaria, publicada por adelantado) y el Senado no llevan calendario.
+La UF también lleva calendario: el día 9 de cada mes el Banco Central publica la UF del mes siguiente
+(`reference_period` = ese mes siguiente). El Senado no lleva calendario.
