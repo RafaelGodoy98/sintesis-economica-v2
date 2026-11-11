@@ -218,6 +218,8 @@ a la service account `sa-dataform`.
   parte de `verificar.py`); staging por fuente; dedupe de vintages; marts.
 - Tablas de referencia (Dataform no tiene *seeds*; candidatos para la 2.3: CSV versionado cargado con `bq load` y
   declarado, o SQLX con `VALUES`): `dim_series` (id, nombre, unidad, fuente, frecuencia, `desfase_meses` heredado de `config.yaml` de V1), calendario.
+- **Hecho en la 2.4:** calendario oficial en `reference/`, `marts.freshness_status` (plan vs. real; informa) y assertions
+  estructurales propias (relación con `dim_series`, una edición por serie y día).
 - Assertions: `uniqueKey`/`nonNull`/`rowConditions` (integradas) y propias para relaciones y valores aceptados, y uno propio `dato_al_dia(desfase_meses)` que reproduce la lógica "dato esperado vs último dato" de V1. Atípicos (variación fuera de N desviaciones) como aviso: en Dataform una assertion falla o no falla, así que el aviso
   se resuelve aparte (p. ej. una tag que no corta la corrida).
 - Lógica de `cifras.py` (KPI y comparaciones) traducida a SQL en marts.
