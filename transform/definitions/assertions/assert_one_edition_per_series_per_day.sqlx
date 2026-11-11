@@ -1,0 +1,12 @@
+config {
+  type: "assertion",
+  description: "Datos rotos (detiene la corrida): dos archivos distintos de una serie con la misma ingest_date harían ambigua la edición vigente (solo se guarda la fecha). Devuelve los casos."
+}
+
+SELECT
+  series_id,
+  ingest_date,
+  COUNT(DISTINCT file_sha256) AS editions
+FROM ${ref("observations")}
+GROUP BY series_id, ingest_date
+HAVING COUNT(DISTINCT file_sha256) > 1

@@ -63,6 +63,13 @@ REFERENCE_SCHEMAS = {
         bigquery.SchemaField("seasonally_adjusted", "BOOL", mode="REQUIRED"),
         bigquery.SchemaField("expected_lag_months", "INT64", mode="NULLABLE"),
     ],
+    # reference_period queda como texto AAAA-MM (como lo escribe una persona); Dataform lo convierte a fecha.
+    "release_calendar": [
+        bigquery.SchemaField("source_id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("reference_period", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("release_date", "DATE", mode="REQUIRED"),
+        bigquery.SchemaField("notes", "STRING", mode="NULLABLE"),
+    ],
 }
 
 

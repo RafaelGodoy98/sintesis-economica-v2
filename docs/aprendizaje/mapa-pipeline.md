@@ -20,10 +20,12 @@ flowchart LR
     subgraph OPS["BigQuery · dataset ops (2.2)"]
         RUNST[("ops.runs")]
     end
-    subgraph REF["BigQuery · dataset reference (2.3)"]
+    subgraph REF["BigQuery · dataset reference (2.3–2.4)"]
         REFS[("reference.series")]
+        REFC[("reference.release_calendar")]
     end
-    REFCSV["reference/series.csv<br/>(a mano, en git)"] -->|"warehouse.py"| REFS
+    REFCSV["reference/*.csv<br/>(a mano, en git)"] -->|"warehouse.py"| REFS
+    REFCSV -->|"warehouse.py"| REFC
 
     CSV -->|"warehouse.py<br/>load job WRITE_TRUNCATE"| OBS
     RUNS -->|"warehouse.py"| RUNST
@@ -33,11 +35,17 @@ flowchart LR
         DIM[("dim_series<br/>ficha de las series<br/>(2.3 ✔)")]
         FCT[("fct_observations_monthly<br/>una cifra por serie y mes<br/>(2.5, propuesto)")]
         KPI[("mart_kpi_edition<br/>KPI de cada edición del boletín<br/>(2.5, propuesto)")]
-        AS{{"assertions<br/>(2.4)"}}
+        AS{{"assertions<br/>(2.3–2.4)"}}
+        CAL["stg_reference__release_calendar<br/>(2.4 ✔)"]
+        FRESH["freshness_status<br/>plan vs. real: ¿llegó?<br/>(2.4 ✔)"]
     end
 
     OBS --> STG
     REFS --> DIM
+    REFC --> CAL
+    CAL --> FRESH
+    STG --> FRESH
+    DIM --> FRESH
     STG --> FCT
     DIM --> FCT
     FCT --> KPI
