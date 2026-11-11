@@ -282,7 +282,7 @@ def test_repo_reference_files_match_their_schemas():
     # Los CSV reales de reference/ (editados a mano) deben calzar con su esquema: si alguien agrega una
     # columna o rompe el encabezado, falla aquí y no en la carga.
     files = warehouse.read_reference(REPO_REFERENCE)
-    assert "series" in files
+    assert {"series", "release_calendar"} <= set(files)
     rows = list(csv.DictReader(io.StringIO(files["series"].decode("utf-8"))))
     assert len({r["series_id"] for r in rows}) == len(rows)  # sin series repetidas
 

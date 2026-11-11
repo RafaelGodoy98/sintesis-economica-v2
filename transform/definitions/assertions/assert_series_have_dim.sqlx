@@ -1,0 +1,9 @@
+config {
+  type: "assertion",
+  description: "Datos rotos (detiene la corrida): una serie con datos en staging pero sin ficha en dim_series. Devuelve las series huérfanas."
+}
+
+SELECT DISTINCT s.series_id
+FROM ${ref("stg_bcentral__observations")} AS s
+LEFT JOIN ${ref("dim_series")} AS d ON d.series_id = s.series_id
+WHERE d.series_id IS NULL

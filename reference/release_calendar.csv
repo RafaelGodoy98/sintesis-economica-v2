@@ -1,0 +1,73 @@
+source_id,reference_period,release_date,notes
+bcentral_imacec,2025-11,2026-01-02,
+bcentral_imacec,2025-12,2026-02-02,
+bcentral_imacec,2026-01,2026-03-02,
+bcentral_imacec,2026-02,2026-04-01,
+bcentral_imacec,2026-03,2026-05-04,
+bcentral_imacec,2026-04,2026-06-01,
+bcentral_imacec,2026-05,2026-07-01,
+bcentral_imacec,2026-06,2026-08-03,
+bcentral_imacec,2026-07,2026-09-01,
+bcentral_imacec,2026-08,2026-10-01,
+bcentral_imacec,2026-09,2026-11-02,
+bcentral_imacec,2026-10,2026-12-01,
+empleo_regional,2025-12,2026-01-29,trimestre móvil OND 2025
+empleo_regional,2026-01,2026-02-27,trimestre móvil NDE 2026
+empleo_regional,2026-02,2026-03-30,trimestre móvil DEF 2026
+empleo_regional,2026-03,2026-04-29,trimestre móvil EFM 2026
+empleo_regional,2026-04,2026-05-29,trimestre móvil FMA 2026
+empleo_regional,2026-05,2026-06-30,trimestre móvil MAM 2026
+empleo_regional,2026-06,2026-07-31,trimestre móvil AMJ 2026
+empleo_regional,2026-07,2026-08-28,trimestre móvil MJJ 2026
+empleo_regional,2026-08,2026-09-30,trimestre móvil JJA 2026
+empleo_regional,2026-09,2026-10-29,trimestre móvil JAS 2026
+empleo_regional,2026-10,2026-11-27,trimestre móvil ASO 2026
+empleo_regional,2026-11,2026-12-30,trimestre móvil SON 2026
+energia_regional,2025-11,2026-01-05,
+energia_regional,2025-12,2026-02-03,
+energia_regional,2026-01,2026-03-03,
+energia_regional,2026-02,2026-04-02,
+energia_regional,2026-03,2026-05-05,
+energia_regional,2026-04,2026-06-02,
+energia_regional,2026-05,2026-07-02,
+energia_regional,2026-06,2026-08-04,
+energia_regional,2026-07,2026-09-02,
+energia_regional,2026-08,2026-10-02,
+energia_regional,2026-09,2026-11-03,
+energia_regional,2026-10,2026-12-02,
+exportaciones_regional,2025-11,2026-01-15,
+exportaciones_regional,2025-12,2026-02-16,
+exportaciones_regional,2026-01,2026-03-16,
+exportaciones_regional,2026-02,2026-04-15,
+exportaciones_regional,2026-03,2026-05-15,
+exportaciones_regional,2026-04,2026-06-15,
+exportaciones_regional,2026-05,2026-07-15,
+exportaciones_regional,2026-06,2026-08-14,
+exportaciones_regional,2026-07,2026-09-15,
+exportaciones_regional,2026-08,2026-10-15,
+exportaciones_regional,2026-09,2026-11-16,
+exportaciones_regional,2026-10,2026-12-15,
+ipman_regional,2025-11,2026-01-05,
+ipman_regional,2025-12,2026-02-03,
+ipman_regional,2026-01,2026-03-03,
+ipman_regional,2026-02,2026-04-02,
+ipman_regional,2026-03,2026-05-05,
+ipman_regional,2026-04,2026-06-02,
+ipman_regional,2026-05,2026-07-02,
+ipman_regional,2026-06,2026-08-04,
+ipman_regional,2026-07,2026-09-02,
+ipman_regional,2026-08,2026-10-02,
+ipman_regional,2026-09,2026-11-03,
+ipman_regional,2026-10,2026-12-02,
+isup_regional,2025-12,2026-01-30,
+isup_regional,2026-01,2026-02-27,
+isup_regional,2026-02,2026-03-31,
+isup_regional,2026-03,2026-04-30,
+isup_regional,2026-04,2026-05-29,
+isup_regional,2026-05,2026-06-30,
+isup_regional,2026-06,2026-07-31,
+isup_regional,2026-07,2026-08-31,
+isup_regional,2026-08,2026-09-30,
+isup_regional,2026-09,2026-10-30,
+isup_regional,2026-10,2026-11-30,
+isup_regional,2026-11,2026-12-31,

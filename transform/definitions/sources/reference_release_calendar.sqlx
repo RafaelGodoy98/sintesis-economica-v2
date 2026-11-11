@@ -1,0 +1,6 @@
+config {
+  type: "declaration",
+  schema: "reference",
+  name: "release_calendar",
+  description: "Calendario oficial de publicaciones, mantenido a mano en reference/release_calendar.csv (make load)."
+}

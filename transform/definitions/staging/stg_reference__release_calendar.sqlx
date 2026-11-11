@@ -1,0 +1,16 @@
+config {
+  type: "view",
+  schema: "stg",
+  description: "Calendario oficial con reference_period convertido a fecha (primer día del mes).",
+  assertions: {
+    uniqueKey: ["source_id", "reference_period"],
+    nonNull: ["source_id", "reference_period", "release_date"]
+  }
+}
+
+SELECT
+  source_id,
+  PARSE_DATE('%Y-%m', reference_period) AS reference_period,  -- '2026-09' → 2026-09-01
+  release_date,
+  notes
+FROM ${ref("release_calendar")}
