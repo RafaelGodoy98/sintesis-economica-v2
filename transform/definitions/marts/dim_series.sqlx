@@ -1,7 +1,7 @@
 config {
   type: "table",
   schema: "marts",
-  description: "Ficha de cada serie: nombre, unidad, frecuencia y desfase esperado. Origen: reference/series.csv.",
+  description: "Ficha de cada serie: nombre, unidad, frecuencia y si está desestacionalizada (el desfase lo da el calendario, 2.4). Origen: reference/series.csv.",
   assertions: {
     uniqueKey: ["series_id"],
     nonNull: ["series_id", "source_id", "name", "unit", "frequency"]
@@ -14,6 +14,5 @@ SELECT
   name,
   unit,
   frequency,
-  seasonally_adjusted,
-  expected_lag_months
+  seasonally_adjusted
 FROM ${ref("series")}

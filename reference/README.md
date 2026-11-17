@@ -15,7 +15,6 @@ Guardar siempre como **CSV UTF-8 separado por comas** (en Excel: "CSV UTF-8"; el
 | `name`, `unit` | Nombre y unidad para mostrar (`índice 2018=100`, `pesos`) |
 | `frequency` | `monthly` o `daily` |
 | `seasonally_adjusted` | `true` o `false` |
-| `expected_lag_months` | Desfase de respaldo en meses (vacío si no aplica). La referencia principal es el calendario |
 
 ## `release_calendar.csv`: calendario oficial de publicaciones (2.4)
 
