@@ -1,0 +1,57 @@
+config {
+  type: "view",
+  schema: "marts",
+  description: "KPI de la edición del boletín a la fecha de corte (los de V1 para el IMACEC). El período de cada fuente es el último que el calendario ya había publicado a esa fecha y que está en los datos: así una fecha de corte pasada no usa cifras publicadas después.",
+  columns: {
+    as_of_date: "Fecha de corte de la edición: hoy en Santiago, o la variable as_of_date.",
+    kpi_order: "Orden en que se muestran.",
+    label: "Etiqueta para el boletín (valor de dominio, en español).",
+    series_id: "Serie (ver marts.dim_series).",
+    measure: "var_12m (respecto del mismo mes del año anterior) o var_month (respecto del mes anterior).",
+    period: "Mes de la cifra.",
+    value_pct: "Variación en %, sin redondear.",
+    value_rounded: "Variación redondeada a 1 decimal, alejándose del cero en los empates (igual que r1 de V1).",
+    data_status: "De marts.freshness_status: OK, o ATRASADO si la cifra que el calendario anunciaba aún no está."
+  },
+  assertions: {
+    uniqueKey: ["kpi_order"],
+    nonNull: ["as_of_date", "series_id", "measure", "period", "value_pct"]
+  }
+}
+
+-- 1. Qué va en el boletín. Se escribe aquí mientras sean pocos; pasa a un CSV de referencia cuando la fase 6 sume KPI.
+WITH kpis AS (
+  SELECT * FROM UNNEST([
+    STRUCT(1 AS kpi_order, 'IMACEC' AS label, 'imacec_total' AS series_id, 'var_12m' AS measure),
+    STRUCT(2, 'IMACEC no minero', 'imacec_no_minero', 'var_12m'),
+    STRUCT(3, 'Serie desestacionalizada', 'imacec_total_desest', 'var_month')
+  ])
+),
+
+-- 2. El período de cada fuente a la fecha de corte: el menor entre lo esperado según el calendario y lo disponible.
+--    Sin calendario para la fecha (VENCIDO), se usa lo disponible.
+edition_period AS (
+  SELECT
+    source_id,
+    as_of_date,
+    COALESCE(LEAST(expected_period, last_period), last_period) AS period,
+    data_status
+  FROM ${ref("freshness_status")}
+)
+
+SELECT
+  e.as_of_date,
+  k.kpi_order,
+  k.label,
+  k.series_id,
+  k.measure,
+  e.period,
+  CASE k.measure WHEN 'var_12m' THEN f.var_12m_pct WHEN 'var_month' THEN f.var_month_pct END AS value_pct,
+  ROUND(CASE k.measure WHEN 'var_12m' THEN f.var_12m_pct WHEN 'var_month' THEN f.var_month_pct END, 1) AS value_rounded,
+  e.data_status
+FROM kpis AS k
+INNER JOIN ${ref("dim_series")} AS d USING (series_id)
+INNER JOIN edition_period AS e ON e.source_id = d.source_id
+LEFT JOIN ${ref("fct_observations_monthly")} AS f
+  ON f.series_id = k.series_id
+  AND f.period = e.period

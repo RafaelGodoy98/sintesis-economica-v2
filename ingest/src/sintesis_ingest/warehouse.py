@@ -62,6 +62,14 @@ REFERENCE_SCHEMAS = {
         bigquery.SchemaField("frequency", "STRING", mode="REQUIRED"),
         bigquery.SchemaField("seasonally_adjusted", "BOOL", mode="REQUIRED"),
     ],
+    # Rangos de plausibilidad (2.5): fuera de rango se avisa en marts.plausibility_status, no se detiene.
+    "plausibility_ranges": [
+        bigquery.SchemaField("series_id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("measure", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("min_pct", "NUMERIC", mode="REQUIRED"),
+        bigquery.SchemaField("max_pct", "NUMERIC", mode="REQUIRED"),
+        bigquery.SchemaField("notes", "STRING", mode="NULLABLE"),
+    ],
     # reference_period queda como texto AAAA-MM (como lo escribe una persona); Dataform lo convierte a fecha.
     "release_calendar": [
         bigquery.SchemaField("source_id", "STRING", mode="REQUIRED"),

@@ -1,0 +1,14 @@
+config {
+  type: "assertion",
+  description: "Datos rotos (detiene la corrida): días faltantes en medio de la tabla de la UF del boletín. Si falta el final (dato atrasado) no es esta assertion: lo informa marts.freshness_status. Devuelve una fila si hay huecos."
+}
+
+-- Entre el primer y el último día presentes debe haber exactamente un día por fila.
+SELECT
+  MIN(date) AS first_date,
+  MAX(date) AS last_date,
+  COUNT(*) AS days_present,
+  DATE_DIFF(MAX(date), MIN(date), DAY) + 1 AS days_expected
+FROM ${ref("mart_uf_daily")}
+HAVING COUNT(*) > 0
+  AND COUNT(*) != DATE_DIFF(MAX(date), MIN(date), DAY) + 1

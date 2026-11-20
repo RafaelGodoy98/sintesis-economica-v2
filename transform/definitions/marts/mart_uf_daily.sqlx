@@ -1,0 +1,41 @@
+config {
+  type: "view",
+  schema: "marts",
+  description: "UF diaria para el boletín: desde la fecha de corte (incluida) hasta el último día ya publicado a esa fecha. El Banco Central publica el día 9 la UF hasta el 9 del mes siguiente (reference/release_calendar.csv). Si falta un día que debería estar, lo avisa marts.freshness_status.",
+  columns: {
+    as_of_date: "Fecha de corte de la edición: hoy en Santiago, o la variable as_of_date.",
+    date: "Día de la UF.",
+    value: "UF en pesos, tal como la publicó el Banco Central.",
+    published_until: "Último día publicado a la fecha de corte, según el calendario."
+  },
+  assertions: {
+    uniqueKey: ["date"],
+    nonNull: ["as_of_date", "date", "value"]
+  }
+}
+
+-- 1. La fecha de corte, una sola vez.
+WITH cutoff AS (
+  SELECT ${dates.asOfDate()} AS as_of_date
+),
+
+-- 2. Hasta qué día estaba publicada la UF a la fecha de corte: la última publicación ya ocurrida cubre hasta el día 9
+--    de su reference_period (publicación del 9-nov → reference_period 2026-12 → hasta el 9-dic).
+published AS (
+  SELECT DATE_ADD(MAX(c.reference_period), INTERVAL 8 DAY) AS published_until
+  FROM ${ref("stg_reference__release_calendar")} AS c
+  CROSS JOIN cutoff AS t
+  WHERE c.source_id = 'bcentral_uf'
+    AND c.release_date <= t.as_of_date
+)
+
+SELECT
+  t.as_of_date,
+  o.period AS date,
+  o.value,
+  p.published_until
+FROM ${ref("stg_bcentral__observations")} AS o
+CROSS JOIN cutoff AS t
+CROSS JOIN published AS p
+WHERE o.series_id = 'uf'
+  AND o.period BETWEEN t.as_of_date AND p.published_until

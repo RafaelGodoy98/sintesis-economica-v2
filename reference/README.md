@@ -30,3 +30,17 @@ Si el calendario no cubre la fecha actual, `marts.freshness_status` lo marca com
 
 La UF también lleva calendario: el día 9 de cada mes el Banco Central publica la UF del mes siguiente
 (`reference_period` = ese mes siguiente). El Senado no lleva calendario.
+
+## `plausibility_ranges.csv`: rangos de plausibilidad (2.5)
+
+Una fila por **serie y medida**. Si la cifra más reciente queda fuera del rango, `marts.plausibility_status` la marca
+`FUERA DE RANGO`: **avisa, no detiene la corrida** (puede ser una crisis real o un error de formato que cambió la
+magnitud, p. ej. un separador de miles leído como decimal). Los rangos se calibran contra la historia: deben sonar
+solo en crisis reales.
+
+| Columna | Formato | Qué va | Ejemplo |
+|---|---|---|---|
+| `series_id` | id de `series.csv` | La serie | `imacec_total` |
+| `measure` | `var_12m` o `var_month` | Variación en 12 meses o respecto del período anterior | `var_12m` |
+| `min_pct`, `max_pct` | número, en % | Límites del rango (incluidos) | `-5`, `10` |
+| `notes` | texto (opcional) | Cuándo se calibró y cuándo habría sonado; sin comas, o entre comillas | `calibrado 2026-11: …` |

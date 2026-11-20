@@ -1,0 +1,4 @@
+series_id,measure,min_pct,max_pct,notes
+uf,var_12m,-3,12,calibrado 2026-11: habría sonado ago-2022 a mar-2023 (inflación)
+imacec_total,var_12m,-5,10,calibrado 2026-11: habría sonado 2011-03 y 2020-2021 (pandemia y rebote)
+imacec_total_desest,var_month,-4,4,calibrado 2026-11: habría sonado 2010-04 y 2019-10 y 2020-03/04
