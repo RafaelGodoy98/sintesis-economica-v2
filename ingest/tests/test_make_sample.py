@@ -51,3 +51,16 @@ def test_sample_calls_bigquery_for_a_valid_table(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
     assert marker.exists()
     assert (tmp_path / "data" / "samples" / "marts.dim_series.csv").read_bytes().startswith(b"\xef\xbb\xbf")
+
+
+def test_sample_writes_to_default_data_dir(tmp_path: Path) -> None:
+    # Sin DATA_DIR, como en una corrida real: la salida va a ./data/samples relativo a donde se corre.
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    (bin_dir / "bq").write_text("#!/usr/bin/env bash\necho 'a,b'\n")
+    (bin_dir / "bq").chmod(0o755)
+    env = {"PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}", "TABLE": "marts.dim_series"}
+    cmd = ["bash", str(SCRIPT)]
+    result = subprocess.run(cmd, env=env, cwd=tmp_path, capture_output=True, text=True, timeout=30)  # noqa: S603
+    assert result.returncode == 0, result.stderr
+    assert (tmp_path / "data" / "samples" / "marts.dim_series.csv").exists()
