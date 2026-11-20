@@ -1,0 +1,40 @@
+config {
+  type: "view",
+  schema: "marts",
+  description: "Series mensuales con su variación mensual y en 12 meses, calculadas desde el índice (V1 las copiaba ya publicadas). Sin redondear: el redondeo va solo donde se muestra (mart_kpi_edition). Toda la historia: la fecha de corte se aplica en mart_kpi_edition.",
+  columns: {
+    series_id: "Serie (ver marts.dim_series).",
+    period: "Primer día del mes.",
+    value: "Índice tal como lo publicó la fuente (BIGNUMERIC).",
+    var_month_pct: "Variación respecto del mes anterior, en %. NULL si falta el mes anterior.",
+    var_12m_pct: "Variación respecto del mismo mes del año anterior, en %. NULL si falta ese mes."
+  },
+  assertions: {
+    uniqueKey: ["series_id", "period"],
+    nonNull: ["series_id", "period", "value"]
+  }
+}
+
+-- 1. Solo las series mensuales, según su ficha.
+WITH monthly AS (
+  SELECT o.series_id, o.period, o.value
+  FROM ${ref("stg_bcentral__observations")} AS o
+  INNER JOIN ${ref("dim_series")} AS d USING (series_id)
+  WHERE d.frequency = 'monthly'
+)
+
+-- 2. El mes anterior y el de hace 12 meses se buscan por fecha (join), no contando filas hacia atrás (LAG):
+--    si faltara un mes, LAG(value, 12) tomaría en silencio el mes equivocado; el join deja NULL.
+SELECT
+  m.series_id,
+  m.period,
+  m.value,
+  100 * (m.value / prev_month.value - 1) AS var_month_pct,
+  100 * (m.value / prev_year.value - 1) AS var_12m_pct
+FROM monthly AS m
+LEFT JOIN monthly AS prev_month
+  ON prev_month.series_id = m.series_id
+  AND prev_month.period = DATE_SUB(m.period, INTERVAL 1 MONTH)
+LEFT JOIN monthly AS prev_year
+  ON prev_year.series_id = m.series_id
+  AND prev_year.period = DATE_SUB(m.period, INTERVAL 12 MONTH)

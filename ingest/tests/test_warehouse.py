@@ -282,7 +282,7 @@ def test_repo_reference_files_match_their_schemas():
     # Los CSV reales de reference/ (editados a mano) deben calzar con su esquema: si alguien agrega una
     # columna o rompe el encabezado, falla aquí y no en la carga.
     files = warehouse.read_reference(REPO_REFERENCE)
-    assert {"series", "release_calendar"} <= set(files)
+    assert {"series", "release_calendar", "plausibility_ranges"} <= set(files)
     rows = list(csv.DictReader(io.StringIO(files["series"].decode("utf-8"))))
     assert len({r["series_id"] for r in rows}) == len(rows)  # sin series repetidas
 
@@ -290,7 +290,7 @@ def test_repo_reference_files_match_their_schemas():
 def test_reference_loads_with_explicit_schema(ref_settings):
     write_csv(ref_settings, "bcentral_uf", "a", [row()])
     header = ",".join(f.name for f in warehouse.REFERENCE_SCHEMAS["series"])
-    write_reference(ref_settings, "series", header + "\nuf,bcentral_uf,UF,pesos,daily,false,\n")
+    write_reference(ref_settings, "series", header + "\nuf,bcentral_uf,UF,pesos,daily,false\n")
     fake = FakeBigQuery()
     loaded = warehouse.load_all(ref_settings, fake)
     table = "proyecto-prueba.reference.series"

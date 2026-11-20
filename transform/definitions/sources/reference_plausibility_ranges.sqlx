@@ -1,0 +1,6 @@
+config {
+  type: "declaration",
+  schema: "reference",
+  name: "plausibility_ranges",
+  description: "Rangos de plausibilidad por serie y medida, mantenidos a mano en reference/plausibility_ranges.csv (make load)."
+}

@@ -1,0 +1,82 @@
+config {
+  type: "view",
+  schema: "marts",
+  description: "Rangos de plausibilidad (2.5): para cada rango de reference/plausibility_ranges.csv, la cifra más reciente a la fecha de corte y si queda dentro. Informa, no detiene (como freshness_status): fuera de rango puede ser una crisis real o un error de formato que cambió la magnitud.",
+  columns: {
+    as_of_date: "Fecha de corte: hoy en Santiago, o la variable as_of_date.",
+    series_id: "Serie (ver marts.dim_series).",
+    measure: "var_12m o var_month.",
+    period: "Período evaluado: el más reciente de la serie hasta la fecha de corte.",
+    value_pct: "Variación en %, sin redondear.",
+    min_pct: "Límite inferior del rango (incluido).",
+    max_pct: "Límite superior del rango (incluido).",
+    plausibility_status: "OK, FUERA DE RANGO, o SIN DATO si no hay período con que comparar."
+  },
+  assertions: {
+    uniqueKey: ["series_id", "measure"],
+    rowConditions: ["min_pct < max_pct", "measure IN ('var_12m', 'var_month')"]
+  }
+}
+
+WITH cutoff AS (
+  SELECT ${dates.asOfDate()} AS as_of_date
+),
+
+-- 1. Variaciones de todas las series con rango. Las mensuales ya están en fct_observations_monthly; las diarias
+--    (la UF) se calculan aquí con el mismo criterio: buscar por fecha (mismo día del mes anterior y del año anterior).
+daily AS (
+  SELECT o.series_id, o.period, o.value
+  FROM ${ref("stg_bcentral__observations")} AS o
+  INNER JOIN ${ref("dim_series")} AS d USING (series_id)
+  WHERE d.frequency = 'daily'
+),
+
+variations AS (
+  SELECT series_id, period, var_month_pct, var_12m_pct
+  FROM ${ref("fct_observations_monthly")}
+  UNION ALL
+  SELECT
+    d.series_id,
+    d.period,
+    100 * (d.value / prev_month.value - 1),
+    100 * (d.value / prev_year.value - 1)
+  FROM daily AS d
+  LEFT JOIN daily AS prev_month
+    ON prev_month.series_id = d.series_id AND prev_month.period = DATE_SUB(d.period, INTERVAL 1 MONTH)
+  LEFT JOIN daily AS prev_year
+    ON prev_year.series_id = d.series_id AND prev_year.period = DATE_SUB(d.period, INTERVAL 12 MONTH)
+),
+
+-- 2. El período más reciente de cada serie hasta la fecha de corte (para la UF, hoy; no los días ya publicados a futuro).
+latest AS (
+  SELECT v.series_id, MAX(v.period) AS period
+  FROM variations AS v
+  CROSS JOIN cutoff AS t
+  WHERE v.period <= t.as_of_date
+  GROUP BY v.series_id
+),
+
+-- 3. La cifra evaluada de cada rango.
+evaluated AS (
+  SELECT
+    t.as_of_date,
+    r.series_id,
+    r.measure,
+    l.period,
+    CASE r.measure WHEN 'var_12m' THEN v.var_12m_pct WHEN 'var_month' THEN v.var_month_pct END AS value_pct,
+    r.min_pct,
+    r.max_pct
+  FROM ${ref("plausibility_ranges")} AS r
+  CROSS JOIN cutoff AS t
+  LEFT JOIN latest AS l ON l.series_id = r.series_id
+  LEFT JOIN variations AS v ON v.series_id = l.series_id AND v.period = l.period
+)
+
+SELECT
+  *,
+  CASE
+    WHEN value_pct IS NULL THEN 'SIN DATO'
+    WHEN value_pct BETWEEN min_pct AND max_pct THEN 'OK'
+    ELSE 'FUERA DE RANGO'
+  END AS plausibility_status
+FROM evaluated

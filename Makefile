@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help setup test test-docker lint run-local load docker-build docker-run transform-setup transform-compile transform
+.PHONY: help setup test test-docker lint run-local load docker-build docker-run transform-setup transform-compile transform sample
 
 help: ## Lista los comandos disponibles
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-18s %s\n", $$1, $$2}'
@@ -49,3 +49,6 @@ transform-compile: ## Compila el proyecto Dataform (no toca BigQuery)
 
 transform: ## Ejecuta Dataform contra BigQuery (requiere ADC y transform/.df-credentials.json)
 	@$(NODE_ENV) npx dataform run transform
+
+sample: ## Baja una muestra a CSV para Excel: make sample TABLE=marts.dim_series [LIMIT=100] o SQL=consulta.sql
+	@TABLE="$(TABLE)" SQL="$(SQL)" LIMIT="$(LIMIT)" DATA_DIR="$(DATA_DIR)" scripts/sample.sh
